@@ -1,7 +1,7 @@
 import { Observable, of } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 
-import { HttpAdapterHost, Reflector } from "../../../..";
+import { HttpAdapterHost, Reflector } from "@kiyasov/elysia-nest";
 import { StreamableFile } from "@kiyasov/elysia-nest";
 import { Inject, Injectable, Optional } from "@kiyasov/elysia-nest";
 import { CallHandler, NestInterceptor } from "@kiyasov/elysia-nest";

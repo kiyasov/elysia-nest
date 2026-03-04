@@ -1,6 +1,6 @@
 # Class: CacheModule
 
-Defined in: [packages/cache/src/cache.module.ts:74](https://github.com/kiyasov/elysia-nest/blob/main/packages/cache/src/cache.module.ts#L74)
+Defined in: [packages/cache/src/cache.module.ts:80](https://github.com/kiyasov/elysia-nest/blob/main/packages/cache/src/cache.module.ts#L80)
 
 Module that provides caching functionality for @kiyasov/elysia-nest.
 
@@ -12,21 +12,23 @@ This module wraps the cache-manager library and provides:
 
 ## Examples
 
-Basic usage:
 ```typescript
 @Module({
-  imports: [CacheModule.register()],
+  imports: [CacheModule.register({ ttl: 60000 })],
 })
 export class AppModule {}
 ```
 
-With Redis:
+With async configuration:
 ```typescript
 @Module({
   imports: [
-    CacheModule.register({
-      store: redisStore,
-      ttl: 60000,
+    CacheModule.registerAsync({
+      useFactory: (config: ConfigService) => ({
+        store: redisStore,
+        ttl: config.get('CACHE_TTL'),
+      }),
+      inject: [ConfigService],
     }),
   ],
 })
@@ -65,9 +67,118 @@ Defined in: [packages/core/src/module-utils/interfaces/configurable-module-cls.i
 ConfigurableModuleClass.constructor
 ```
 
-## Properties
+## Methods
 
-| Property | Modifier | Type | Inherited from | Defined in |
-| ------ | ------ | ------ | ------ | ------ |
-| <a id="register"></a> `register` | `static` | (`options`) => [`DynamicModule`](../../../../index/interfaces/DynamicModule.md) | `ConfigurableModuleClass.register` |  |
-| <a id="registerasync"></a> `registerAsync` | `static` | (`options`) => [`DynamicModule`](../../../../index/interfaces/DynamicModule.md) | `ConfigurableModuleClass.registerAsync` |  |
+### forRoot()
+
+```ts
+static forRoot<T>(options?): DynamicModule;
+```
+
+Defined in: [packages/cache/src/cache.module.ts:93](https://github.com/kiyasov/elysia-nest/blob/main/packages/cache/src/cache.module.ts#L93)
+
+#### Type Parameters
+
+| Type Parameter | Default type |
+| ------ | ------ |
+| `T` *extends* `Record`\<`string`, `unknown`\> | `Record`\<`string`, `unknown`\> |
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `options` | [`CacheModuleOptions`](../type-aliases/CacheModuleOptions.md)\<`T`\> |
+
+#### Returns
+
+[`DynamicModule`](../../../../index/interfaces/DynamicModule.md)
+
+***
+
+### forRootAsync()
+
+```ts
+static forRootAsync<T>(options): DynamicModule;
+```
+
+Defined in: [packages/cache/src/cache.module.ts:99](https://github.com/kiyasov/elysia-nest/blob/main/packages/cache/src/cache.module.ts#L99)
+
+#### Type Parameters
+
+| Type Parameter | Default type |
+| ------ | ------ |
+| `T` *extends* `Record`\<`string`, `unknown`\> | `Record`\<`string`, `unknown`\> |
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `options` | [`CacheModuleAsyncOptions`](../interfaces/CacheModuleAsyncOptions.md)\<`T`\> |
+
+#### Returns
+
+[`DynamicModule`](../../../../index/interfaces/DynamicModule.md)
+
+***
+
+### register()
+
+```ts
+static register<T>(options?): DynamicModule;
+```
+
+Defined in: [packages/cache/src/cache.module.ts:81](https://github.com/kiyasov/elysia-nest/blob/main/packages/cache/src/cache.module.ts#L81)
+
+#### Type Parameters
+
+| Type Parameter | Default type |
+| ------ | ------ |
+| `T` *extends* `Record`\<`string`, `unknown`\> | `Record`\<`string`, `unknown`\> |
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `options` | [`CacheModuleOptions`](../type-aliases/CacheModuleOptions.md)\<`T`\> |
+
+#### Returns
+
+[`DynamicModule`](../../../../index/interfaces/DynamicModule.md)
+
+#### Overrides
+
+```ts
+ConfigurableModuleClass.register
+```
+
+***
+
+### registerAsync()
+
+```ts
+static registerAsync<T>(options): DynamicModule;
+```
+
+Defined in: [packages/cache/src/cache.module.ts:87](https://github.com/kiyasov/elysia-nest/blob/main/packages/cache/src/cache.module.ts#L87)
+
+#### Type Parameters
+
+| Type Parameter | Default type |
+| ------ | ------ |
+| `T` *extends* `Record`\<`string`, `unknown`\> | `Record`\<`string`, `unknown`\> |
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `options` | [`CacheModuleAsyncOptions`](../interfaces/CacheModuleAsyncOptions.md)\<`T`\> |
+
+#### Returns
+
+[`DynamicModule`](../../../../index/interfaces/DynamicModule.md)
+
+#### Overrides
+
+```ts
+ConfigurableModuleClass.registerAsync
+```

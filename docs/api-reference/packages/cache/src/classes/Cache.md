@@ -1,6 +1,6 @@
 # Class: Cache
 
-Defined in: [packages/cache/src/cache.module.ts:16](https://github.com/kiyasov/elysia-nest/blob/main/packages/cache/src/cache.module.ts#L16)
+Defined in: [packages/cache/src/cache.module.ts:20](https://github.com/kiyasov/elysia-nest/blob/main/packages/cache/src/cache.module.ts#L20)
 
 Empty base class that will be merged with the Cache interface. 
 

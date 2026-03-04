@@ -1,8 +1,12 @@
 import { createCache } from "cache-manager";
 
-import { Module } from "@kiyasov/elysia-nest";
+import { DynamicModule, Module } from "@kiyasov/elysia-nest";
 import { CACHE_MANAGER } from "./cache.constants";
 import { ConfigurableModuleClass } from "./cache.module-definition";
+import {
+  CacheModuleAsyncOptions,
+  CacheModuleOptions,
+} from "./interfaces/cache-module.interface";
 import { createCacheManager } from "./cache.providers";
 
 /**
@@ -37,22 +41,24 @@ export interface Cache extends ReturnType<typeof createCache> {}
  * - CacheInterceptor for automatic HTTP caching
  *
  * @example
- * Basic usage:
  * ```typescript
  * @Module({
- *   imports: [CacheModule.register()],
+ *   imports: [CacheModule.register({ ttl: 60000 })],
  * })
  * export class AppModule {}
  * ```
  *
  * @example
- * With Redis:
+ * With async configuration:
  * ```typescript
  * @Module({
  *   imports: [
- *     CacheModule.register({
- *       store: redisStore,
- *       ttl: 60000,
+ *     CacheModule.registerAsync({
+ *       useFactory: (config: ConfigService) => ({
+ *         store: redisStore,
+ *         ttl: config.get('CACHE_TTL'),
+ *       }),
+ *       inject: [ConfigService],
  *     }),
  *   ],
  * })
@@ -71,4 +77,28 @@ export interface Cache extends ReturnType<typeof createCache> {}
   ],
   exports: [CACHE_MANAGER, Cache],
 })
-export class CacheModule extends ConfigurableModuleClass {}
+export class CacheModule extends ConfigurableModuleClass {
+  static register<T extends Record<string, unknown> = Record<string, unknown>>(
+    options: CacheModuleOptions<T> = {} as CacheModuleOptions<T>,
+  ): DynamicModule {
+    return super.register(options);
+  }
+
+  static registerAsync<
+    T extends Record<string, unknown> = Record<string, unknown>,
+  >(options: CacheModuleAsyncOptions<T>): DynamicModule {
+    return super.registerAsync(options);
+  }
+
+  static forRoot<T extends Record<string, unknown> = Record<string, unknown>>(
+    options: CacheModuleOptions<T> = {} as CacheModuleOptions<T>,
+  ): DynamicModule {
+    return super.register(options);
+  }
+
+  static forRootAsync<
+    T extends Record<string, unknown> = Record<string, unknown>,
+  >(options: CacheModuleAsyncOptions<T>): DynamicModule {
+    return super.registerAsync(options);
+  }
+}

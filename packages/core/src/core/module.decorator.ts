@@ -34,10 +34,9 @@ export const Module = (options: ModuleOptions): any =>
     // Create the module factory function
     const moduleFactory = createModuleFactory(target, options);
 
-    // Copy static methods from target class to moduleFactory
-    // This allows patterns like DrizzleModule.forRootAsync()
-    const staticProperties = Object.getOwnPropertyNames(target);
-    for (const prop of staticProperties) {
+    // Copy static methods (including inherited ones) so that patterns like
+    // CacheModule.forRootAsync() work even when the method lives on a base class.
+    for (const prop of getInheritedStaticNames(target)) {
       if (
         prop !== "prototype" &&
         prop !== "name" &&
@@ -77,6 +76,19 @@ export const Module = (options: ModuleOptions): any =>
 
     return moduleFactory;
   };
+
+/** Returns all static property names on a class, walking the prototype chain. */
+function getInheritedStaticNames(cls: Function): Set<string> {
+  const names = new Set<string>();
+  for (
+    let proto: object | null = cls;
+    proto && proto !== Function.prototype;
+    proto = Object.getPrototypeOf(proto)
+  ) {
+    Object.getOwnPropertyNames(proto).forEach((p) => names.add(p));
+  }
+  return names;
+}
 
 /**
  * Helper to create module factory function.
