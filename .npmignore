@@ -1,5 +1,6 @@
 # Source & tests
-packages/
+packages/*/src/
+packages/*/tests/
 index.ts
 examples/
 scripts/
