@@ -4,7 +4,7 @@
   "description": "Modular framework with decorators, dependency injection, modules and lifecycle hooks for Elysia",
   "type": "module",
   "author": {
-    "name": "Islam Kiasov",
+    "name": "Islam Kiiasov",
     "url": "https://github.com/kiyasov"
   },
   "license": "MIT",
@@ -73,9 +73,9 @@
     "release:patch": "npm version patch && git push --follow-tags",
     "release:minor": "npm version minor && git push --follow-tags",
     "release:major": "npm version major && git push --follow-tags",
-    "docs:dev": "cd docs && bunx mintlify dev",
-    "docs:validate": "cd docs && bunx mintlify validate",
-    "docs:links": "cd docs && bunx mintlify broken-links",
+    "docs:dev": "cd docs && bun run dev",
+    "docs:build": "cd docs && bun run build",
+    "docs:preview": "cd docs && bun run preview",
     "docs:api": "bunx typedoc"
   },
   "dependencies": {

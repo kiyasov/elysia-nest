@@ -15,7 +15,7 @@
   "plugin": ["typedoc-plugin-markdown"],
   "readme": "none",
   "outputFileStrategy": "members",
-  "fileExtension": ".mdx",
+  "fileExtension": ".md",
   "indexFormat": "table",
   "parametersFormat": "table",
   "propertiesFormat": "table",

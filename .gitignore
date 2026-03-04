@@ -28,3 +28,8 @@ Thumbs.db
 
 .claude
 .mintlify
+
+# Docs build
+docs/.vitepress/dist
+docs/.vitepress/cache
+docs/node_modules

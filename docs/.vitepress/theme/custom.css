@@ -1,0 +1,352 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Fonts
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("https://cdn.jsdelivr.net/npm/geist@1/dist/fonts/geist-mono/GeistMono-Regular.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+html,
+body {
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+
+code,
+kbd,
+samp,
+pre,
+.vp-code,
+.DocSearch-Button-Keys {
+  font-family:
+    "Geist Mono",
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Design tokens
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Brand — Elysia-style rose/pink */
+  --vp-c-brand-1: #f06292;
+  --vp-c-brand-2: #ec407a;
+  --vp-c-brand-3: #ff94c2;
+  --vp-c-brand-soft: rgba(240, 98, 146, 0.12);
+  --vp-c-brand-nav-active: rgba(240, 98, 146, 0.14);
+
+  /* Backgrounds (Radix mauve light) */
+  --vp-c-bg: #fdfcfd;
+  --vp-c-bg-alt: #f4f2f4;
+  --vp-c-bg-elv: #f4f2f4;
+  --vp-c-bg-soft: #f4f2f4;
+  --vp-c-divider: #e4e3e6;
+  --vp-c-border: #dcdbde;
+
+  /* Code */
+  --vp-code-block-bg: #f6f8fa;
+  --vp-code-copy-code-bg: #eeedf0;
+  --vp-code-copy-code-hover-bg: #fff;
+
+  /* Nav */
+  --vp-nav-bg-color: rgba(253, 252, 253, 0.88);
+  --vp-sidebar-bg-color: var(--vp-c-bg);
+
+  /* Tip block */
+  --vp-custom-block-tip-bg: #ecfdf5;
+  --vp-custom-block-tip-text: #15803d;
+  --vp-custom-block-tip-border: transparent;
+}
+
+.dark {
+  --vp-c-brand-1: #f9d5e5;
+  --vp-c-brand-2: #f06292;
+  --vp-c-brand-3: #ec407a;
+  --vp-c-brand-soft: rgba(249, 213, 229, 0.1);
+  --vp-c-brand-nav-active: rgba(249, 213, 229, 0.1);
+
+  /* Backgrounds (Radix mauve dark) */
+  --vp-c-bg: #121113;
+  --vp-c-bg-alt: #1a191b;
+  --vp-c-bg-elv: #232225;
+  --vp-c-bg-soft: #1a191b;
+  --vp-c-divider: #3c393f;
+  --vp-c-border: #3c393f;
+
+  /* Code */
+  --vp-code-block-bg: #1a191b;
+  --vp-code-copy-code-bg: #232225;
+  --vp-code-copy-code-hover-bg: #2b292d;
+
+  /* Nav */
+  --vp-nav-bg-color: rgba(18, 17, 19, 0.88);
+  --vp-sidebar-bg-color: var(--vp-c-bg);
+
+  /* Tip block */
+  --vp-custom-block-tip-bg: #064e3b;
+  --vp-custom-block-tip-text: #f0fdf4;
+  --vp-custom-block-tip-border: transparent;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Navbar — centered search (Elysia technique)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Blur glass effect */
+.VPNav {
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+}
+
+.VPNavBar {
+  background: transparent !important;
+  border-bottom: 1px solid var(--vp-c-divider) !important;
+}
+
+@media (min-width: 960px) {
+  /* Pull logo out of flow → it sits in the sidebar area */
+  .VPNavBar .title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Content fills full nav width; left-padding = sidebar width */
+  .VPNavBar .content {
+    padding-left: var(--vp-sidebar-width, 272px) !important;
+    padding-right: 28px !important;
+  }
+
+  /* Center search, push nav/socials to the right */
+  .VPNavBarSearch {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+/* ── Search button appearance ─────────────────────────────────────────────── */
+
+.DocSearch-Button {
+  background: var(--vp-c-bg-alt) !important;
+  border: 1px solid var(--vp-c-divider) !important;
+  border-radius: 10px !important;
+  padding: 6px 14px !important;
+  min-width: 200px !important;
+  max-width: 320px !important;
+  width: 100% !important;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s !important;
+  gap: 8px !important;
+}
+
+.DocSearch-Button:hover {
+  border-color: var(--vp-c-brand-1) !important;
+  box-shadow: 0 0 0 3px var(--vp-c-brand-soft) !important;
+  background: var(--vp-c-bg) !important;
+}
+
+.DocSearch-Button .DocSearch-Button-Placeholder {
+  font-size: 13.5px !important;
+  padding: 0 8px !important;
+  flex: 1 !important;
+  text-align: left !important;
+  color: var(--vp-c-text-2) !important;
+}
+
+.DocSearch-Button-Container {
+  gap: 8px !important;
+  flex: 1 !important;
+}
+
+.DocSearch-Search-Icon,
+.DocSearch-Button .vp-icon {
+  color: var(--vp-c-text-2) !important;
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0;
+}
+
+.DocSearch-Button-Keys {
+  min-width: unset !important;
+  border: 1px solid var(--vp-c-divider) !important;
+  border-radius: 5px !important;
+  padding: 3px 7px !important;
+  font-size: 11px !important;
+  background: var(--vp-c-bg) !important;
+  color: var(--vp-c-text-3) !important;
+  letter-spacing: 0.5px;
+}
+
+/* ── Nav links ───────────────────────────────────────────────────────────── */
+
+.VPNavBarMenu .VPNavBarMenuLink {
+  font-size: 14px;
+  transition: color 0.18s;
+}
+
+.VPNavBarMenu .VPNavBarMenuLink:hover {
+  color: var(--vp-c-brand-1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Sidebar
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.VPSidebar {
+  border-right: 1px solid var(--vp-c-divider) !important;
+  background-color: var(--vp-c-bg) !important;
+}
+
+/* ── Links: hover & active ───────────────────────────────────────────────── */
+
+.VPSidebarItem .is-link {
+  border-radius: 8px;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.VPSidebarItem .is-link:hover {
+  background-color: rgba(240, 98, 146, 0.08) !important;
+}
+
+.dark .VPSidebarItem .is-link:hover {
+  background-color: rgba(249, 213, 229, 0.08) !important;
+}
+
+.VPSidebarItem .is-link.has-active,
+.VPSidebarItem .is-link.is-active {
+  background-color: rgba(240, 98, 146, 0.14) !important;
+}
+
+.dark .VPSidebarItem .is-link.has-active,
+.dark .VPSidebarItem .is-link.is-active {
+  background-color: rgba(249, 213, 229, 0.12) !important;
+}
+
+/* Active indicator bar */
+.VPSidebarItem.is-active > .item > .indicator,
+.VPSidebarItem .is-active > .item > .indicator {
+  background-color: var(--vp-c-brand-1) !important;
+}
+
+/* Active text colour */
+.VPSidebarItem .is-link.has-active .text,
+.VPSidebarItem .is-link.is-active .text,
+.VPSidebarItem.is-active > .item .text {
+  color: var(--vp-c-brand-1);
+}
+
+/* ── Group header: icon + gradient badge ─────────────────────────────────── */
+
+/* All top-level group headers */
+#VPSidebarNav > .group > .VPSidebarItem > .item > .text {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  position: relative;
+  padding-left: 38px !important;
+}
+
+/* ::before  = the icon (white SVG) */
+#VPSidebarNav > .group > .VPSidebarItem > .item > .text::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  width: 16px;
+  height: 16px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: brightness(0) invert(1);
+  z-index: 2;
+}
+
+/* ::after = the rounded-square gradient background */
+#VPSidebarNav > .group > .VPSidebarItem > .item > .text::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 27px;
+  height: 27px;
+  border-radius: 8px;
+  z-index: 1;
+}
+
+/* ── Getting Started — green → cyan ─── */
+#VPSidebarNav > .group:nth-child(1) > .VPSidebarItem > .item > .text::before {
+  background-image: url(/elysia-nest/assets/icons/getting-started.svg);
+}
+#VPSidebarNav > .group:nth-child(1) > .VPSidebarItem > .item > .text::after {
+  background: linear-gradient(135deg, #22c55e, #06b6d4);
+}
+
+/* ── Core Concepts — teal → blue ─── */
+#VPSidebarNav > .group:nth-child(2) > .VPSidebarItem > .item > .text::before {
+  background-image: url(/elysia-nest/assets/icons/core-concepts.svg);
+}
+#VPSidebarNav > .group:nth-child(2) > .VPSidebarItem > .item > .text::after {
+  background: linear-gradient(135deg, #2dd4bf, #60a5fa);
+}
+
+/* ── Features — sky → violet ─── */
+#VPSidebarNav > .group:nth-child(3) > .VPSidebarItem > .item > .text::before {
+  background-image: url(/elysia-nest/assets/icons/features.svg);
+}
+#VPSidebarNav > .group:nth-child(3) > .VPSidebarItem > .item > .text::after {
+  background: linear-gradient(135deg, #38bdf8, #a78bfa);
+}
+
+/* ── Packages — indigo → fuchsia ─── */
+#VPSidebarNav > .group:nth-child(4) > .VPSidebarItem > .item > .text::before {
+  background-image: url(/elysia-nest/assets/icons/packages.svg);
+}
+#VPSidebarNav > .group:nth-child(4) > .VPSidebarItem > .item > .text::after {
+  background: linear-gradient(135deg, #818cf8, #e879f9);
+}
+
+/* ── Advanced — purple → rose ─── */
+#VPSidebarNav > .group:nth-child(5) > .VPSidebarItem > .item > .text::before {
+  background-image: url(/elysia-nest/assets/icons/advanced.svg);
+}
+#VPSidebarNav > .group:nth-child(5) > .VPSidebarItem > .item > .text::after {
+  background: linear-gradient(135deg, #c084fc, #fb7185);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Content
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.vp-doc a {
+  transition: color 0.15s;
+}
+
+.vp-doc a:hover {
+  color: var(--vp-c-brand-1);
+}
+
+.vp-doc img {
+  border-radius: 8px;
+}

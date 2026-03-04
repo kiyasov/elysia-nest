@@ -70,7 +70,7 @@ app.listen(3000, () => console.log("Listening on http://localhost:3000"));
 
 ## Documentation
 
-Full documentation is available at [docs/](./docs/) (powered by [Mintlify](https://mintlify.com/)).
+Full documentation is available at [https://kiyasov.github.io/elysia-nest/](https://kiyasov.github.io/elysia-nest/) (powered by [VitePress](https://vitepress.dev/)).
 
 To run docs locally:
 
