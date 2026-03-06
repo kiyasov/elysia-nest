@@ -4,7 +4,7 @@
 const Delete: (path) => MethodDecorator;
 ```
 
-Defined in: [packages/core/src/decorators/http.decorators.ts:33](https://github.com/kiyasov/elysia-nest/blob/main/packages/core/src/decorators/http.decorators.ts#L33)
+Defined in: [packages/core/src/decorators/http.decorators.ts:31](https://github.com/kiyasov/elysia-nest/blob/main/packages/core/src/decorators/http.decorators.ts#L31)
 
 ## Parameters
 

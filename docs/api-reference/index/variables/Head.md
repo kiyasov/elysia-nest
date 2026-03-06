@@ -4,7 +4,7 @@
 const Head: (path) => MethodDecorator;
 ```
 
-Defined in: [packages/core/src/decorators/http.decorators.ts:36](https://github.com/kiyasov/elysia-nest/blob/main/packages/core/src/decorators/http.decorators.ts#L36)
+Defined in: [packages/core/src/decorators/http.decorators.ts:34](https://github.com/kiyasov/elysia-nest/blob/main/packages/core/src/decorators/http.decorators.ts#L34)
 
 ## Parameters
 

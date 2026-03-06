@@ -4,7 +4,7 @@
 const Post: (path) => MethodDecorator;
 ```
 
-Defined in: [packages/core/src/decorators/http.decorators.ts:31](https://github.com/kiyasov/elysia-nest/blob/main/packages/core/src/decorators/http.decorators.ts#L31)
+Defined in: [packages/core/src/decorators/http.decorators.ts:29](https://github.com/kiyasov/elysia-nest/blob/main/packages/core/src/decorators/http.decorators.ts#L29)
 
 ## Parameters
 

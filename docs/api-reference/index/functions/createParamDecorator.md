@@ -6,7 +6,7 @@
 function createParamDecorator(factory): () => ParameterDecorator;
 ```
 
-Defined in: [packages/core/src/decorators/http.decorators.ts:39](https://github.com/kiyasov/elysia-nest/blob/main/packages/core/src/decorators/http.decorators.ts#L39)
+Defined in: [packages/core/src/decorators/http.decorators.ts:37](https://github.com/kiyasov/elysia-nest/blob/main/packages/core/src/decorators/http.decorators.ts#L37)
 
 ### Parameters
 
@@ -30,7 +30,7 @@ Defined in: [packages/core/src/decorators/http.decorators.ts:39](https://github.
 function createParamDecorator(type, data?): () => ParameterDecorator;
 ```
 
-Defined in: [packages/core/src/decorators/http.decorators.ts:42](https://github.com/kiyasov/elysia-nest/blob/main/packages/core/src/decorators/http.decorators.ts#L42)
+Defined in: [packages/core/src/decorators/http.decorators.ts:40](https://github.com/kiyasov/elysia-nest/blob/main/packages/core/src/decorators/http.decorators.ts#L40)
 
 ### Parameters
 

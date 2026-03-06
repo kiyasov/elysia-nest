@@ -1,15 +1,13 @@
 import "reflect-metadata";
 
-import type { TSchema } from "@sinclair/typebox";
-
 import { ROUTE_SCHEMA_METADATA } from "./constants";
 
 export interface RouteSchemaOptions {
-  body?: TSchema;
-  query?: TSchema;
-  params?: TSchema;
-  headers?: TSchema;
-  response?: TSchema | Record<number, TSchema>;
+  body?: object;
+  query?: object;
+  params?: object;
+  headers?: object;
+  response?: object | Record<number, object>;
 }
 
 export function Schema(options: RouteSchemaOptions): MethodDecorator {

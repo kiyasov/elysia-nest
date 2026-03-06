@@ -4,7 +4,7 @@
 const Get: (path) => MethodDecorator;
 ```
 
-Defined in: [packages/core/src/decorators/http.decorators.ts:30](https://github.com/kiyasov/elysia-nest/blob/main/packages/core/src/decorators/http.decorators.ts#L30)
+Defined in: [packages/core/src/decorators/http.decorators.ts:28](https://github.com/kiyasov/elysia-nest/blob/main/packages/core/src/decorators/http.decorators.ts#L28)
 
 ## Parameters
 
