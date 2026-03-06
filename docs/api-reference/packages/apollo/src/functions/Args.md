@@ -6,7 +6,7 @@
 function Args(): ParameterDecorator;
 ```
 
-Defined in: [packages/apollo/src/decorators/args.decorator.ts:124](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/decorators/args.decorator.ts#L124)
+Defined in: [packages/apollo/src/decorators/args.decorator.ts:129](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/decorators/args.decorator.ts#L129)
 
 Decorator for resolver arguments.
 
@@ -42,7 +42,7 @@ async search(
 function Args(name): ParameterDecorator;
 ```
 
-Defined in: [packages/apollo/src/decorators/args.decorator.ts:125](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/decorators/args.decorator.ts#L125)
+Defined in: [packages/apollo/src/decorators/args.decorator.ts:130](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/decorators/args.decorator.ts#L130)
 
 Decorator for resolver arguments.
 
@@ -84,7 +84,7 @@ async search(
 function Args(options): ParameterDecorator;
 ```
 
-Defined in: [packages/apollo/src/decorators/args.decorator.ts:126](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/decorators/args.decorator.ts#L126)
+Defined in: [packages/apollo/src/decorators/args.decorator.ts:131](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/decorators/args.decorator.ts#L131)
 
 Decorator for resolver arguments.
 
@@ -126,7 +126,7 @@ async search(
 function Args(name, options): ParameterDecorator;
 ```
 
-Defined in: [packages/apollo/src/decorators/args.decorator.ts:127](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/decorators/args.decorator.ts#L127)
+Defined in: [packages/apollo/src/decorators/args.decorator.ts:132](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/decorators/args.decorator.ts#L132)
 
 Decorator for resolver arguments.
 

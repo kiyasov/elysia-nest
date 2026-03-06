@@ -83,9 +83,14 @@ export function getOperationArgsDefinitions(
       continue;
     }
 
+    const inferredType = paramTypes[argMeta.index];
     defs.push({
       name: argMeta.name,
-      typeFn: argMeta.type,
+      typeFn:
+        argMeta.type ??
+        (inferredType && typeof inferredType === "function"
+          ? () => inferredType
+          : undefined),
       nullable: argMeta.nullable,
       description: argMeta.description,
       defaultValue: argMeta.defaultValue,

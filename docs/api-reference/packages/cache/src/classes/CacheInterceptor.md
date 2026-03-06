@@ -61,8 +61,8 @@ Defined in: [packages/cache/src/interceptors/cache.interceptor.ts:108](https://g
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `cacheManager` | [`Cache`](Cache.md) | The cache manager instance. |
-| `reflector` | `Reflector` | The reflector for reading metadata. |
-| `httpAdapterHost?` | `HttpAdapterHost` | Optional HTTP adapter host; absent in non-HTTP contexts. |
+| `reflector` | [`Reflector`](../../../../index/classes/Reflector.md) | The reflector for reading metadata. |
+| `httpAdapterHost?` | [`HttpAdapterHost`](../../../../index/classes/HttpAdapterHost.md) | Optional HTTP adapter host; absent in non-HTTP contexts. |
 
 #### Returns
 
@@ -174,5 +174,5 @@ The cache key or undefined if not cacheable.
 | ------ | ------ | ------ | ------ | ------ |
 | <a id="allowedmethods"></a> `allowedMethods` | `readonly` | readonly `string`[] | List of HTTP methods that are allowed to be cached. | [packages/cache/src/interceptors/cache.interceptor.ts:101](https://github.com/kiyasov/elysia-nest/blob/main/packages/cache/src/interceptors/cache.interceptor.ts#L101) |
 | <a id="cachemanager"></a> `cacheManager` | `readonly` | [`Cache`](Cache.md) | The cache manager instance. | [packages/cache/src/interceptors/cache.interceptor.ts:109](https://github.com/kiyasov/elysia-nest/blob/main/packages/cache/src/interceptors/cache.interceptor.ts#L109) |
-| <a id="httpadapterhost"></a> `httpAdapterHost?` | `readonly` | `HttpAdapterHost` | Optional HTTP adapter host; absent in non-HTTP contexts. | [packages/cache/src/interceptors/cache.interceptor.ts:113](https://github.com/kiyasov/elysia-nest/blob/main/packages/cache/src/interceptors/cache.interceptor.ts#L113) |
-| <a id="reflector"></a> `reflector` | `readonly` | `Reflector` | The reflector for reading metadata. | [packages/cache/src/interceptors/cache.interceptor.ts:110](https://github.com/kiyasov/elysia-nest/blob/main/packages/cache/src/interceptors/cache.interceptor.ts#L110) |
+| <a id="httpadapterhost"></a> `httpAdapterHost?` | `readonly` | [`HttpAdapterHost`](../../../../index/classes/HttpAdapterHost.md) | Optional HTTP adapter host; absent in non-HTTP contexts. | [packages/cache/src/interceptors/cache.interceptor.ts:113](https://github.com/kiyasov/elysia-nest/blob/main/packages/cache/src/interceptors/cache.interceptor.ts#L113) |
+| <a id="reflector"></a> `reflector` | `readonly` | [`Reflector`](../../../../index/classes/Reflector.md) | The reflector for reading metadata. | [packages/cache/src/interceptors/cache.interceptor.ts:110](https://github.com/kiyasov/elysia-nest/blob/main/packages/cache/src/interceptors/cache.interceptor.ts#L110) |

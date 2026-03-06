@@ -1,6 +1,6 @@
 # Class: ElysiaNestApplication
 
-Defined in: [packages/microservices/elysia-nest-application.ts:66](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L66)
+Defined in: [packages/microservices/elysia-nest-application.ts:67](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L67)
 
 Top-level application class that ties together an Elysia HTTP server and
 one or more microservice transport servers.
@@ -24,7 +24,7 @@ await app.listen(3000);
 new ElysiaNestApplication(httpServer?): ElysiaNestApplication;
 ```
 
-Defined in: [packages/microservices/elysia-nest-application.ts:81](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L81)
+Defined in: [packages/microservices/elysia-nest-application.ts:82](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L82)
 
 #### Parameters
 
@@ -44,7 +44,7 @@ Defined in: [packages/microservices/elysia-nest-application.ts:81](https://githu
 close(): Promise<void>;
 ```
 
-Defined in: [packages/microservices/elysia-nest-application.ts:581](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L581)
+Defined in: [packages/microservices/elysia-nest-application.ts:593](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L593)
 
 Gracefully shuts down all microservice transports and the HTTP server,
 triggering the corresponding lifecycle hooks.
@@ -61,7 +61,7 @@ triggering the corresponding lifecycle hooks.
 connectMicroservice(options): this;
 ```
 
-Defined in: [packages/microservices/elysia-nest-application.ts:102](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L102)
+Defined in: [packages/microservices/elysia-nest-application.ts:103](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L103)
 
 Registers a new microservice transport.  Supports both built-in transports
 (Redis, RabbitMQ, TCP) and custom transport strategies.
@@ -95,7 +95,7 @@ app.connectMicroservice({
 getHttpServer(): Elysia;
 ```
 
-Defined in: [packages/microservices/elysia-nest-application.ts:553](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L553)
+Defined in: [packages/microservices/elysia-nest-application.ts:565](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L565)
 
 Returns the underlying Elysia HTTP server instance.
 
@@ -111,7 +111,7 @@ Returns the underlying Elysia HTTP server instance.
 getMicroservices(): MicroserviceServerInfo[];
 ```
 
-Defined in: [packages/microservices/elysia-nest-application.ts:561](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L561)
+Defined in: [packages/microservices/elysia-nest-application.ts:573](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L573)
 
 Returns all registered microservice descriptors.
 
@@ -127,7 +127,7 @@ Returns all registered microservice descriptors.
 getUrl(): string;
 ```
 
-Defined in: [packages/microservices/elysia-nest-application.ts:569](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L569)
+Defined in: [packages/microservices/elysia-nest-application.ts:581](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L581)
 
 Returns the base URL of the HTTP server.
 Only meaningful after [listen](#listen) has been called.
@@ -144,7 +144,7 @@ Only meaningful after [listen](#listen) has been called.
 initGlobalFilters(): this;
 ```
 
-Defined in: [packages/microservices/elysia-nest-application.ts:493](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L493)
+Defined in: [packages/microservices/elysia-nest-application.ts:505](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L505)
 
 Ensures HTTP error hooks are registered.
 Called internally by [useGlobalFilters](#useglobalfilters) and externally by the core
@@ -166,7 +166,7 @@ application factory after all filters have been set up.
 listen(port, callback?): Promise<void>;
 ```
 
-Defined in: [packages/microservices/elysia-nest-application.ts:506](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L506)
+Defined in: [packages/microservices/elysia-nest-application.ts:518](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L518)
 
 Starts the Elysia HTTP server.
 
@@ -190,7 +190,7 @@ listen(
 callback?): Promise<void>;
 ```
 
-Defined in: [packages/microservices/elysia-nest-application.ts:512](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L512)
+Defined in: [packages/microservices/elysia-nest-application.ts:524](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L524)
 
 ##### Parameters
 
@@ -212,7 +212,7 @@ Defined in: [packages/microservices/elysia-nest-application.ts:512](https://gith
 setControllers(controllers): void;
 ```
 
-Defined in: [packages/microservices/elysia-nest-application.ts:373](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L373)
+Defined in: [packages/microservices/elysia-nest-application.ts:374](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L374)
 
 Registers controllers whose methods will be scanned for `@MessagePattern`
 and `@EventPattern` decorators.
@@ -235,7 +235,7 @@ and `@EventPattern` decorators.
 setHttpServer(server): void;
 ```
 
-Defined in: [packages/microservices/elysia-nest-application.ts:362](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L362)
+Defined in: [packages/microservices/elysia-nest-application.ts:363](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L363)
 
 Sets (or replaces) the Elysia HTTP server instance.
 Applies any already-registered global filters to the new server.
@@ -258,7 +258,7 @@ Applies any already-registered global filters to the new server.
 startAllMicroservices(): Promise<void>;
 ```
 
-Defined in: [packages/microservices/elysia-nest-application.ts:116](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L116)
+Defined in: [packages/microservices/elysia-nest-application.ts:117](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L117)
 
 Starts all registered microservice transports and registers their pattern
 handlers.
@@ -275,7 +275,7 @@ handlers.
 useGlobalFilters(...filters): this;
 ```
 
-Defined in: [packages/microservices/elysia-nest-application.ts:392](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L392)
+Defined in: [packages/microservices/elysia-nest-application.ts:393](https://github.com/kiyasov/elysia-nest/blob/main/packages/microservices/elysia-nest-application.ts#L393)
 
 Registers one or more global exception filters.
 

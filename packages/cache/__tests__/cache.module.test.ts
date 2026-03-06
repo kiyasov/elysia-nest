@@ -2,7 +2,7 @@ import "reflect-metadata";
 
 import { describe, expect, it } from "bun:test";
 
-import { CacheModule } from "../cache.module";
+import { CacheModule } from "../src/cache.module";
 
 describe("CacheModule", () => {
   describe("register", () => {

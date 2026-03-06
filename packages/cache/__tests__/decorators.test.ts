@@ -2,8 +2,8 @@ import "reflect-metadata";
 
 import { describe, expect, it } from "bun:test";
 
-import { CACHE_KEY_METADATA, CACHE_TTL_METADATA } from "../cache.constants";
-import { CacheKey, CacheTTL } from "../decorators";
+import { CACHE_KEY_METADATA, CACHE_TTL_METADATA } from "../src/cache.constants";
+import { CacheKey, CacheTTL } from "../src/decorators";
 
 describe("@CacheKey", () => {
   it("sets string metadata on the method", () => {

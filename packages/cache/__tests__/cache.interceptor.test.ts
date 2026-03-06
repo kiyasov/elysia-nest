@@ -3,8 +3,8 @@ import "reflect-metadata";
 import { describe, expect, it, mock } from "bun:test";
 import { firstValueFrom, of } from "rxjs";
 
-import { CACHE_KEY_METADATA, CACHE_TTL_METADATA } from "../cache.constants";
-import { CacheInterceptor } from "../interceptors/cache.interceptor";
+import { CACHE_KEY_METADATA, CACHE_TTL_METADATA } from "../src/cache.constants";
+import { CacheInterceptor } from "../src/interceptors/cache.interceptor";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Ctx = any;
