@@ -83,10 +83,10 @@
     "docs:api": "bunx typedoc"
   },
   "dependencies": {
-    "@sinclair/typebox": "^0.34.48",
     "cron": "^4.0.0"
   },
   "peerDependencies": {
+    "@sinclair/typebox": "^0.34.0",
     "elysia": "^1.0.0",
     "reflect-metadata": "^0.2.0",
     "class-validator": "^0.14.0",
@@ -104,6 +104,9 @@
     "amqplib": "^0.10.0"
   },
   "peerDependenciesMeta": {
+    "@sinclair/typebox": {
+      "optional": false
+    },
     "class-validator": {
       "optional": true
     },
@@ -151,6 +154,7 @@
     }
   },
   "devDependencies": {
+    "@sinclair/typebox": "^0.34.48",
     "elysia": "^1.4.27",
     "reflect-metadata": "^0.2.0",
     "@apollo/server": "^5.0.0",
