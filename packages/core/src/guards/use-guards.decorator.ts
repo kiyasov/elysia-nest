@@ -12,10 +12,10 @@ import { GUARDS_METADATA } from "../decorators/constants";
  * @publicApi
  */
 export function UseGuards(
-  ...guards: (new (...args: unknown[]) => unknown | object)[]
+  ...guards: ((new (...args: any[]) => any) | object)[]
 ): MethodDecorator & ClassDecorator {
   return (
-    target: object | (new (...args: unknown[]) => unknown),
+    target: object | (new (...args: any[]) => any),
     propertyKey?: string | symbol,
     descriptor?: TypedPropertyDescriptor<any>,
   ) => {

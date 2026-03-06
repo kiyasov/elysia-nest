@@ -31,6 +31,7 @@
 | [applyDecorators](functions/applyDecorators.md) | Applies multiple decorators to a target (class, method, or property). Useful for composing multiple decorators into a single one. |
 | [Catch](functions/Catch.md) | Decorator that marks a class as an exception filter. The decorated class must implement the `ExceptionFilter` interface. |
 | [Controller](functions/Controller.md) | Controller decorator that defines a controller with a route prefix. |
+| [Cookies](functions/Cookies.md) | - |
 | [createElysiaApplication](functions/createElysiaApplication.md) | Creates an Elysia-Nest application with microservices support. |
 | [createElysiaPlugin](functions/createElysiaPlugin.md) | Helper function to create the Elysia plugin from module metadata. |
 | [createLoggerOptionsProvider](functions/createLoggerOptionsProvider.md) | Factory to create logger options provider with custom options |

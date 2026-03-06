@@ -12,10 +12,10 @@ import { INTERCEPTORS_METADATA } from "../decorators/constants";
  * @publicApi
  */
 export function UseInterceptors(
-  ...interceptors: (new (...args: unknown[]) => unknown | object)[]
+  ...interceptors: ((new (...args: any[]) => any) | object)[]
 ): MethodDecorator & ClassDecorator {
   return (
-    target: object | (new (...args: unknown[]) => unknown),
+    target: object | (new (...args: any[]) => any),
     propertyKey?: string | symbol,
     descriptor?: TypedPropertyDescriptor<any>,
   ) => {

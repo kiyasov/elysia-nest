@@ -13,7 +13,7 @@ depending on its context.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| ...`guards` | (...`args`) => `unknown`[] | A single guard instance or class, or an array of guard instances or classes. |
+| ...`guards` | (`object` \| (...`args`) => `any`)[] | A single guard instance or class, or an array of guard instances or classes. |
 
 ## Returns
 

@@ -13,7 +13,7 @@ depending on its context.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| ...`interceptors` | (...`args`) => `unknown`[] | A single interceptor instance or class, or an array of interceptor instances or classes. |
+| ...`interceptors` | (`object` \| (...`args`) => `any`)[] | A single interceptor instance or class, or an array of interceptor instances or classes. |
 
 ## Returns
 
