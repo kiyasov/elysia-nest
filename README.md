@@ -10,7 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/kiyasov/nestelia/blob/main/LICENSE)
 [![Status](https://img.shields.io/badge/status-active%20development-orange?style=flat-square)](https://github.com/kiyasov/nestelia)
 
-[Documentation](https://kiyasov.github.io/nestelia/) · [npm](https://www.npmjs.com/package/nestelia) · [GitHub](https://github.com/kiyasov/nestelia)
+[Documentation](https://nestelia.dev) · [npm](https://www.npmjs.com/package/nestelia) · [GitHub](https://github.com/kiyasov/nestelia)
 
 </div>
 
@@ -85,7 +85,7 @@ All subpath exports are part of the single `nestelia` package.
 
 ## Documentation
 
-Full documentation is available at **[kiyasov.github.io/nestelia](https://kiyasov.github.io/nestelia/)** (powered by [VitePress](https://vitepress.dev/)).
+Full documentation is available at **[nestelia.dev](https://nestelia.dev)** (powered by [VitePress](https://vitepress.dev/)).
 
 To run docs locally:
 
