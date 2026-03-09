@@ -1,7 +1,7 @@
 ---
 title: 守卫
 icon: shield
-description: 使用 @UseGuards() 保护路由的授权逻辑
+description: "使用 @UseGuards() 保护路由的授权逻辑"
 ---
 
 守卫决定请求是否应该进入路由处理器。它们实现 `CanActivate` 接口，并在处理器调用之前自动执行。

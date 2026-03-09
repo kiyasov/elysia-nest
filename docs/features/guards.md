@@ -1,7 +1,7 @@
 ---
 title: Guards
 icon: shield
-description: Protect routes with authorization logic using @UseGuards()
+description: "Protect routes with authorization logic using @UseGuards()"
 ---
 
 Guards determine whether a request should proceed to the route handler. They implement the `CanActivate` interface and are automatically executed before the handler is called.

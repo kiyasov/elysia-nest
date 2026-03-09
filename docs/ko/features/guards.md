@@ -1,7 +1,7 @@
 ---
 title: 가드
 icon: shield
-description: @UseGuards()를 사용해 인증 로직으로 라우트를 보호합니다
+description: "@UseGuards()를 사용해 인증 로직으로 라우트를 보호합니다"
 ---
 
 가드는 요청이 라우트 핸들러로 진행되어야 하는지 결정합니다. `CanActivate` 인터페이스를 구현하며 핸들러가 호출되기 전에 자동으로 실행됩니다.

@@ -1,7 +1,7 @@
 ---
 title: Guards
 icon: shield
-description: Protege rutas con lógica de autorización usando @UseGuards()
+description: "Protege rutas con lógica de autorización usando @UseGuards()"
 ---
 
 Los guards determinan si una solicitud debe proceder al manejador de ruta. Implementan la interfaz `CanActivate` y se ejecutan automáticamente antes de que se llame al manejador.

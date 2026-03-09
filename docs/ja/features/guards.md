@@ -1,7 +1,7 @@
 ---
 title: ガード
 icon: shield
-description: @UseGuards() で認可ロジックによってルートを保護する
+description: "@UseGuards() で認可ロジックによってルートを保護する"
 ---
 
 ガードはリクエストがルートハンドラーに進んでよいかどうかを判断します。`CanActivate` インターフェースを実装し、ハンドラーが呼ばれる前に自動的に実行されます。

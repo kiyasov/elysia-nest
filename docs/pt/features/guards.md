@@ -1,7 +1,7 @@
 ---
 title: Guards
 icon: shield
-description: Proteja rotas com lógica de autorização usando @UseGuards()
+description: "Proteja rotas com lógica de autorização usando @UseGuards()"
 ---
 
 Guards determinam se uma requisição deve prosseguir para o handler de rota. Eles implementam a interface `CanActivate` e são executados automaticamente antes que o handler seja chamado.
