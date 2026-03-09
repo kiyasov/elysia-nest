@@ -2,7 +2,7 @@ import { defineConfig } from "vitepress";
 import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import pkg from "../../package.json";
-import { enLocale, ruLocale } from "./locales";
+import { enLocale, ruLocale, zhLocale, jaLocale, ptLocale, koLocale, esLocale } from "./locales";
 
 const SITE_URL  = "https://nestelia.dev";
 const SITE_DESC = "A modular, decorator-driven framework built on top of Elysia and Bun";
@@ -27,15 +27,15 @@ export default defineConfig({
 
     // Open Graph
     ["meta", { property: "og:type",        content: "website" }],
-    ["meta", { property: "og:site_name",   content: "nestelia" }],
+    ["meta", { property: "og:site_name",   content: "Nestelia" }],
     ["meta", { property: "og:url",         content: SITE_URL }],
-    ["meta", { property: "og:title",       content: "nestelia" }],
+    ["meta", { property: "og:title",       content: "Nestelia" }],
     ["meta", { property: "og:description", content: SITE_DESC }],
     ["meta", { property: "og:image",       content: OG_IMAGE }],
 
     // Twitter / X
     ["meta", { name: "twitter:card",        content: "summary_large_image" }],
-    ["meta", { name: "twitter:title",       content: "nestelia" }],
+    ["meta", { name: "twitter:title",       content: "Nestelia" }],
     ["meta", { name: "twitter:description", content: SITE_DESC }],
     ["meta", { name: "twitter:image",       content: OG_IMAGE }],
   ],
@@ -50,13 +50,18 @@ export default defineConfig({
     pageData.frontmatter.head.push(
       ["link", { rel: "canonical", href: canonical }],
       ["meta", { property: "og:url",   content: canonical }],
-      ["meta", { property: "og:title", content: pageData.title ? `${pageData.title} | nestelia` : "nestelia" }],
+      ["meta", { property: "og:title", content: pageData.title ? `${pageData.title} | Nestelia` : "Nestelia" }],
     );
   },
 
   locales: {
     root: enLocale,
+    zh:   zhLocale,
     ru:   ruLocale,
+    ja:   jaLocale,
+    pt:   ptLocale,
+    ko:   koLocale,
+    es:   esLocale,
   },
 
   themeConfig: {
