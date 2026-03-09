@@ -587,9 +587,14 @@ app.listen(3000)
 /* Code block */
 .s-code-wrap {
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background: #16131f;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #f6f8fa;
   overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
+}
+.dark .s-code-wrap {
+  border-color: rgba(255, 255, 255, 0.07);
+  background: #16131f;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
 }
 
@@ -598,7 +603,10 @@ app.listen(3000)
   align-items: center;
   gap: 6px;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.dark .s-code-header {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
 }
 
 .s-code-dot {
@@ -612,6 +620,9 @@ app.listen(3000)
   margin-left: 8px;
   font-family: 'Geist Mono', ui-monospace, monospace;
   font-size: 12px;
+  color: rgba(0, 0, 0, 0.35);
+}
+.dark .s-code-filename {
   color: rgba(255, 255, 255, 0.35);
 }
 
@@ -622,18 +633,26 @@ app.listen(3000)
   font-family: 'Geist Mono', ui-monospace, monospace;
   font-size: 13px;
   line-height: 1.75;
-  color: #c9c1e8;
+  color: #24292f;
   background: none;
   border-radius: 0;
+}
+.dark .s-pre {
+  color: #c9c1e8;
 }
 
 /* Syntax highlight tokens */
 .s-pre :deep(i) { font-style: normal; }
-.s-pre :deep(.hk) { color: #c084fc; } /* keywords */
-.s-pre :deep(.hs) { color: #86efac; } /* strings  */
-.s-pre :deep(.hd) { color: #f472b6; } /* decorators */
-.s-pre :deep(.ht) { color: #93c5fd; } /* types    */
-.s-pre :deep(.hc) { color: #4b5563; } /* comments */
+.s-pre :deep(.hk) { color: #8250df; } /* keywords */
+.s-pre :deep(.hs) { color: #116329; } /* strings  */
+.s-pre :deep(.hd) { color: #cf222e; } /* decorators */
+.s-pre :deep(.ht) { color: #0550ae; } /* types    */
+.s-pre :deep(.hc) { color: #6e7781; } /* comments */
+.dark .s-pre :deep(.hk) { color: #c084fc; }
+.dark .s-pre :deep(.hs) { color: #86efac; }
+.dark .s-pre :deep(.hd) { color: #f472b6; }
+.dark .s-pre :deep(.ht) { color: #93c5fd; }
+.dark .s-pre :deep(.hc) { color: #4b5563; }
 
 /* Responsive */
 @media (max-width: 768px) {
