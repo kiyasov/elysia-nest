@@ -1327,16 +1327,7 @@ div[class*='language-'] {
     @apply lg:justify-center ml-2 pl-0! lg:pl-12!;
 }
 
-.VPNavBar.has-sidebar .title {
-    @apply absolute top-0 left-0 bottom-0;
-    width: var(--vp-sidebar-width, 272px);
-}
-
 .VPNavBarTitle .title .VPImage.logo {
     width: 120px !important;
     height: 24px !important;
-}
-
-.VPNavBar.has-sidebar .content {
-    @apply lg:pr-8 md:pl-[var(--vp-sidebar-width)];
 }
