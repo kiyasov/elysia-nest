@@ -117,6 +117,11 @@ pre,
   border-bottom: 1px solid var(--vp-c-divider) !important;
 }
 
+.VPNavBarTitle .logo {
+  width: 120px !important;
+  height: 24px !important;
+}
+
 @media (min-width: 960px) {
   /* Pull logo out of flow → it sits in the sidebar area */
   .VPNavBar .title {
