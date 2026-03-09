@@ -131,6 +131,32 @@ describe("@Field() type inference", () => {
       ).toThrow(/Cannot determine GraphQL type|If this is an enum, call registerEnumType/);
     });
 
+    it("includes ClassName.fieldName in the error when type factory returns undefined", () => {
+      @ObjectType()
+      class MyResponse {
+        @Field()
+        name!: string;
+
+        // typeFn returns undefined — reaches resolveScalarOrRef null/undefined branch
+        @Field(() => undefined as any)
+        broken!: string;
+      }
+
+      @Resolver(() => MyResponse)
+      class MyResolver {
+        @Query(() => MyResponse)
+        myQuery(): MyResponse {
+          return new MyResponse();
+        }
+      }
+
+      void MyResolver;
+
+      expect(() =>
+        new SchemaBuilder(container as never).buildSchema()
+      ).toThrow(/MyResponse\.broken/);
+    });
+
     it("resolves two enum fields independently", () => {
       registerEnumType(Role, { name: "Role" });
       registerEnumType(Status, { name: "Status" });

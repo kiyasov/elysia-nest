@@ -322,8 +322,9 @@ export class SchemaBuilder {
         );
       }
 
+      const ownerName = this.getFieldOwnerName(f.target);
       result[f.name] = {
-        type: this.resolveOutputType(f.typeFn, f.nullable),
+        type: this.resolveOutputType(f.typeFn, f.nullable, `${ownerName}.${f.name}`),
         description: f.description,
         deprecationReason: f.deprecationReason,
         resolve: (parent: unknown) => {
@@ -398,10 +399,11 @@ export class SchemaBuilder {
 
     for (const resolverMeta of fieldResolvers) {
       const existingField = fields[resolverMeta.name];
+      const fieldCtx = `${objectTypeName}.${resolverMeta.name}`;
       const resolverType = resolverMeta.returnType
-        ? this.resolveOutputType(resolverMeta.returnType, resolverMeta.nullable)
+        ? this.resolveOutputType(resolverMeta.returnType, resolverMeta.nullable, fieldCtx)
         : (existingField?.type ??
-          this.resolveOutputType(undefined, resolverMeta.nullable));
+          this.resolveOutputType(undefined, resolverMeta.nullable, fieldCtx));
 
       fields[resolverMeta.name] = {
         type: resolverType,
@@ -454,8 +456,9 @@ export class SchemaBuilder {
   ): GraphQLInputFieldConfigMap {
     const result: GraphQLInputFieldConfigMap = {};
     for (const f of fields) {
+      const ownerName = this.getFieldOwnerName(f.target);
       result[f.name] = {
-        type: this.resolveInputType(f.typeFn, f.nullable),
+        type: this.resolveInputType(f.typeFn, f.nullable, `${ownerName}.${f.name}`),
         description: f.description,
         deprecationReason: f.deprecationReason,
         defaultValue: f.defaultValue,
@@ -471,8 +474,10 @@ export class SchemaBuilder {
   ): GraphQLFieldConfigMap<unknown, unknown> {
     const fields: GraphQLFieldConfigMap<unknown, unknown> = {};
     for (const op of operations) {
+      const resolverClass = (op.target as { constructor: Constructor }).constructor;
+      const opCtx = `${resolverClass.name ?? "Resolver"}.${op.name}`;
       fields[op.name] = {
-        type: this.resolveOutputType(op.returnType, op.nullable),
+        type: this.resolveOutputType(op.returnType, op.nullable, opCtx),
         description: op.description,
         deprecationReason: op.deprecationReason,
         args: this.buildArgDefinitions(op),
@@ -485,8 +490,10 @@ export class SchemaBuilder {
   private buildSubscriptionFields(): GraphQLFieldConfigMap<unknown, unknown> {
     const fields: GraphQLFieldConfigMap<unknown, unknown> = {};
     for (const sub of typeMetadataStorage.getSubscriptions()) {
+      const resolverClass = (sub.target as { constructor: Constructor }).constructor;
+      const subCtx = `${resolverClass.name ?? "Resolver"}.${sub.name}`;
       fields[sub.name] = {
-        type: this.resolveOutputType(sub.returnType, sub.nullable),
+        type: this.resolveOutputType(sub.returnType, sub.nullable, subCtx),
         description: sub.description,
         deprecationReason: sub.deprecationReason,
         args: this.buildArgDefinitions(sub),
@@ -510,9 +517,11 @@ export class SchemaBuilder {
       string,
       { type: GraphQLInputType; description?: string; defaultValue?: unknown }
     > = {};
+    const resolverClass = (op.target as { constructor: Constructor }).constructor;
     for (const arg of op.args) {
+      const argCtx = `${resolverClass.name ?? "Resolver"}.${op.name}(@Arg ${arg.name})`;
       args[arg.name] = {
-        type: this.resolveInputType(arg.typeFn, arg.nullable),
+        type: this.resolveInputType(arg.typeFn, arg.nullable, argCtx),
         description: arg.description,
         defaultValue: arg.defaultValue,
       };
@@ -525,17 +534,19 @@ export class SchemaBuilder {
   private resolveOutputType(
     typeFn: (() => unknown) | undefined,
     nullable?: boolean,
+    fieldContext?: string,
   ): GraphQLOutputType {
     const raw = typeFn ? typeFn() : undefined;
-    return this.resolveScalarOrRef(raw, nullable) as GraphQLOutputType;
+    return this.resolveScalarOrRef(raw, nullable, fieldContext) as GraphQLOutputType;
   }
 
   private resolveInputType(
     typeFn: (() => unknown) | undefined,
     nullable?: boolean,
+    fieldContext?: string,
   ): GraphQLInputType {
     const raw = typeFn ? typeFn() : undefined;
-    return this.resolveScalarOrRef(raw, nullable) as GraphQLInputType;
+    return this.resolveScalarOrRef(raw, nullable, fieldContext) as GraphQLInputType;
   }
 
   /**
@@ -545,9 +556,10 @@ export class SchemaBuilder {
   private resolveScalarOrRef(
     value: unknown,
     nullable: boolean | undefined,
+    fieldContext?: string,
   ): GraphQLOutputType | GraphQLInputType {
     if (Array.isArray(value)) {
-      const inner = this.resolveScalarOrRef(value[0], false);
+      const inner = this.resolveScalarOrRef(value[0], false, fieldContext);
       const list = new GraphQLList(
         inner as GraphQLOutputType & GraphQLInputType,
       );
@@ -675,8 +687,9 @@ export class SchemaBuilder {
           `and use @Field(() => ${typeName}).`,
       );
     } else {
+      const location = fieldContext ? ` on field "${fieldContext}"` : "";
       throw new Error(
-        `[GraphQL] @Field() type could not be inferred. ` +
+        `[GraphQL] @Field() type could not be inferred${location}. ` +
           `Provide an explicit type factory: @Field(() => YourType).`,
       );
     }
