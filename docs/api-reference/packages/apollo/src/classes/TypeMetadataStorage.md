@@ -26,7 +26,7 @@ new TypeMetadataStorage(): TypeMetadataStorage;
 addEnum(target, metadata): void;
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:137](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L137)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:153](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L153)
 
 Registers an enum type.
 
@@ -49,7 +49,7 @@ Registers an enum type.
 addField(constructor, field): void;
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:166](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L166)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:182](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L182)
 
 Adds a field to a type.
 
@@ -72,7 +72,7 @@ Adds a field to a type.
 addFieldResolver(metadata): void;
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:229](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L229)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:245](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L245)
 
 Registers a field resolver.
 
@@ -94,7 +94,7 @@ Registers a field resolver.
 addInputType(target, metadata): void;
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:116](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L116)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:132](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L132)
 
 Registers an input type.
 
@@ -117,7 +117,7 @@ Registers an input type.
 addInterfaceType(target, metadata): void;
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:128](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L128)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:144](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L144)
 
 Registers an interface type.
 
@@ -140,7 +140,7 @@ Registers an interface type.
 addMutation(metadata): void;
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:213](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L213)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:229](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L229)
 
 Registers a mutation resolver.
 
@@ -162,7 +162,7 @@ Registers a mutation resolver.
 addObjectType(target, metadata): void;
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:104](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L104)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:120](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L120)
 
 Registers an object type.
 
@@ -185,7 +185,7 @@ Registers an object type.
 addQuery(metadata): void;
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:205](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L205)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:221](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L221)
 
 Registers a query resolver.
 
@@ -207,7 +207,7 @@ Registers a query resolver.
 addScalar(target, metadata): void;
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:146](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L146)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:162](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L162)
 
 Registers a scalar type.
 
@@ -230,7 +230,7 @@ Registers a scalar type.
 addSubscription(metadata): void;
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:221](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L221)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:237](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L237)
 
 Registers a subscription resolver.
 
@@ -252,7 +252,7 @@ Registers a subscription resolver.
 addUnion(target, metadata): void;
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:155](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L155)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:171](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L171)
 
 Registers a union type.
 
@@ -269,6 +269,23 @@ Registers a union type.
 
 ***
 
+### clear()
+
+```ts
+clear(): void;
+```
+
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:90](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L90)
+
+Clears all registered metadata in-place.
+Preserves the same instance so module-level imports remain valid.
+
+#### Returns
+
+`void`
+
+***
+
 ### getEnums()
 
 ```ts
@@ -277,7 +294,7 @@ getEnums(): EnumMetadata & {
 }[];
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:281](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L281)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:297](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L297)
 
 Gets all registered enums.
 
@@ -297,7 +314,7 @@ Array of enum metadata.
 getFieldResolvers(): ResolverFieldMetadata[];
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:338](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L338)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:354](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L354)
 
 Gets all registered field resolvers.
 
@@ -315,7 +332,7 @@ Array of field resolver metadata.
 getFieldsByConstructor(constructor): TypeFieldMetadata[];
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:180](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L180)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:196](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L196)
 
 Gets all fields for a constructor.
 
@@ -342,7 +359,7 @@ getInputTypes(): InputTypeMetadata & {
 }[];
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:253](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L253)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:269](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L269)
 
 Gets all registered input types with their fields.
 
@@ -366,7 +383,7 @@ getInterfaceTypes(): InterfaceTypeMetadata & {
 }[];
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:267](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L267)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:283](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L283)
 
 Gets all registered interface types with their fields.
 
@@ -387,7 +404,7 @@ Array of interface type metadata with fields.
 getMutations(): ResolverFieldMetadata[];
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:322](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L322)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:338](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L338)
 
 Gets all registered mutations.
 
@@ -408,7 +425,7 @@ getObjectTypes(): ObjectTypeMetadata & {
 }[];
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:239](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L239)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:255](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L255)
 
 Gets all registered object types with their fields.
 
@@ -429,7 +446,7 @@ Array of object type metadata with fields.
 getQueries(): ResolverFieldMetadata[];
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:314](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L314)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:330](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L330)
 
 Gets all registered queries.
 
@@ -449,7 +466,7 @@ getScalars(): ScalarMetadata & {
 }[];
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:292](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L292)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:308](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L308)
 
 Gets all registered scalars.
 
@@ -469,7 +486,7 @@ Array of scalar metadata.
 getSubscriptions(): ResolverFieldMetadata[];
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:330](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L330)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:346](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L346)
 
 Gets all registered subscriptions.
 
@@ -489,7 +506,7 @@ getUnions(): UnionMetadata & {
 }[];
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:303](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L303)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:319](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L319)
 
 Gets all registered unions.
 
@@ -509,7 +526,7 @@ Array of union metadata.
 removeField(constructor, fieldName): void;
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:189](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L189)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:205](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L205)
 
 Removes a field from a type.
 
@@ -532,10 +549,11 @@ Removes a field from a type.
 static reset(): void;
 ```
 
-Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:90](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L90)
+Defined in: [packages/apollo/src/storages/type-metadata.storage.ts:109](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/storages/type-metadata.storage.ts#L109)
 
-Resets the global metadata storage.
-Useful for testing to ensure clean state.
+Resets the global metadata storage by clearing the singleton in-place.
+Module-level imports of [typeMetadataStorage](../variables/typeMetadataStorage.md) remain valid after calling this.
+Useful for testing to ensure clean state between test cases.
 
 #### Returns
 

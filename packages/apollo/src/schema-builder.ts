@@ -33,6 +33,7 @@ import type { ExecutionContext } from "@kiyasov/elysia-nest";
 import {
   ARGS_METADATA,
   CONTEXT_METADATA,
+  ENUM_METADATA,
   INFO_METADATA,
   PARENT_METADATA,
   RESOLVER_METADATA,
@@ -40,7 +41,6 @@ import {
 } from "./decorators/constants";
 import { Float, ID, Int } from "./decorators/type.decorator";
 import type { BuildSchemaOptions } from "./interfaces";
-import { packageLogger } from "./logger";
 import {
   type ResolverFieldMetadata,
   type TypeFieldMetadata,
@@ -622,7 +622,7 @@ export class SchemaBuilder {
               }),
             resolveType: unionMetadata.resolveType
               ? (unionValue: unknown) => {
-                  const resolved = unionMetadata.resolveType!(unionValue);
+                  const resolved = unionMetadata.resolveType?.(unionValue);
                   if (!resolved) {
                     return undefined;
                   }
@@ -652,16 +652,33 @@ export class SchemaBuilder {
         if (known) {
           gqlType = known as GraphQLOutputType;
         } else {
-          if (ctor.name) {
-            packageLogger.warn(
-              `[GraphQL] Unknown type: "${ctor.name}", falling back to String`,
-            );
-          }
-          gqlType = GraphQLString;
+          const typeName = ctor.name ?? String(ctor);
+          throw new Error(
+            `[GraphQL] Cannot determine GraphQL type for "${typeName}". ` +
+              `Provide an explicit type factory: @Field(() => ${typeName}). ` +
+              `If this is an enum, make sure to call registerEnumType(${typeName}, { name: '${typeName}' }).`,
+          );
         }
       }
+    } else if (value !== undefined && value !== null) {
+      // Plain object (e.g. unregistered enum) — check ENUM_METADATA for the name
+      const enumMeta = Reflect.getMetadata(ENUM_METADATA, value) as
+        | { name: string }
+        | undefined;
+      const typeName =
+        enumMeta?.name ??
+        (value as { name?: string }).name ??
+        String(value);
+      throw new Error(
+        `[GraphQL] Cannot determine GraphQL type for "${typeName}". ` +
+          `If this is an enum, call registerEnumType(${typeName}, { name: '${typeName}' }) ` +
+          `and use @Field(() => ${typeName}).`,
+      );
     } else {
-      gqlType = GraphQLString;
+      throw new Error(
+        `[GraphQL] @Field() type could not be inferred. ` +
+          `Provide an explicit type factory: @Field(() => YourType).`,
+      );
     }
 
     return nullable ? gqlType : new GraphQLNonNull(gqlType);

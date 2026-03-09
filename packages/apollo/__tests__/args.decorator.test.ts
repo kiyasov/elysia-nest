@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { afterEach, describe, expect, it } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import {
   GraphQLInputObjectType,
   GraphQLNonNull,
@@ -24,6 +24,16 @@ import {
   TypeMetadataStorage,
 } from "../src/storages/type-metadata.storage";
 import { SchemaBuilder } from "../src/schema-builder";
+
+beforeEach(() => {
+  // Re-register module-level fixtures cleared by reset()
+  InputType()(CreatePostInput);
+  (Field() as PropertyDecorator)(CreatePostInput.prototype, "title");
+  (Field({ nullable: true }) as PropertyDecorator)(CreatePostInput.prototype, "body");
+  ObjectType()(Post);
+  (Field() as PropertyDecorator)(Post.prototype, "id");
+  (Field() as PropertyDecorator)(Post.prototype, "title");
+});
 
 afterEach(() => {
   TypeMetadataStorage.reset();

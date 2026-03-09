@@ -4,7 +4,7 @@
 function InterfaceType(options?): ClassDecorator;
 ```
 
-Defined in: [packages/apollo/src/decorators/type.decorator.ts:212](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/decorators/type.decorator.ts#L212)
+Defined in: [packages/apollo/src/decorators/type.decorator.ts:237](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/decorators/type.decorator.ts#L237)
 
 Decorator for GraphQL Interface.
 

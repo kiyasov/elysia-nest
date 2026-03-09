@@ -7,7 +7,7 @@ function Scalar(
    options?): ClassDecorator;
 ```
 
-Defined in: [packages/apollo/src/decorators/type.decorator.ts:263](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/decorators/type.decorator.ts#L263)
+Defined in: [packages/apollo/src/decorators/type.decorator.ts:288](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/decorators/type.decorator.ts#L288)
 
 Decorator for GraphQL Scalar.
 

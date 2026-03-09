@@ -97,8 +97,17 @@ export function InputType(
 
 /**
  * Decorator for a GraphQL field.
- * @param typeFn - Function returning the type (optional).
+ *
+ * The type is inferred from TypeScript's `design:type` metadata for primitive types
+ * (`string` → `String`, `number` → `Number`, `boolean` → `Boolean`).
+ * For all other types — enums, classes, union types — an explicit type factory
+ * **must** be provided; omitting it throws an error at decoration time.
+ *
+ * @param typeFn - Function returning the GraphQL type. Required for enums,
+ *   class references, and any type TypeScript cannot represent as a primitive
+ *   (i.e. when `design:type` would be `Object`).
  * @param options - Field options.
+ * @throws {Error} When no explicit type is given and `design:type` is `Object`.
  *
  * @example
  * ```typescript
@@ -112,6 +121,10 @@ export function InputType(
  *
  *   @Field(() => [Post])
  *   posts: Post[];
+ *
+ *   // Enum — explicit type factory required
+ *   @Field(() => Role)
+ *   role: Role;
  * }
  * ```
  */
@@ -143,6 +156,18 @@ export function Field(
       target,
       propertyKey,
     ) as unknown;
+
+    if (!explicitTypeFn && reflectedType === Object) {
+      const className = (
+        (target as { constructor?: { name?: string } }).constructor?.name ?? "UnknownClass"
+      );
+      throw new Error(
+        `@Field() on "${className}.${propertyKey.toString()}" cannot infer the GraphQL type ` +
+          `(TypeScript emitted "Object" — this happens with enums, union types, and class references). ` +
+          `Provide an explicit type factory: @Field(() => ${propertyKey.toString()[0].toUpperCase() + propertyKey.toString().slice(1)}Type)`,
+      );
+    }
+
     const typeFn =
       explicitTypeFn ??
       (typeof reflectedType === "function" ? () => reflectedType : undefined);

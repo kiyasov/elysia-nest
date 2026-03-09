@@ -84,14 +84,30 @@ export class TypeMetadataStorage {
   private fieldResolvers: ResolverFieldMetadata[] = [];
 
   /**
-   * Resets the global metadata storage.
-   * Useful for testing to ensure clean state.
+   * Clears all registered metadata in-place.
+   * Preserves the same instance so module-level imports remain valid.
+   */
+  clear(): void {
+    this.objectTypes = new Map();
+    this.inputTypes = new Map();
+    this.interfaceTypes = new Map();
+    this.enums = new Map();
+    this.scalars = new Map();
+    this.unions = new Map();
+    this.fieldsByConstructor = new Map();
+    this.queries = [];
+    this.mutations = [];
+    this.subscriptions = [];
+    this.fieldResolvers = [];
+  }
+
+  /**
+   * Resets the global metadata storage by clearing the singleton in-place.
+   * Module-level imports of {@link typeMetadataStorage} remain valid after calling this.
+   * Useful for testing to ensure clean state between test cases.
    */
   static reset(): void {
-    const g = globalThis as {
-      __ElysiaGqlTypeMetadataStorage?: TypeMetadataStorage;
-    };
-    g.__ElysiaGqlTypeMetadataStorage = new TypeMetadataStorage();
+    typeMetadataStorage.clear();
   }
 
   // ── Type registrations ──────────────────────────────────────────────────────

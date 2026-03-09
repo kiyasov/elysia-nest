@@ -4,7 +4,7 @@
 function Directive(name, options?): ClassDecorator;
 ```
 
-Defined in: [packages/apollo/src/decorators/type.decorator.ts:292](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/decorators/type.decorator.ts#L292)
+Defined in: [packages/apollo/src/decorators/type.decorator.ts:317](https://github.com/kiyasov/elysia-nest/blob/main/packages/apollo/src/decorators/type.decorator.ts#L317)
 
 Decorator for GraphQL Directive.
 
