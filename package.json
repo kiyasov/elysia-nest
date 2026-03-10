@@ -1,6 +1,6 @@
 {
   "name": "nestelia",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Modular framework with decorators, dependency injection, modules and lifecycle hooks for Elysia",
   "type": "module",
   "author": {
