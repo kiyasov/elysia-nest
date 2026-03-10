@@ -1,14 +1,35 @@
 import { Injectable } from "nestelia";
 import {
   Args,
+  ArgsType,
+  Field,
   GraphQLDateTime,
   Int,
   Mutation,
+  ObjectType,
+  Paginated,
   Query,
   Resolver,
 } from "../../../packages/apollo/src";
 
 import { Book } from "./book.type";
+
+@ArgsType()
+class BooksArgs {
+  @Field(() => Int, { nullable: true, defaultValue: 0 })
+  offset!: number;
+
+  @Field(() => Int, { nullable: true, defaultValue: 20 })
+  limit!: number;
+}
+
+@ObjectType()
+class BooksPage extends (Paginated(Book) as new () => {
+  items: Book[];
+  total: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}) {}
 
 @Resolver(() => Book)
 @Injectable()
@@ -35,6 +56,17 @@ export class BooksResolver {
   @Query(() => [Book])
   books(): Book[] {
     return this.store;
+  }
+
+  @Query(() => BooksPage)
+  booksPage(@Args() args: BooksArgs): BooksPage {
+    const items = this.store.slice(args.offset, args.offset + args.limit);
+    return {
+      items,
+      total: this.store.length,
+      hasNextPage: args.offset + args.limit < this.store.length,
+      hasPreviousPage: args.offset > 0,
+    };
   }
 
   @Query(() => Book, { nullable: true })

@@ -145,6 +145,113 @@ class DateTimeScalar {
 }
 ```
 
+### 내장 스칼라
+
+추가 설정 없이 바로 사용할 수 있는 6개의 스칼라가 포함되어 있습니다:
+
+| 스칼라 | GraphQL 타입 | JS 타입 | 설명 |
+|--------|-------------|---------|------|
+| `GraphQLDateTime` | `DateTime` | `Date` | ISO 8601 문자열 ↔ JS Date |
+| `GraphQLJSON` | `JSON` | `any` | 모든 JSON 값 |
+| `GraphQLURL` | `URL` | `string` | 유효성이 검증된 URL 문자열 |
+| `GraphQLBigInt` | `BigInt` | `bigint` | 64비트 정수, 문자열로 직렬화 |
+| `GraphQLEmailAddress` | `EmailAddress` | `string` | 유효성이 검증된 이메일 주소 |
+| `GraphQLUUID` | `UUID` | `string` | UUID, 소문자로 정규화 |
+
+```typescript
+import { GraphQLDateTime, GraphQLEmailAddress, GraphQLJSON, GraphQLUUID } from "nestelia/apollo";
+
+@ObjectType()
+class User {
+  @Field(() => GraphQLUUID)
+  id!: string;
+
+  @Field(() => GraphQLEmailAddress)
+  email!: string;
+
+  @Field(() => GraphQLDateTime)
+  createdAt!: Date;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  metadata?: Record<string, unknown>;
+}
+```
+
+## Args 타입
+
+`@ArgsType()`은 클래스의 `@Field()` 프로퍼티를 스키마에서 개별 최상위 인수로 펼칩니다 — 래퍼 입력 객체가 필요 없습니다. 이름 없이 `@Args()`와 함께 사용하세요:
+
+```typescript
+import { ArgsType, Field, Int } from "nestelia/apollo";
+
+@ArgsType()
+class BooksArgs {
+  @Field(() => Int, { nullable: true, defaultValue: 0 })
+  offset!: number;
+
+  @Field(() => Int, { nullable: true, defaultValue: 20 })
+  limit!: number;
+}
+
+@Resolver(() => Book)
+class BooksResolver {
+  @Query(() => [Book])
+  books(@Args() args: BooksArgs): Book[] {
+    return this.store.slice(args.offset, args.offset + args.limit);
+  }
+}
+```
+
+## 페이지네이션
+
+### 오프셋 기반
+
+`Paginated(ItemType)`은 `items`, `total`, `hasNextPage`, `hasPreviousPage`를 포함하는 페이지네이션 응답을 생성합니다:
+
+```typescript
+import { Paginated, Int } from "nestelia/apollo";
+
+@ObjectType()
+class BooksPage extends Paginated(Book) {}
+
+@Query(() => BooksPage)
+books(@Args() args: BooksArgs): BooksPage {
+  const items = this.store.slice(args.offset, args.offset + args.limit);
+  return {
+    items,
+    total: this.store.length,
+    hasNextPage: args.offset + args.limit < this.store.length,
+    hasPreviousPage: args.offset > 0,
+  };
+}
+```
+
+### Relay (커서 기반)
+
+```typescript
+import { createEdgeType, createConnectionType, PageInfo } from "nestelia/apollo";
+
+@ObjectType()
+class BookEdge extends createEdgeType(Book) {}
+
+@ObjectType()
+class BookConnection extends createConnectionType(Book, BookEdge) {}
+
+@Query(() => BookConnection)
+booksConnection(@Args("first", { type: () => Int }) first: number): BookConnection {
+  const edges = this.store.slice(0, first).map((book, i) => ({
+    node: book,
+    cursor: Buffer.from(String(i)).toString("base64"),
+  }));
+  return {
+    edges,
+    pageInfo: { hasNextPage: first < this.store.length, hasPreviousPage: false,
+      startCursor: edges[0]?.cursor, endCursor: edges.at(-1)?.cursor },
+    totalCount: this.store.length,
+  };
+}
+```
+
 ## 리졸버
 
 `@Resolver()` 데코레이터로 GraphQL 리졸버를 정의합니다:

@@ -144,6 +144,113 @@ class DateTimeScalar {
 }
 ```
 
+### 内置标量
+
+六个开箱即用的标量，无需额外配置：
+
+| 标量 | GraphQL 类型 | JS 类型 | 描述 |
+|------|-------------|---------|------|
+| `GraphQLDateTime` | `DateTime` | `Date` | ISO 8601 字符串 ↔ JS Date |
+| `GraphQLJSON` | `JSON` | `any` | 任意 JSON 值 |
+| `GraphQLURL` | `URL` | `string` | 经验证的 URL 字符串 |
+| `GraphQLBigInt` | `BigInt` | `bigint` | 64 位整数，序列化为字符串 |
+| `GraphQLEmailAddress` | `EmailAddress` | `string` | 经验证的电子邮件地址 |
+| `GraphQLUUID` | `UUID` | `string` | UUID，规范化为小写 |
+
+```typescript
+import { GraphQLDateTime, GraphQLEmailAddress, GraphQLJSON, GraphQLUUID } from "nestelia/apollo";
+
+@ObjectType()
+class User {
+  @Field(() => GraphQLUUID)
+  id!: string;
+
+  @Field(() => GraphQLEmailAddress)
+  email!: string;
+
+  @Field(() => GraphQLDateTime)
+  createdAt!: Date;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  metadata?: Record<string, unknown>;
+}
+```
+
+## Args 类型
+
+`@ArgsType()` 将类的 `@Field()` 属性展开为 schema 中独立的顶级参数，无需包装输入对象。配合不带名称的 `@Args()` 使用：
+
+```typescript
+import { ArgsType, Field, Int } from "nestelia/apollo";
+
+@ArgsType()
+class BooksArgs {
+  @Field(() => Int, { nullable: true, defaultValue: 0 })
+  offset!: number;
+
+  @Field(() => Int, { nullable: true, defaultValue: 20 })
+  limit!: number;
+}
+
+@Resolver(() => Book)
+class BooksResolver {
+  @Query(() => [Book])
+  books(@Args() args: BooksArgs): Book[] {
+    return this.store.slice(args.offset, args.offset + args.limit);
+  }
+}
+```
+
+## 分页
+
+### 基于偏移量
+
+`Paginated(ItemType)` 创建包含 `items`、`total`、`hasNextPage`、`hasPreviousPage` 的分页响应：
+
+```typescript
+import { Paginated, Int } from "nestelia/apollo";
+
+@ObjectType()
+class BooksPage extends Paginated(Book) {}
+
+@Query(() => BooksPage)
+books(@Args() args: BooksArgs): BooksPage {
+  const items = this.store.slice(args.offset, args.offset + args.limit);
+  return {
+    items,
+    total: this.store.length,
+    hasNextPage: args.offset + args.limit < this.store.length,
+    hasPreviousPage: args.offset > 0,
+  };
+}
+```
+
+### Relay（基于游标）
+
+```typescript
+import { createEdgeType, createConnectionType, PageInfo } from "nestelia/apollo";
+
+@ObjectType()
+class BookEdge extends createEdgeType(Book) {}
+
+@ObjectType()
+class BookConnection extends createConnectionType(Book, BookEdge) {}
+
+@Query(() => BookConnection)
+booksConnection(@Args("first", { type: () => Int }) first: number): BookConnection {
+  const edges = this.store.slice(0, first).map((book, i) => ({
+    node: book,
+    cursor: Buffer.from(String(i)).toString("base64"),
+  }));
+  return {
+    edges,
+    pageInfo: { hasNextPage: first < this.store.length, hasPreviousPage: false,
+      startCursor: edges[0]?.cursor, endCursor: edges.at(-1)?.cursor },
+    totalCount: this.store.length,
+  };
+}
+```
+
 ## 解析器
 
 使用 `@Resolver()` 装饰器定义 GraphQL 解析器：

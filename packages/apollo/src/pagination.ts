@@ -1,9 +1,10 @@
 import "reflect-metadata";
 
-import { typeMetadataStorage } from "./storages/type-metadata.storage";
 import { Field, ObjectType } from "./decorators/type.decorator";
 import { Int } from "./decorators/type.decorator";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyConstructor = abstract new (...args: any[]) => unknown;
 type Constructor<T = unknown> = new (...args: unknown[]) => T;
 
 // ── PageInfo ──────────────────────────────────────────────────────────────────
@@ -40,12 +41,12 @@ export class PageInfo {
  * class BooksPage extends Paginated(Book) {}
  *
  * @Query(() => BooksPage)
- * books(@Args('offset', { type: () => Int }) offset: number): BooksPage { ... }
+ * books(@Args() args: BooksArgs): BooksPage { ... }
  * ```
  *
  * @publicApi
  */
-export function Paginated<T>(ItemType: Constructor<T>): Constructor {
+export function Paginated<T>(ItemType: Constructor<T>): AnyConstructor {
   @ObjectType({ isAbstract: true })
   abstract class PaginatedType {
     @Field(() => [ItemType])
@@ -61,12 +62,6 @@ export function Paginated<T>(ItemType: Constructor<T>): Constructor {
     hasPreviousPage!: boolean;
   }
 
-  // Copy field metadata from the abstract class so concrete subclasses inherit it
-  const fields = typeMetadataStorage.getFieldsByConstructor(PaginatedType.prototype.constructor);
-  for (const field of fields) {
-    typeMetadataStorage.addField(PaginatedType.prototype.constructor, field);
-  }
-
   return PaginatedType;
 }
 
@@ -78,7 +73,7 @@ export function Paginated<T>(ItemType: Constructor<T>): Constructor {
  *
  * @publicApi
  */
-export function createEdgeType<T>(NodeType: Constructor<T>): Constructor {
+export function createEdgeType<T>(NodeType: Constructor<T>): AnyConstructor {
   @ObjectType({ isAbstract: true })
   abstract class EdgeType {
     @Field(() => NodeType)
@@ -111,8 +106,8 @@ export function createEdgeType<T>(NodeType: Constructor<T>): Constructor {
  */
 export function createConnectionType<T>(
   NodeType: Constructor<T>,
-  EdgeType?: Constructor,
-): Constructor {
+  EdgeType?: AnyConstructor,
+): AnyConstructor {
   const EdgeClass = EdgeType ?? createEdgeType(NodeType);
 
   @ObjectType({ isAbstract: true })

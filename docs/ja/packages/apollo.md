@@ -145,6 +145,113 @@ class DateTimeScalar {
 }
 ```
 
+### 組み込みスカラー
+
+追加設定不要で使える 6 つのスカラーが含まれています:
+
+| スカラー | GraphQL 型 | JS 型 | 説明 |
+|---------|-----------|-------|------|
+| `GraphQLDateTime` | `DateTime` | `Date` | ISO 8601 文字列 ↔ JS Date |
+| `GraphQLJSON` | `JSON` | `any` | 任意の JSON 値 |
+| `GraphQLURL` | `URL` | `string` | 検証済み URL 文字列 |
+| `GraphQLBigInt` | `BigInt` | `bigint` | 64 ビット整数、文字列としてシリアライズ |
+| `GraphQLEmailAddress` | `EmailAddress` | `string` | 検証済みメールアドレス |
+| `GraphQLUUID` | `UUID` | `string` | UUID、小文字に正規化 |
+
+```typescript
+import { GraphQLDateTime, GraphQLEmailAddress, GraphQLJSON, GraphQLUUID } from "nestelia/apollo";
+
+@ObjectType()
+class User {
+  @Field(() => GraphQLUUID)
+  id!: string;
+
+  @Field(() => GraphQLEmailAddress)
+  email!: string;
+
+  @Field(() => GraphQLDateTime)
+  createdAt!: Date;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  metadata?: Record<string, unknown>;
+}
+```
+
+## Args 型
+
+`@ArgsType()` は、クラスの `@Field()` プロパティをスキーマ内の個別のトップレベル引数として展開します — ラッパーの input オブジェクトは不要です。名前なしの `@Args()` と組み合わせて使用します:
+
+```typescript
+import { ArgsType, Field, Int } from "nestelia/apollo";
+
+@ArgsType()
+class BooksArgs {
+  @Field(() => Int, { nullable: true, defaultValue: 0 })
+  offset!: number;
+
+  @Field(() => Int, { nullable: true, defaultValue: 20 })
+  limit!: number;
+}
+
+@Resolver(() => Book)
+class BooksResolver {
+  @Query(() => [Book])
+  books(@Args() args: BooksArgs): Book[] {
+    return this.store.slice(args.offset, args.offset + args.limit);
+  }
+}
+```
+
+## ページネーション
+
+### オフセットベース
+
+`Paginated(ItemType)` は `items`、`total`、`hasNextPage`、`hasPreviousPage` を含むページネーションレスポンスを作成します:
+
+```typescript
+import { Paginated, Int } from "nestelia/apollo";
+
+@ObjectType()
+class BooksPage extends Paginated(Book) {}
+
+@Query(() => BooksPage)
+books(@Args() args: BooksArgs): BooksPage {
+  const items = this.store.slice(args.offset, args.offset + args.limit);
+  return {
+    items,
+    total: this.store.length,
+    hasNextPage: args.offset + args.limit < this.store.length,
+    hasPreviousPage: args.offset > 0,
+  };
+}
+```
+
+### Relay（カーソルベース）
+
+```typescript
+import { createEdgeType, createConnectionType, PageInfo } from "nestelia/apollo";
+
+@ObjectType()
+class BookEdge extends createEdgeType(Book) {}
+
+@ObjectType()
+class BookConnection extends createConnectionType(Book, BookEdge) {}
+
+@Query(() => BookConnection)
+booksConnection(@Args("first", { type: () => Int }) first: number): BookConnection {
+  const edges = this.store.slice(0, first).map((book, i) => ({
+    node: book,
+    cursor: Buffer.from(String(i)).toString("base64"),
+  }));
+  return {
+    edges,
+    pageInfo: { hasNextPage: first < this.store.length, hasPreviousPage: false,
+      startCursor: edges[0]?.cursor, endCursor: edges.at(-1)?.cursor },
+    totalCount: this.store.length,
+  };
+}
+```
+
 ## リゾルバー
 
 `@Resolver()` デコレータで GraphQL リゾルバーを定義します:

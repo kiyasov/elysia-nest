@@ -128,24 +128,140 @@ class Owner {
 }
 ```
 
+### Built-in Scalars
+
+Six ready-to-use scalars are included — no extra packages needed:
+
+| Scalar | GraphQL type | JS type | Description |
+|--------|-------------|---------|-------------|
+| `GraphQLDateTime` | `DateTime` | `Date` | ISO 8601 string ↔ JS Date |
+| `GraphQLJSON` | `JSON` | `any` | Any JSON value |
+| `GraphQLURL` | `URL` | `string` | Validated URL string |
+| `GraphQLBigInt` | `BigInt` | `bigint` | 64-bit integer, serialized as string |
+| `GraphQLEmailAddress` | `EmailAddress` | `string` | Validated email address |
+| `GraphQLUUID` | `UUID` | `string` | UUID, normalized to lowercase |
+
+```typescript
+import { GraphQLDateTime, GraphQLEmailAddress, GraphQLJSON, GraphQLUUID } from "nestelia/apollo";
+
+@ObjectType()
+class User {
+  @Field(() => GraphQLUUID)
+  id!: string;
+
+  @Field(() => GraphQLEmailAddress)
+  email!: string;
+
+  @Field(() => GraphQLDateTime)
+  createdAt!: Date;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  metadata?: Record<string, unknown>;
+}
+```
+
 ### Custom Scalars
+
+Implement your own scalar with `@Scalar()`:
 
 ```typescript
 import { Scalar } from "nestelia/apollo";
 
-@Scalar("DateTime")
-class DateTimeScalar {
-  description = "ISO 8601 date-time string";
+@Scalar("Currency")
+class CurrencyScalar {
+  description = "Monetary amount in cents (integer)";
 
-  serialize(value: Date) {
-    return value.toISOString();
-  }
-
-  parseValue(value: string) {
-    return new Date(value);
+  serialize(value: number) { return Math.round(value); }
+  parseValue(value: unknown) {
+    if (typeof value !== "number") throw new Error("Currency must be a number");
+    return Math.round(value);
   }
 }
 ```
+
+## Args Types
+
+`@ArgsType()` marks a class whose `@Field()` properties are expanded as individual top-level
+arguments in the schema — no wrapper input object. Use it with `@Args()` (no name):
+
+```typescript
+import { ArgsType, Field, Int } from "nestelia/apollo";
+
+@ArgsType()
+class BooksArgs {
+  @Field(() => Int, { nullable: true, defaultValue: 0 })
+  offset!: number;
+
+  @Field(() => Int, { nullable: true, defaultValue: 20 })
+  limit!: number;
+}
+
+@Resolver(() => Book)
+class BooksResolver {
+  @Query(() => [Book])
+  books(@Args() args: BooksArgs): Book[] {
+    return this.store.slice(args.offset, args.offset + args.limit);
+  }
+}
+```
+
+## Pagination
+
+### Offset-based
+
+`Paginated(ItemType)` creates a paginated response type with `items`, `total`, `hasNextPage`, `hasPreviousPage`:
+
+```typescript
+import { Paginated } from "nestelia/apollo";
+
+@ObjectType()
+class BooksPage extends Paginated(Book) {}
+
+@Query(() => BooksPage)
+books(@Args() args: BooksArgs): BooksPage {
+  const items = this.store.slice(args.offset, args.offset + args.limit);
+  return {
+    items,
+    total: this.store.length,
+    hasNextPage: args.offset + args.limit < this.store.length,
+    hasPreviousPage: args.offset > 0,
+  };
+}
+```
+
+### Relay (cursor-based)
+
+`createEdgeType` and `createConnectionType` build standard Relay Connection types:
+
+```typescript
+import { createEdgeType, createConnectionType, PageInfo, Int } from "nestelia/apollo";
+
+@ObjectType()
+class BookEdge extends createEdgeType(Book) {}
+
+@ObjectType()
+class BookConnection extends createConnectionType(Book, BookEdge) {}
+
+@Query(() => BookConnection)
+booksConnection(@Args("first", { type: () => Int }) first: number): BookConnection {
+  const edges = this.store.slice(0, first).map((book, i) => ({
+    node: book,
+    cursor: Buffer.from(String(i)).toString("base64"),
+  }));
+  return {
+    edges,
+    pageInfo: {
+      hasNextPage: first < this.store.length,
+      hasPreviousPage: false,
+      startCursor: edges[0]?.cursor,
+      endCursor: edges.at(-1)?.cursor,
+    },
+    totalCount: this.store.length,
+  };
+}
+```
+
+`PageInfo` fields: `hasNextPage`, `hasPreviousPage`, `startCursor?`, `endCursor?`.
 
 ## Resolver
 

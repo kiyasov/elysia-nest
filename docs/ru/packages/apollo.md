@@ -125,24 +125,139 @@ class Owner {
 }
 ```
 
+### Встроенные скаляры
+
+Шесть готовых скалярных типов — без дополнительных пакетов:
+
+| Скаляр | GraphQL тип | JS тип | Описание |
+|--------|-------------|--------|----------|
+| `GraphQLDateTime` | `DateTime` | `Date` | ISO 8601 строка ↔ JS Date |
+| `GraphQLJSON` | `JSON` | `any` | Любое JSON-значение |
+| `GraphQLURL` | `URL` | `string` | Валидированная URL строка |
+| `GraphQLBigInt` | `BigInt` | `bigint` | 64-битное целое, сериализуется как строка |
+| `GraphQLEmailAddress` | `EmailAddress` | `string` | Валидированный email адрес |
+| `GraphQLUUID` | `UUID` | `string` | UUID, нормализуется к нижнему регистру |
+
+```typescript
+import { GraphQLDateTime, GraphQLEmailAddress, GraphQLJSON, GraphQLUUID } from "nestelia/apollo";
+
+@ObjectType()
+class User {
+  @Field(() => GraphQLUUID)
+  id!: string;
+
+  @Field(() => GraphQLEmailAddress)
+  email!: string;
+
+  @Field(() => GraphQLDateTime)
+  createdAt!: Date;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  metadata?: Record<string, unknown>;
+}
+```
+
 ### Custom Scalars
+
+Реализуйте собственный скаляр с помощью `@Scalar()`:
 
 ```typescript
 import { Scalar } from "nestelia/apollo";
 
-@Scalar("DateTime")
-class DateTimeScalar {
-  description = "ISO 8601 date-time string";
+@Scalar("Currency")
+class CurrencyScalar {
+  description = "Денежная сумма в копейках (целое число)";
 
-  serialize(value: Date) {
-    return value.toISOString();
-  }
-
-  parseValue(value: string) {
-    return new Date(value);
+  serialize(value: number) { return Math.round(value); }
+  parseValue(value: unknown) {
+    if (typeof value !== "number") throw new Error("Currency must be a number");
+    return Math.round(value);
   }
 }
 ```
+
+## Args Types
+
+`@ArgsType()` помечает класс, поля `@Field()` которого разворачиваются как отдельные аргументы верхнего уровня в схеме — без оборачивающего input-объекта. Используйте с `@Args()` (без имени):
+
+```typescript
+import { ArgsType, Field, Int } from "nestelia/apollo";
+
+@ArgsType()
+class BooksArgs {
+  @Field(() => Int, { nullable: true, defaultValue: 0 })
+  offset!: number;
+
+  @Field(() => Int, { nullable: true, defaultValue: 20 })
+  limit!: number;
+}
+
+@Resolver(() => Book)
+class BooksResolver {
+  @Query(() => [Book])
+  books(@Args() args: BooksArgs): Book[] {
+    return this.store.slice(args.offset, args.offset + args.limit);
+  }
+}
+```
+
+## Пагинация
+
+### Offset-based
+
+`Paginated(ItemType)` создаёт тип пагинированного ответа с полями `items`, `total`, `hasNextPage`, `hasPreviousPage`:
+
+```typescript
+import { Paginated } from "nestelia/apollo";
+
+@ObjectType()
+class BooksPage extends Paginated(Book) {}
+
+@Query(() => BooksPage)
+books(@Args() args: BooksArgs): BooksPage {
+  const items = this.store.slice(args.offset, args.offset + args.limit);
+  return {
+    items,
+    total: this.store.length,
+    hasNextPage: args.offset + args.limit < this.store.length,
+    hasPreviousPage: args.offset > 0,
+  };
+}
+```
+
+### Relay (cursor-based)
+
+`createEdgeType` и `createConnectionType` строят стандартные Relay Connection типы:
+
+```typescript
+import { createEdgeType, createConnectionType, PageInfo, Int } from "nestelia/apollo";
+
+@ObjectType()
+class BookEdge extends createEdgeType(Book) {}
+
+@ObjectType()
+class BookConnection extends createConnectionType(Book, BookEdge) {}
+
+@Query(() => BookConnection)
+booksConnection(@Args("first", { type: () => Int }) first: number): BookConnection {
+  const edges = this.store.slice(0, first).map((book, i) => ({
+    node: book,
+    cursor: Buffer.from(String(i)).toString("base64"),
+  }));
+  return {
+    edges,
+    pageInfo: {
+      hasNextPage: first < this.store.length,
+      hasPreviousPage: false,
+      startCursor: edges[0]?.cursor,
+      endCursor: edges.at(-1)?.cursor,
+    },
+    totalCount: this.store.length,
+  };
+}
+```
+
+Поля `PageInfo`: `hasNextPage`, `hasPreviousPage`, `startCursor?`, `endCursor?`.
 
 ## Resolver
 

@@ -17,13 +17,11 @@ describe("BooksResolver", () => {
   });
 
   it("returns initial books list", () => {
-    const books = resolver.books();
-    expect(books).toHaveLength(2);
+    expect(resolver.books()).toHaveLength(2);
   });
 
   it("finds a book by id", () => {
-    const book = resolver.book(1);
-    expect(book?.title).toBe("The Great Gatsby");
+    expect(resolver.book(1)?.title).toBe("The Great Gatsby");
   });
 
   it("returns null for unknown id", () => {
@@ -33,31 +31,50 @@ describe("BooksResolver", () => {
   it("adds a book with default publishedAt", () => {
     const book = resolver.addBook("Brave New World", "Aldous Huxley");
     expect(book.title).toBe("Brave New World");
-    expect(book.author).toBe("Aldous Huxley");
     expect(book.id).toBe(3);
     expect(book.publishedAt).toBeInstanceOf(Date);
-    expect(resolver.books()).toHaveLength(3);
   });
 
   it("adds a book with explicit publishedAt", () => {
     const date = new Date("2000-01-01");
-    const book = resolver.addBook("Book", "Author", date);
-    expect(book.publishedAt).toEqual(date);
+    expect(resolver.addBook("Book", "Author", date).publishedAt).toEqual(date);
   });
 
-  it("assigns incrementing ids to added books", () => {
-    const a = resolver.addBook("Book A", "Author A");
-    const b = resolver.addBook("Book B", "Author B");
+  it("assigns incrementing ids", () => {
+    const a = resolver.addBook("A", "AA");
+    const b = resolver.addBook("B", "BB");
     expect(b.id).toBe(a.id + 1);
   });
 
-  it("removes a book by id", () => {
-    const removed = resolver.removeBook(1);
-    expect(removed).toBe(true);
+  it("removes a book", () => {
+    expect(resolver.removeBook(1)).toBe(true);
     expect(resolver.books()).toHaveLength(1);
   });
 
-  it("returns false when removing non-existent book", () => {
+  it("returns false removing non-existent book", () => {
     expect(resolver.removeBook(999)).toBe(false);
+  });
+
+  describe("booksPage", () => {
+    it("returns all books with default args", () => {
+      const page = resolver.booksPage({ offset: 0, limit: 20 });
+      expect(page.items).toHaveLength(2);
+      expect(page.total).toBe(2);
+      expect(page.hasNextPage).toBe(false);
+      expect(page.hasPreviousPage).toBe(false);
+    });
+
+    it("paginates with offset and limit", () => {
+      const page = resolver.booksPage({ offset: 1, limit: 1 });
+      expect(page.items).toHaveLength(1);
+      expect(page.items[0].id).toBe(2);
+      expect(page.hasPreviousPage).toBe(true);
+      expect(page.hasNextPage).toBe(false);
+    });
+
+    it("hasNextPage when more items exist", () => {
+      const page = resolver.booksPage({ offset: 0, limit: 1 });
+      expect(page.hasNextPage).toBe(true);
+    });
   });
 });

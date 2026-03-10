@@ -144,6 +144,113 @@ class DateTimeScalar {
 }
 ```
 
+### Scalars Integrados
+
+Seis scalars prontos para uso estão incluídos — sem configuração adicional:
+
+| Scalar | Tipo GraphQL | Tipo JS | Descrição |
+|--------|-------------|---------|-----------|
+| `GraphQLDateTime` | `DateTime` | `Date` | String ISO 8601 ↔ JS Date |
+| `GraphQLJSON` | `JSON` | `any` | Qualquer valor JSON |
+| `GraphQLURL` | `URL` | `string` | String de URL validada |
+| `GraphQLBigInt` | `BigInt` | `bigint` | Inteiro de 64 bits, serializado como string |
+| `GraphQLEmailAddress` | `EmailAddress` | `string` | Endereço de e-mail validado |
+| `GraphQLUUID` | `UUID` | `string` | UUID, normalizado para minúsculas |
+
+```typescript
+import { GraphQLDateTime, GraphQLEmailAddress, GraphQLJSON, GraphQLUUID } from "nestelia/apollo";
+
+@ObjectType()
+class User {
+  @Field(() => GraphQLUUID)
+  id!: string;
+
+  @Field(() => GraphQLEmailAddress)
+  email!: string;
+
+  @Field(() => GraphQLDateTime)
+  createdAt!: Date;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  metadata?: Record<string, unknown>;
+}
+```
+
+## Tipos de Args
+
+`@ArgsType()` marca uma classe cujas propriedades `@Field()` são expandidas como argumentos individuais de nível superior no schema — sem objeto de input de wrapper. Use com `@Args()` (sem nome):
+
+```typescript
+import { ArgsType, Field, Int } from "nestelia/apollo";
+
+@ArgsType()
+class BooksArgs {
+  @Field(() => Int, { nullable: true, defaultValue: 0 })
+  offset!: number;
+
+  @Field(() => Int, { nullable: true, defaultValue: 20 })
+  limit!: number;
+}
+
+@Resolver(() => Book)
+class BooksResolver {
+  @Query(() => [Book])
+  books(@Args() args: BooksArgs): Book[] {
+    return this.store.slice(args.offset, args.offset + args.limit);
+  }
+}
+```
+
+## Paginação
+
+### Baseada em offset
+
+`Paginated(ItemType)` cria uma resposta paginada com `items`, `total`, `hasNextPage`, `hasPreviousPage`:
+
+```typescript
+import { Paginated, Int } from "nestelia/apollo";
+
+@ObjectType()
+class BooksPage extends Paginated(Book) {}
+
+@Query(() => BooksPage)
+books(@Args() args: BooksArgs): BooksPage {
+  const items = this.store.slice(args.offset, args.offset + args.limit);
+  return {
+    items,
+    total: this.store.length,
+    hasNextPage: args.offset + args.limit < this.store.length,
+    hasPreviousPage: args.offset > 0,
+  };
+}
+```
+
+### Relay (baseada em cursor)
+
+```typescript
+import { createEdgeType, createConnectionType, PageInfo } from "nestelia/apollo";
+
+@ObjectType()
+class BookEdge extends createEdgeType(Book) {}
+
+@ObjectType()
+class BookConnection extends createConnectionType(Book, BookEdge) {}
+
+@Query(() => BookConnection)
+booksConnection(@Args("first", { type: () => Int }) first: number): BookConnection {
+  const edges = this.store.slice(0, first).map((book, i) => ({
+    node: book,
+    cursor: Buffer.from(String(i)).toString("base64"),
+  }));
+  return {
+    edges,
+    pageInfo: { hasNextPage: first < this.store.length, hasPreviousPage: false,
+      startCursor: edges[0]?.cursor, endCursor: edges.at(-1)?.cursor },
+    totalCount: this.store.length,
+  };
+}
+```
+
 ## Resolver
 
 Defina resolvers GraphQL com o decorador `@Resolver()`:

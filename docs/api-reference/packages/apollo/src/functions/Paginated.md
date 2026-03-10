@@ -1,10 +1,10 @@
 # Function: Paginated()
 
 ```ts
-function Paginated<T>(ItemType): Constructor;
+function Paginated<T>(ItemType): AnyConstructor;
 ```
 
-Defined in: [packages/apollo/src/pagination.ts:48](https://github.com/kiyasov/nestelia/blob/main/packages/apollo/src/pagination.ts#L48)
+Defined in: [packages/apollo/src/pagination.ts:49](https://github.com/kiyasov/nestelia/blob/main/packages/apollo/src/pagination.ts#L49)
 
 Creates a simple paginated response type for a given item class.
 Fields: `items`, `total`, `hasNextPage`, `hasPreviousPage`.
@@ -23,7 +23,7 @@ Fields: `items`, `total`, `hasNextPage`, `hasPreviousPage`.
 
 ## Returns
 
-`Constructor`
+`AnyConstructor`
 
 ## Example
 
@@ -32,7 +32,7 @@ Fields: `items`, `total`, `hasNextPage`, `hasPreviousPage`.
 class BooksPage extends Paginated(Book) {}
 
 @Query(() => BooksPage)
-books(@Args('offset', { type: () => Int }) offset: number): BooksPage { ... }
+books(@Args() args: BooksArgs): BooksPage { ... }
 ```
 
 ## Public Api
