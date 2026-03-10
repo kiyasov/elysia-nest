@@ -150,6 +150,13 @@ export const apiSidebar = [
     ["TestingModule",        "packages/testing/src/classes/TestingModule"],
     ["TestingModuleBuilder", "packages/testing/src/classes/TestingModuleBuilder"],
   ]),
+  arSection("Drizzle", [
+    ["DrizzleModule",           "packages/drizzle/src/classes/DrizzleModule"],
+    ["InjectDrizzle",           "packages/drizzle/src/functions/InjectDrizzle"],
+    ["DRIZZLE_INSTANCE",        "packages/drizzle/src/variables/DRIZZLE_INSTANCE"],
+    ["DrizzleModuleOptions",    "packages/drizzle/src/interfaces/DrizzleModuleOptions"],
+    ["DrizzleModuleAsyncOptions","packages/drizzle/src/interfaces/DrizzleModuleAsyncOptions"],
+  ]),
 ];
 
 // ── English locale ────────────────────────────────────────────────────────────
@@ -186,6 +193,7 @@ const enDocs = [
     ["Cache",            "packages/cache"],
     ["RabbitMQ",         "packages/rabbitmq"],
     ["GraphQL PubSub",   "packages/graphql-pubsub"],
+    ["Drizzle ORM",      "packages/drizzle"],
   ]),
   docSection("Advanced", [
     ["Custom Providers",   "advanced/custom-providers"],
@@ -247,6 +255,7 @@ const ruDocs = [
     ["Cache",            "packages/cache"],
     ["RabbitMQ",         "packages/rabbitmq"],
     ["GraphQL PubSub",   "packages/graphql-pubsub"],
+    ["Drizzle ORM",      "packages/drizzle"],
   ], "/ru"),
   docSection("Продвинутые темы", [
     ["Пользовательские провайдеры", "advanced/custom-providers"],
@@ -290,6 +299,7 @@ const zhDocs = [
     ["Cache",          "packages/cache"],
     ["RabbitMQ",       "packages/rabbitmq"],
     ["GraphQL PubSub", "packages/graphql-pubsub"],
+    ["Drizzle ORM",    "packages/drizzle"],
   ], "/zh"),
   docSection("进阶", [
     ["自定义提供者",  "advanced/custom-providers"],
@@ -352,6 +362,7 @@ const jaDocs = [
     ["Cache",          "packages/cache"],
     ["RabbitMQ",       "packages/rabbitmq"],
     ["GraphQL PubSub", "packages/graphql-pubsub"],
+    ["Drizzle ORM",    "packages/drizzle"],
   ], "/ja"),
   docSection("応用", [
     ["カスタムプロバイダー","advanced/custom-providers"],
@@ -414,6 +425,7 @@ const ptDocs = [
     ["Cache",          "packages/cache"],
     ["RabbitMQ",       "packages/rabbitmq"],
     ["GraphQL PubSub", "packages/graphql-pubsub"],
+    ["Drizzle ORM",    "packages/drizzle"],
   ], "/pt"),
   docSection("Avançado", [
     ["Provedores Customizados","advanced/custom-providers"],
@@ -476,6 +488,7 @@ const koDocs = [
     ["Cache",          "packages/cache"],
     ["RabbitMQ",       "packages/rabbitmq"],
     ["GraphQL PubSub", "packages/graphql-pubsub"],
+    ["Drizzle ORM",    "packages/drizzle"],
   ], "/ko"),
   docSection("고급", [
     ["커스텀 프로바이더","advanced/custom-providers"],
@@ -538,6 +551,7 @@ const esDocs = [
     ["Cache",          "packages/cache"],
     ["RabbitMQ",       "packages/rabbitmq"],
     ["GraphQL PubSub", "packages/graphql-pubsub"],
+    ["Drizzle ORM",    "packages/drizzle"],
   ], "/es"),
   docSection("Avanzado", [
     ["Proveedores Personalizados","advanced/custom-providers"],

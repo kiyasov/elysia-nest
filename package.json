@@ -60,6 +60,11 @@
       "import": "./dist/esm/packages/graphql-pubsub/src/index.js",
       "require": "./dist/cjs/packages/graphql-pubsub/src/index.js",
       "types": "./dist/types/packages/graphql-pubsub/src/index.d.ts"
+    },
+    "./drizzle": {
+      "import": "./dist/esm/packages/drizzle/src/index.js",
+      "require": "./dist/cjs/packages/drizzle/src/index.js",
+      "types": "./dist/types/packages/drizzle/src/index.d.ts"
     }
   },
   "publishConfig": {
@@ -102,7 +107,8 @@
     "ioredis": "^5.0.0",
     "rxjs": "^7.0.0",
     "passport": "^0.7.0",
-    "amqplib": "^0.10.0"
+    "amqplib": "^0.10.0",
+    "drizzle-orm": ">=0.30.0"
   },
   "peerDependenciesMeta": {
     "class-validator": {
@@ -144,6 +150,9 @@
     "amqplib": {
       "optional": true
     },
+    "drizzle-orm": {
+      "optional": true
+    },
     "elysia": {
       "optional": false
     },
@@ -176,6 +185,7 @@
     "rxjs": "^7.8.2",
     "typedoc": "^0.28.17",
     "typedoc-plugin-markdown": "^4.10.0",
+    "drizzle-orm": "^0.43.1",
     "typescript": "^5.9.3"
   },
   "keywords": [

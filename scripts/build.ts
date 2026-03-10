@@ -27,6 +27,7 @@ const ENTRYPOINTS = [
   "./packages/cache/src/index.ts",
   "./packages/rabbitmq/src/index.ts",
   "./packages/graphql-pubsub/src/index.ts",
+  "./packages/drizzle/src/index.ts",
 ];
 
 // All peer + optional dependencies — must NOT be bundled
@@ -49,6 +50,7 @@ const EXTERNAL = [
   "rxjs",
   "passport",
   "amqplib",
+  "drizzle-orm",
 ];
 
 // ─── Clean dist ───────────────────────────────────────────────────────────────

@@ -18,6 +18,7 @@ nestelia ships a set of optional packages that extend the core framework. Instal
 | `nestelia/cache` | Response caching with decorators | `cache-manager` |
 | `nestelia/rabbitmq` | Advanced RabbitMQ messaging | `amqplib` |
 | `nestelia/graphql-pubsub` | Redis PubSub for GraphQL subscriptions | `ioredis` |
+| `nestelia/drizzle` | Type-safe SQL ORM via drizzle-orm | `drizzle-orm` |
 
 ## Installation
 
@@ -56,4 +57,5 @@ import { Test } from "nestelia/testing";
 import { CacheModule } from "nestelia/cache";
 import { RabbitMQModule } from "nestelia/rabbitmq";
 import { GraphQLPubSubModule } from "nestelia/graphql-pubsub";
+import { DrizzleModule } from "nestelia/drizzle";
 ```

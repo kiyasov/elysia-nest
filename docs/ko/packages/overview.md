@@ -18,6 +18,7 @@ nestelia는 코어 프레임워크를 확장하는 선택적 패키지 세트를
 | `nestelia/cache` | 데코레이터를 이용한 응답 캐싱 | `cache-manager` |
 | `nestelia/rabbitmq` | 고급 RabbitMQ 메시징 | `amqplib` |
 | `nestelia/graphql-pubsub` | GraphQL 구독을 위한 Redis PubSub | `ioredis` |
+| `nestelia/drizzle` | Drizzle ORM — type-safe SQL | `drizzle-orm` |
 
 ## 설치
 
@@ -56,4 +57,5 @@ import { Test } from "nestelia/testing";
 import { CacheModule } from "nestelia/cache";
 import { RabbitMQModule } from "nestelia/rabbitmq";
 import { GraphQLPubSubModule } from "nestelia/graphql-pubsub";
+import { DrizzleModule } from "nestelia/drizzle";
 ```
