@@ -1,0 +1,54 @@
+# Nestelia
+
+> A modular, decorator-driven framework built on top of [Elysia](https://elysiajs.com/) and [Bun](https://bun.sh/). Provides NestJS-style decorators, dependency injection, modules, and lifecycle hooks — without leaving Elysia's performance behind.
+
+Nestelia brings structured, opinionated architecture to Bun-native development. Key features: `@Controller`, `@Injectable`, `@Module`, constructor-based DI (singleton/transient/request scopes), lifecycle hooks (`OnModuleInit`, `OnApplicationBootstrap`, `OnModuleDestroy`), guards, interceptors, pipes, middleware, and built-in HTTP exceptions.
+
+## Getting Started
+
+- [Introduction](https://nestelia.dev/introduction): Framework overview, motivation, packages list, and quick example
+- [Installation](https://nestelia.dev/getting-started/installation): Install nestelia and its peer dependencies
+- [Quick Start](https://nestelia.dev/getting-started/quick-start): Build your first CRUD app in 5 minutes
+
+## Core Concepts
+
+- [Modules](https://nestelia.dev/core-concepts/modules): How modules organize controllers, providers, and imports
+- [Controllers](https://nestelia.dev/core-concepts/controllers): Routing with `@Controller`, `@Get`, `@Post`, etc.
+- [Bootstrap](https://nestelia.dev/core-concepts/bootstrap): Application startup with `createElysiaApplication`
+
+## Features
+
+- [HTTP Decorators](https://nestelia.dev/features/http-decorators): `@Get`, `@Post`, `@Put`, `@Delete`, `@Patch`, `@Header`, `@HttpCode`
+- [Parameter Decorators](https://nestelia.dev/features/parameter-decorators): `@Body`, `@Param`, `@Query`, `@Headers`, `@Req`, `@Res`, `@Ctx`
+- [Dependency Injection](https://nestelia.dev/features/dependency-injection): Constructor-based DI with singleton, transient, and request scopes
+- [Lifecycle Hooks](https://nestelia.dev/features/lifecycle-hooks): `OnModuleInit`, `OnApplicationBootstrap`, `OnModuleDestroy`, `BeforeApplicationShutdown`
+- [Middleware](https://nestelia.dev/features/middleware): Class-based and functional middleware
+- [Exception Handling](https://nestelia.dev/features/exception-handling): `HttpException`, `BadRequestException`, `NotFoundException`, custom filters
+- [Guards](https://nestelia.dev/features/guards): `CanActivate` interface, `@UseGuards`, `ExecutionContext`
+- [Interceptors](https://nestelia.dev/features/interceptors): `NestInterceptor`, `@UseInterceptors`, `CallHandler`, RxJS-based pipeline
+- [Pipes](https://nestelia.dev/features/pipes): `PipeTransform`, `@UsePipes`, validation and transformation
+
+## Packages
+
+- [Packages Overview](https://nestelia.dev/packages/overview): All optional packages at a glance
+- [Scheduler](https://nestelia.dev/packages/scheduler): Cron jobs (`@Cron`), intervals (`@Interval`), timeouts (`@Timeout`)
+- [Microservices](https://nestelia.dev/packages/microservices): TCP, Redis, RabbitMQ transports; `@MessagePattern`, `@EventPattern`, `ClientProxy`
+- [Apollo / GraphQL](https://nestelia.dev/packages/apollo): Code-first GraphQL with `@Resolver`, `@Query`, `@Mutation`, `@Subscription`, `@ObjectType`, `@Field`
+- [Passport](https://nestelia.dev/packages/passport): Authentication via `PassportStrategy`, `AuthGuard`
+- [Testing](https://nestelia.dev/packages/testing): `Test.createTestingModule()` with provider overrides
+- [Cache](https://nestelia.dev/packages/cache): HTTP response caching with `@CacheKey`, `@CacheTTL`, `CacheInterceptor`
+- [RabbitMQ](https://nestelia.dev/packages/rabbitmq): Advanced RabbitMQ with `@RabbitSubscribe`, `@RabbitRPC`, `AmqpConnection`
+- [GraphQL PubSub](https://nestelia.dev/packages/graphql-pubsub): Redis-backed PubSub for GraphQL subscriptions
+- [Drizzle ORM](https://nestelia.dev/packages/drizzle): `DrizzleModule`, `@InjectDrizzle` for Drizzle ORM integration
+- [Event Emitter](https://nestelia.dev/packages/event-emitter): `@OnEvent`, `EventEmitterModule`, typed event payloads
+
+## Advanced
+
+- [Custom Providers](https://nestelia.dev/advanced/custom-providers): `useValue`, `useFactory`, `useClass`, `useExisting`
+- [Forward References](https://nestelia.dev/advanced/forward-ref): Resolving circular dependencies with `forwardRef()`
+- [Container API](https://nestelia.dev/advanced/container-api): Direct DI container access via `ModuleRef`
+- [Swagger](https://nestelia.dev/advanced/swagger): Auto-generated OpenAPI docs via Elysia's Swagger plugin
+
+## API Reference
+
+- [API Reference](https://nestelia.dev/api-reference/index/README): Full TypeDoc-generated API reference for all exports

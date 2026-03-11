@@ -38,9 +38,28 @@ export default defineConfig({
     ["meta", { name: "twitter:title",       content: "Nestelia" }],
     ["meta", { name: "twitter:description", content: SITE_DESC }],
     ["meta", { name: "twitter:image",       content: OG_IMAGE }],
+
+    // JSON-LD structured data
+    ["script", { type: "application/ld+json" }, JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Nestelia",
+      "description": SITE_DESC,
+      "url": SITE_URL,
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "programmingLanguage": "TypeScript",
+      "license": "https://opensource.org/licenses/MIT",
+      "codeRepository": "https://github.com/kiyasov/nestelia",
+      "documentation": `${SITE_URL}/introduction`,
+      "keywords": [
+        "elysia", "bun", "typescript", "framework", "dependency injection",
+        "decorators", "nestjs", "modules", "controllers", "graphql", "microservices"
+      ],
+    })],
   ],
 
-  // Inject per-page canonical URL and dynamic og:title
+  // Inject per-page canonical URL, dynamic og:title, and hreflang alternates
   transformPageData(pageData) {
     const canonical = `${SITE_URL}/${pageData.relativePath}`
       .replace(/index\.md$/, "")
@@ -52,6 +71,35 @@ export default defineConfig({
       ["meta", { property: "og:url",   content: canonical }],
       ["meta", { property: "og:title", content: pageData.title ? `${pageData.title} | Nestelia` : "Nestelia" }],
     );
+
+    // hreflang alternate links for multilingual SEO
+    const localePrefixes: Array<{ lang: string; prefix: string }> = [
+      { lang: "en",    prefix: ""    },
+      { lang: "zh-CN", prefix: "zh/" },
+      { lang: "ru",    prefix: "ru/" },
+      { lang: "ja",    prefix: "ja/" },
+      { lang: "pt-BR", prefix: "pt/" },
+      { lang: "ko",    prefix: "ko/" },
+      { lang: "es",    prefix: "es/" },
+    ];
+
+    // Strip any locale prefix to get the base path
+    let basePath = pageData.relativePath;
+    for (const { prefix } of localePrefixes.filter(l => l.prefix)) {
+      if (basePath.startsWith(prefix)) {
+        basePath = basePath.slice(prefix.length);
+        break;
+      }
+    }
+    basePath = basePath.replace(/index\.md$/, "").replace(/\.md$/, "");
+
+    for (const { lang, prefix } of localePrefixes) {
+      const href = `${SITE_URL}/${prefix}${basePath}`.replace(/\/$/, "") || SITE_URL;
+      pageData.frontmatter.head.push(["link", { rel: "alternate", hreflang: lang, href }]);
+    }
+    // x-default points to the English version
+    const defaultHref = `${SITE_URL}/${basePath}`.replace(/\/$/, "") || SITE_URL;
+    pageData.frontmatter.head.push(["link", { rel: "alternate", hreflang: "x-default", href: defaultHref }]);
   },
 
   locales: {
