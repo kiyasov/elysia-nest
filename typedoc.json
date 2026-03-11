@@ -28,5 +28,16 @@
   "expandObjects": true,
   "groupOrder": ["Classes", "Functions", "Interfaces", "Type Aliases", "Enumerations", "Variables"],
   "skipErrorChecking": true,
-  "gitRevision": "main"
+  "gitRevision": "main",
+  "blockTags": [
+    "@param", "@returns", "@throws", "@example", "@deprecated", "@see", "@remarks",
+    "@defaultValue", "@typeParam", "@link", "@inheritDoc", "@override", "@sealed",
+    "@virtual", "@alpha", "@beta", "@internal", "@experimental",
+    "@module", "@default", "@template", "@warning",
+    "@Resolver", "@Query", "@Mutation", "@Subscription", "@ObjectType", "@InputType",
+    "@InterfaceType", "@Field", "@FieldResolver", "@Args", "@Arg", "@Context",
+    "@Parent", "@Info", "@Enum", "@Union", "@Scalar", "@Directive", "@ReturnType",
+    "@ArgsType", "@RabbitSubscribe", "@RabbitRPC", "@OnEvent", "@CacheKey", "@CacheTTL",
+    "@nestelia"
+  ]
 }
