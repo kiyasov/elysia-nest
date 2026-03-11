@@ -1,6 +1,7 @@
 import DefaultTheme from 'vitepress/theme-without-fonts'
 import Layout from './layout.vue'
 import Home from './Home.vue'
+import '@fontsource-variable/inter'
 import '../../tailwind.css'
 
 export default {

@@ -26,10 +26,7 @@ export default defineConfig({
     // Favicon
     ["link", { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" }],
 
-    // Fonts
-    ["link", { rel: "preconnect", href: "https://fonts.googleapis.com" }],
-    ["link", { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" }],
-    ["link", { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" }],
+    // Fonts — Inter is self-hosted via @fontsource-variable/inter (no external requests)
     ["link", { rel: "preload", href: "/assets/GeistMono-Regular.woff2", as: "font", type: "font/woff2", crossorigin: "" }],
 
     // PWA manifest

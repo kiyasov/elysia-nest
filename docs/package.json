@@ -17,5 +17,8 @@
     "motion-v": "^1.7.4",
     "tailwindcss": "^4.2.0",
     "vitepress": "^1.5.0"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8"
   }
 }
