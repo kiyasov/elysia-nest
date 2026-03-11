@@ -76,7 +76,7 @@ app.listen(3000);
 nestelia를 위한 [Claude Code](https://claude.ai/claude-code) 스킬을 사용할 수 있습니다. AI 어시스턴트에서 직접 스캐폴딩 템플릿, 데코레이터 사용법, 모범 사례를 제공합니다.
 
 ```bash
-npx skills add kiyasov/nestelia
+npx skills add nestelia/nestelia
 ```
 
 설치 후, Claude Code는 `nestelia`로 작업할 때 올바른 패턴을 자동으로 사용합니다.

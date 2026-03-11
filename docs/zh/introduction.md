@@ -76,7 +76,7 @@ app.listen(3000);
 nestelia 提供了 [Claude Code](https://claude.ai/claude-code) 技能，直接在 AI 助手中提供脚手架模板、装饰器用法和最佳实践。
 
 ```bash
-npx skills add kiyasov/nestelia
+npx skills add nestelia/nestelia
 ```
 
 安装后，Claude Code 将在使用 `nestelia` 时自动应用正确的模式。

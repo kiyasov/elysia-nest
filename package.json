@@ -10,7 +10,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kiyasov/nestelia"
+    "url": "https://github.com/nestelia/nestelia"
   },
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",

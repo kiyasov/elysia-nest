@@ -76,7 +76,7 @@ app.listen(3000);
 Для nestelia доступен skill [Claude Code](https://claude.ai/claude-code). Он предоставляет шаблоны для скаффолдинга, примеры использования decorators и лучшие практики прямо в вашем AI-ассистенте.
 
 ```bash
-npx skills add kiyasov/nestelia
+npx skills add nestelia/nestelia
 ```
 
 После установки Claude Code будет автоматически использовать корректные паттерны при работе с `nestelia`.

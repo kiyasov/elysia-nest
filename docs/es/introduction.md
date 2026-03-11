@@ -76,7 +76,7 @@ app.listen(3000);
 Hay un skill de [Claude Code](https://claude.ai/claude-code) disponible para nestelia. Proporciona plantillas de andamiaje, uso de decoradores y buenas prácticas directamente en tu asistente de IA.
 
 ```bash
-npx skills add kiyasov/nestelia
+npx skills add nestelia/nestelia
 ```
 
 Una vez instalado, Claude Code utilizará automáticamente los patrones correctos al trabajar con `nestelia`.

@@ -63,7 +63,7 @@ export default defineConfig({
       "operatingSystem": "Any",
       "programmingLanguage": "TypeScript",
       "license": "https://opensource.org/licenses/MIT",
-      "codeRepository": "https://github.com/kiyasov/nestelia",
+      "codeRepository": "https://github.com/nestelia/nestelia",
       "documentation": `${SITE_URL}/introduction`,
       "keywords": [
         "elysia", "bun", "typescript", "framework", "dependency injection",
@@ -159,7 +159,7 @@ export default defineConfig({
       alt:   "Nestelia",
     },
     siteTitle: false,
-    socialLinks: [{ icon: "github", link: "https://github.com/kiyasov/nestelia" }],
+    socialLinks: [{ icon: "github", link: "https://github.com/nestelia/nestelia" }],
     search: { provider: "local" },
   },
 

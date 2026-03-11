@@ -211,11 +211,11 @@ export const enLocale = {
     nav: [
       { text: "Documentation", link: "/introduction" },
       { text: "API Reference", link: "/api-reference/index/README" },
-      { text: "GitHub",        link: "https://github.com/kiyasov/nestelia" },
+      { text: "GitHub",        link: "https://github.com/nestelia/nestelia" },
     ],
     sidebar: { "/": enDocs, "/api-reference/": apiSidebar },
     editLink: {
-      pattern: "https://github.com/kiyasov/nestelia/edit/main/docs/:path",
+      pattern: "https://github.com/nestelia/nestelia/edit/main/docs/:path",
       text: "Edit this page on GitHub",
     },
     footer: { message: "Released under the MIT License." },
@@ -320,11 +320,11 @@ export const zhLocale = {
     nav: [
       { text: "文档",         link: "/zh/introduction" },
       { text: "API Reference", link: "/api-reference/index/README" },
-      { text: "GitHub",        link: "https://github.com/kiyasov/nestelia" },
+      { text: "GitHub",        link: "https://github.com/nestelia/nestelia" },
     ],
     sidebar: { "/zh/": zhDocs },
     editLink: {
-      pattern: "https://github.com/kiyasov/nestelia/edit/main/docs/:path",
+      pattern: "https://github.com/nestelia/nestelia/edit/main/docs/:path",
       text: "在 GitHub 上编辑此页",
     },
     footer: { message: "基于 MIT 许可证发布。" },
@@ -384,11 +384,11 @@ export const jaLocale = {
     nav: [
       { text: "ドキュメント",  link: "/ja/introduction" },
       { text: "API Reference", link: "/api-reference/index/README" },
-      { text: "GitHub",        link: "https://github.com/kiyasov/nestelia" },
+      { text: "GitHub",        link: "https://github.com/nestelia/nestelia" },
     ],
     sidebar: { "/ja/": jaDocs },
     editLink: {
-      pattern: "https://github.com/kiyasov/nestelia/edit/main/docs/:path",
+      pattern: "https://github.com/nestelia/nestelia/edit/main/docs/:path",
       text: "GitHub で編集する",
     },
     footer: { message: "MIT ライセンスの下で公開されています。" },
@@ -448,11 +448,11 @@ export const ptLocale = {
     nav: [
       { text: "Documentação",  link: "/pt/introduction" },
       { text: "API Reference", link: "/api-reference/index/README" },
-      { text: "GitHub",        link: "https://github.com/kiyasov/nestelia" },
+      { text: "GitHub",        link: "https://github.com/nestelia/nestelia" },
     ],
     sidebar: { "/pt/": ptDocs },
     editLink: {
-      pattern: "https://github.com/kiyasov/nestelia/edit/main/docs/:path",
+      pattern: "https://github.com/nestelia/nestelia/edit/main/docs/:path",
       text: "Editar esta página no GitHub",
     },
     footer: { message: "Lançado sob a licença MIT." },
@@ -512,11 +512,11 @@ export const koLocale = {
     nav: [
       { text: "문서",          link: "/ko/introduction" },
       { text: "API Reference", link: "/api-reference/index/README" },
-      { text: "GitHub",        link: "https://github.com/kiyasov/nestelia" },
+      { text: "GitHub",        link: "https://github.com/nestelia/nestelia" },
     ],
     sidebar: { "/ko/": koDocs },
     editLink: {
-      pattern: "https://github.com/kiyasov/nestelia/edit/main/docs/:path",
+      pattern: "https://github.com/nestelia/nestelia/edit/main/docs/:path",
       text: "GitHub에서 이 페이지 편집",
     },
     footer: { message: "MIT 라이선스로 배포됩니다." },
@@ -576,11 +576,11 @@ export const esLocale = {
     nav: [
       { text: "Documentación", link: "/es/introduction" },
       { text: "API Reference",  link: "/api-reference/index/README" },
-      { text: "GitHub",         link: "https://github.com/kiyasov/nestelia" },
+      { text: "GitHub",         link: "https://github.com/nestelia/nestelia" },
     ],
     sidebar: { "/es/": esDocs },
     editLink: {
-      pattern: "https://github.com/kiyasov/nestelia/edit/main/docs/:path",
+      pattern: "https://github.com/nestelia/nestelia/edit/main/docs/:path",
       text: "Editar esta página en GitHub",
     },
     footer: { message: "Publicado bajo la licencia MIT." },
@@ -595,11 +595,11 @@ export const ruLocale = {
     nav: [
       { text: "Документация", link: "/ru/introduction" },
       { text: "API Reference", link: "/api-reference/index/README" },
-      { text: "GitHub",        link: "https://github.com/kiyasov/nestelia" },
+      { text: "GitHub",        link: "https://github.com/nestelia/nestelia" },
     ],
     sidebar: { "/ru/": ruDocs },
     editLink: {
-      pattern: "https://github.com/kiyasov/nestelia/edit/main/docs/:path",
+      pattern: "https://github.com/nestelia/nestelia/edit/main/docs/:path",
       text: "Редактировать на GitHub",
     },
     footer: { message: "Распространяется по лицензии MIT." },

@@ -6,11 +6,11 @@
 
 [![npm version](https://img.shields.io/npm/v/nestelia?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/nestelia)
 [![npm downloads](https://img.shields.io/npm/dm/nestelia?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/nestelia)
-[![GitHub stars](https://img.shields.io/github/stars/kiyasov/nestelia?style=flat-square&logo=github)](https://github.com/kiyasov/nestelia)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/kiyasov/nestelia/blob/main/LICENSE)
-[![Status](https://img.shields.io/badge/status-active%20development-orange?style=flat-square)](https://github.com/kiyasov/nestelia)
+[![GitHub stars](https://img.shields.io/github/stars/nestelia/nestelia?style=flat-square&logo=github)](https://github.com/nestelia/nestelia)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/nestelia/nestelia/blob/main/LICENSE)
+[![Status](https://img.shields.io/badge/status-active%20development-orange?style=flat-square)](https://github.com/nestelia/nestelia)
 
-[Documentation](https://nestelia.dev) · [npm](https://www.npmjs.com/package/nestelia) · [GitHub](https://github.com/kiyasov/nestelia)
+[Documentation](https://nestelia.dev) · [npm](https://www.npmjs.com/package/nestelia) · [GitHub](https://github.com/nestelia/nestelia)
 
 </div>
 
@@ -98,11 +98,11 @@ bun run docs:dev
 A [Claude Code](https://claude.ai/claude-code) skill is available for nestelia. It provides scaffolding templates, decorator usage, and best practices directly in your AI assistant.
 
 ```bash
-npx skills add kiyasov/nestelia
+npx skills add nestelia/nestelia
 ```
 
 Once installed, Claude Code will automatically use the correct patterns when working with `nestelia`.
 
 ## License
 
-[MIT](https://github.com/kiyasov/nestelia/blob/main/LICENSE) © [Islam Kiiasov](https://github.com/kiyasov)
+[MIT](https://github.com/nestelia/nestelia/blob/main/LICENSE) © [Islam Kiiasov](https://github.com/kiyasov)
