@@ -98,7 +98,7 @@ bun run docs:dev
 A [Claude Code](https://claude.ai/claude-code) skill is available for nestelia. It provides scaffolding templates, decorator usage, and best practices directly in your AI assistant.
 
 ```bash
-npx skills add nestelia/nestelia
+npx skills add nestelia/nestelia/nestelia
 ```
 
 Once installed, Claude Code will automatically use the correct patterns when working with `nestelia`.
