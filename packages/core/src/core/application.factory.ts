@@ -3,6 +3,7 @@ import { APP_FILTERS_METADATA, MODULE_METADATA } from "../decorators/constants";
 import type { ModuleOptions } from "../decorators/types";
 import type { Type } from "../di";
 import type { ExceptionFilter } from "../exceptions";
+import { validateTsConfig } from "./helpers";
 
 // Module factory type - accepts any function (module created by @Module decorator)
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
@@ -37,11 +38,12 @@ type ModuleFactory = Function;
 export async function createElysiaApplication(
   rootModule: ModuleFactory,
 ): Promise<ElysiaNestApplication> {
+  validateTsConfig();
+
   const elysiaApp = await rootModule();
 
   // Get module metadata to extract controllers
-  const moduleMetadata: ModuleOptions =
-    Reflect.getMetadata(MODULE_METADATA, rootModule) || {};
+  const moduleMetadata: ModuleOptions = Reflect.getMetadata(MODULE_METADATA, rootModule) || {};
   const controllers = moduleMetadata.controllers || [];
 
   const nestApp = new ElysiaNestApplication(elysiaApp);
