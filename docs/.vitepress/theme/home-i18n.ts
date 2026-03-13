@@ -24,6 +24,13 @@ const messages = {
       Testing: "Test.createTestingModule — isolated module testing with mock providers.",
       "GraphQL PubSub": "Redis-backed PubSub for real-time GraphQL subscriptions.",
     },
+    perf: {
+      title: "Performance",
+      sub: "NestJS-style DX at Elysia-level speed — near-zero overhead from decorators and DI.",
+      methodology: "Measured in requests/second. GET / → plain text 'Hello World'. 500 connections, 10s duration.",
+      cta: "Full benchmark details",
+      link: "/performance",
+    },
     showcase: [
       {
         title: "Decorator-driven Routing",
@@ -58,6 +65,13 @@ const messages = {
     cta: { start: "Начать", quick: "Быстрый старт →" },
     links: { intro: "/ru/introduction", quick: "/ru/getting-started/quick-start" },
     copy: { idle: "Копировать", done: "Скопировано!" },
+    perf: {
+      title: "Производительность",
+      sub: "Удобство NestJS на скорости Elysia — минимальный overhead от декораторов и DI.",
+      methodology: "Измерено в запросах/секунду. GET / → plain text 'Hello World'. 500 соединений, 10 секунд.",
+      cta: "Подробнее о бенчмарке",
+      link: "/ru/performance",
+    },
     ecosystem: {
       title: "Экосистема",
       sub: "Опциональные пакеты — устанавливайте только нужное.",
@@ -106,6 +120,13 @@ const messages = {
     cta: { start: "开始使用", quick: "快速开始 →" },
     links: { intro: "/zh/introduction", quick: "/zh/getting-started/quick-start" },
     copy: { idle: "复制", done: "已复制！" },
+    perf: {
+      title: "性能",
+      sub: "NestJS 风格的开发体验，Elysia 级别的速度——装饰器和 DI 几乎零开销。",
+      methodology: "以每秒请求数衡量。GET / → 纯文本 'Hello World'。500 连接，10 秒。",
+      cta: "查看完整基准测试",
+      link: "/zh/performance",
+    },
     ecosystem: {
       title: "生态系统",
       sub: "可选扩展包 — 按需安装。",
@@ -154,6 +175,13 @@ const messages = {
     cta: { start: "はじめる", quick: "クイックスタート →" },
     links: { intro: "/ja/introduction", quick: "/ja/getting-started/quick-start" },
     copy: { idle: "コピー", done: "コピー済み！" },
+    perf: {
+      title: "パフォーマンス",
+      sub: "NestJS スタイルの DX を Elysia レベルの速度で——デコレーターと DI のオーバーヘッドはほぼゼロ。",
+      methodology: "リクエスト/秒で測定。GET / → プレーンテキスト 'Hello World'。500 接続、10 秒間。",
+      cta: "ベンチマークの詳細",
+      link: "/ja/performance",
+    },
     ecosystem: {
       title: "エコシステム",
       sub: "オプションパッケージ — 必要なものだけインストール。",
@@ -202,6 +230,13 @@ const messages = {
     cta: { start: "Começar", quick: "Início Rápido →" },
     links: { intro: "/pt/introduction", quick: "/pt/getting-started/quick-start" },
     copy: { idle: "Copiar", done: "Copiado!" },
+    perf: {
+      title: "Performance",
+      sub: "DX estilo NestJS na velocidade do Elysia — overhead quase zero de decoradores e DI.",
+      methodology: "Medido em requisições/segundo. GET / → texto puro 'Hello World'. 500 conexões, 10 segundos.",
+      cta: "Detalhes do benchmark",
+      link: "/pt/performance",
+    },
     ecosystem: {
       title: "Ecossistema",
       sub: "Pacotes opcionais — instale apenas o que precisar.",
@@ -250,6 +285,13 @@ const messages = {
     cta: { start: "시작하기", quick: "빠른 시작 →" },
     links: { intro: "/ko/introduction", quick: "/ko/getting-started/quick-start" },
     copy: { idle: "복사", done: "복사됨!" },
+    perf: {
+      title: "성능",
+      sub: "NestJS 스타일의 DX를 Elysia 수준의 속도로 — 데코레이터와 DI의 오버헤드는 거의 제로.",
+      methodology: "초당 요청 수로 측정. GET / → 일반 텍스트 'Hello World'. 500 연결, 10초.",
+      cta: "벤치마크 상세 보기",
+      link: "/ko/performance",
+    },
     ecosystem: {
       title: "에코시스템",
       sub: "선택적 패키지 — 필요한 것만 설치하세요.",
@@ -298,6 +340,13 @@ const messages = {
     cta: { start: "Comenzar", quick: "Inicio Rápido →" },
     links: { intro: "/es/introduction", quick: "/es/getting-started/quick-start" },
     copy: { idle: "Copiar", done: "¡Copiado!" },
+    perf: {
+      title: "Rendimiento",
+      sub: "DX estilo NestJS a la velocidad de Elysia — overhead casi nulo de decoradores y DI.",
+      methodology: "Medido en solicitudes/segundo. GET / → texto plano 'Hello World'. 500 conexiones, 10 segundos.",
+      cta: "Detalles del benchmark",
+      link: "/es/performance",
+    },
     ecosystem: {
       title: "Ecosistema",
       sub: "Paquetes opcionales — instala solo lo que necesitas.",

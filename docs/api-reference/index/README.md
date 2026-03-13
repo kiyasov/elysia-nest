@@ -77,6 +77,7 @@
 
 | Interface | Description |
 | ------ | ------ |
+| [ApplicationOptions](interfaces/ApplicationOptions.md) | - |
 | [BaseProvider](interfaces/BaseProvider.md) | - |
 | [BeforeApplicationShutdown](interfaces/BeforeApplicationShutdown.md) | Interface for lifecycle hooks called before the application is closed This method is called after all OnModuleDestroy hooks have been called |
 | [CallHandler](interfaces/CallHandler.md) | Call handler interface for interceptors |

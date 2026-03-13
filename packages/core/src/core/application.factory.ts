@@ -3,6 +3,8 @@ import { APP_FILTERS_METADATA, MODULE_METADATA } from "../decorators/constants";
 import type { ModuleOptions } from "../decorators/types";
 import { Container, type Type } from "../di";
 import type { ExceptionFilter } from "../exceptions";
+import type { LoggerService, LogLevel } from "../logger";
+import { Logger } from "../logger";
 import { validateTsConfig } from "./helpers";
 import { initializeSingletonProviders } from "./module.utils";
 
@@ -10,35 +12,37 @@ import { initializeSingletonProviders } from "./module.utils";
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 type ModuleFactory = Function;
 
+export interface ApplicationOptions {
+  /** Override the default logger. Pass `false` to disable logging entirely, or an array of LogLevel to filter. */
+  logger?: LoggerService | LogLevel[] | false;
+}
+
 /**
  * Creates an Elysia-Nest application with microservices support.
  *
  * @param rootModule Root module decorated with @Module()
+ * @param options Application options (logger, etc.)
  * @returns ElysiaNestApplication instance
  *
  * @example
  * ```typescript
  * const app = await createElysiaApplication(AppModule);
  *
- * // Connect Redis microservice
- * app.connectMicroservice({
- *   transport: Transport.REDIS,
- *   options: {
- *     host: 'localhost',
- *     port: 6379
- *   }
- * });
+ * // Disable logging
+ * const app = await createElysiaApplication(AppModule, { logger: false });
  *
- * // Start all microservices
- * await app.startAllMicroservices();
- *
- * // Start HTTP server
- * await app.listen(3000);
+ * // Custom log levels
+ * const app = await createElysiaApplication(AppModule, { logger: ['error', 'warn'] });
  * ```
  */
 export async function createElysiaApplication(
   rootModule: ModuleFactory,
+  options?: ApplicationOptions,
 ): Promise<ElysiaNestApplication> {
+  if (options?.logger !== undefined) {
+    Logger.overrideLogger(options.logger);
+  }
+
   validateTsConfig();
   Container.instance.beginInitSession();
 

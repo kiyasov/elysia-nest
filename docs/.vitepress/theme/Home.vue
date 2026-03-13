@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useHomeI18n } from './home-i18n'
+import { benchmarkResults } from './benchmark-data'
 
 declare const __PKG_VERSION__: string
 
@@ -188,6 +189,24 @@ app.listen(3000)
               <pre class="s-pre"><code v-html="sf.code" /></pre>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────── Performance ─────────────────── -->
+    <section class="perf-section">
+      <div class="perf-inner">
+        <div class="section-header">
+          <h2 class="section-title">{{ t.perf.title }}</h2>
+          <p class="section-sub">{{ t.perf.sub }}</p>
+        </div>
+        <PerformanceChart
+          :results="benchmarkResults"
+          compare-to="Nestelia"
+          :methodology="t.perf.methodology"
+        />
+        <div class="perf-cta">
+          <a class="perf-link" :href="t.perf.link">{{ t.perf.cta }} →</a>
         </div>
       </div>
     </section>
@@ -591,6 +610,35 @@ app.listen(3000)
   .s-timeline { display: none; }
 }
 
+
+/* ── Performance ───────────────────────────────────────────── */
+.perf-section {
+  padding: 0 24px 100px;
+}
+
+.perf-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.perf-cta {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.perf-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--vp-c-brand-1);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.perf-link:hover {
+  color: var(--vp-c-brand-dark);
+}
 
 /* ── Packages ──────────────────────────────────────────────── */
 .pkg-section {

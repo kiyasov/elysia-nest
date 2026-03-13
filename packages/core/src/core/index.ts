@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-export { createElysiaApplication } from "./application.factory";
+export { createElysiaApplication, type ApplicationOptions } from "./application.factory";
 export type { ControllerMetadata } from "./controller-metadata.interface";
 export {
   addGlobalExceptionFilter,
