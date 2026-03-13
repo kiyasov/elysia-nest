@@ -53,13 +53,14 @@ export function createElysiaPlugin(
       moduleinstance.name || "module",
     );
 
-    // If this module was already fully initialized (e.g. it is imported by multiple
-    // parent modules), skip re-initialization — providers, controllers and lifecycle
-    // hooks would run again otherwise, producing duplicate log lines and redundant work.
-    if (currentModuleRef.isInitialized) {
+    // If this module was already fully initialized within the current
+    // createElysiaApplication session (e.g. it is imported by multiple parent modules),
+    // skip re-initialization — providers, controllers and lifecycle hooks would run again
+    // otherwise, producing duplicate log lines and redundant work.
+    if (Container.instance.isInitializedInSession(moduleinstance as Type<any>)) {
       return app;
     }
-    currentModuleRef.markInitialized();
+    Container.instance.markInitializedInSession(moduleinstance as Type<any>);
 
     // Collect and store APP_FILTER providers
     const appFilters = metadata?.providers?.reduce<any[]>((acc, provider) => {

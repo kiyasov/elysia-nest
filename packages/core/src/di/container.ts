@@ -22,6 +22,8 @@ export class Container {
   private readonly _injector: Injector;
   // Cache for O(1) module lookup by metatype
   private readonly _moduleByMetatype = new Map<Type, Module>();
+  // Tracks modules initialized within the current createElysiaApplication session
+  private _sessionInitialized = new Set<Type>();
 
   private constructor() {
     this._injector = new Injector(this);
@@ -201,6 +203,19 @@ export class Container {
     this._modules.clear();
     this._globalModules.clear();
     this._moduleByMetatype.clear();
+    this._sessionInitialized.clear();
+  }
+
+  public beginInitSession(): void {
+    this._sessionInitialized.clear();
+  }
+
+  public isInitializedInSession(metatype: Type): boolean {
+    return this._sessionInitialized.has(metatype);
+  }
+
+  public markInitializedInSession(metatype: Type): void {
+    this._sessionInitialized.add(metatype);
   }
 
   // Backward compatibility methods

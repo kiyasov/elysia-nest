@@ -1,7 +1,7 @@
 import { ElysiaNestApplication } from "../../../../packages/microservices/elysia-nest-application";
 import { APP_FILTERS_METADATA, MODULE_METADATA } from "../decorators/constants";
 import type { ModuleOptions } from "../decorators/types";
-import type { Type } from "../di";
+import { Container, type Type } from "../di";
 import type { ExceptionFilter } from "../exceptions";
 import { validateTsConfig } from "./helpers";
 
@@ -39,6 +39,7 @@ export async function createElysiaApplication(
   rootModule: ModuleFactory,
 ): Promise<ElysiaNestApplication> {
   validateTsConfig();
+  Container.instance.beginInitSession();
 
   const elysiaApp = await rootModule();
 

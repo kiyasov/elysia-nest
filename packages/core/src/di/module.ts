@@ -12,7 +12,6 @@ export class Module {
   private readonly _metatype: Type;
   private _token: string;
   private readonly _container: Container;
-  private _isInitialized = false;
 
   constructor(metatype: Type, container: Container) {
     this._metatype = metatype;
@@ -34,14 +33,6 @@ export class Module {
 
   get name(): string {
     return this._token;
-  }
-
-  get isInitialized(): boolean {
-    return this._isInitialized;
-  }
-
-  markInitialized(): void {
-    this._isInitialized = true;
   }
 
   get imports(): Set<Module> {
