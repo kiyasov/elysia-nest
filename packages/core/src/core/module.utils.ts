@@ -62,7 +62,7 @@ export function extractProviderInfo(provider: any): {
 /**
  * Calls onModuleInit for all singleton providers across all registered modules.
  */
-export async function initializeSingletonProviders(moduleKey: Type<any>): Promise<void> {
+export async function initializeSingletonProviders(): Promise<void> {
   const container = Container.instance;
   const processedTokens = new Set<unknown>();
   const instances: unknown[] = [];
@@ -76,7 +76,7 @@ export async function initializeSingletonProviders(moduleKey: Type<any>): Promis
       processedTokens.add(token);
 
       try {
-        const instance = await container.get(token, moduleKey);
+        const instance = await container.get(token);
         if (instance) {
           instances.push(instance);
         }

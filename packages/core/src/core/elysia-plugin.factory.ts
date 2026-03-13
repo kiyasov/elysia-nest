@@ -248,7 +248,7 @@ export function createElysiaPlugin(
       );
     }
 
-    await initializeSingletonProviders(moduleinstance as Type<any>);
+    await initializeSingletonProviders();
 
     if (metadata?.controllers?.length) {
       await Promise.all(

@@ -7,7 +7,6 @@ import { Container } from "~/src/di/container";
 import { Injectable } from "~/src/di/injectable.decorator";
 import { ModuleRef } from "~/src/di/module-ref";
 import { initializeSingletonProviders } from "~/src/core/module.utils";
-import type { Type } from "~/src/di/provider.interface";
 
 describe("Cross-module dependency resolution", () => {
   let container: Container;
@@ -222,7 +221,7 @@ describe("onModuleInit lifecycle ordering", () => {
     rootMod.addProvider(PlisioService);
     rootMod.addProvider(PaymentService);
 
-    await initializeSingletonProviders(RootModule as Type<any>);
+    await initializeSingletonProviders();
 
     expect(initOrder).toEqual(["plisio-init:paid"]);
   });
@@ -256,7 +255,7 @@ describe("onModuleInit lifecycle ordering", () => {
     appMod.addProvider(ServiceB);
     appMod.addProvider(ServiceC);
 
-    await initializeSingletonProviders(AppModule as Type<any>);
+    await initializeSingletonProviders();
 
     expect(calls).toContain("ServiceA");
     expect(calls).toContain("ServiceB");
