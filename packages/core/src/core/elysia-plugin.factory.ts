@@ -53,6 +53,14 @@ export function createElysiaPlugin(
       moduleinstance.name || "module",
     );
 
+    // If this module was already fully initialized (e.g. it is imported by multiple
+    // parent modules), skip re-initialization — providers, controllers and lifecycle
+    // hooks would run again otherwise, producing duplicate log lines and redundant work.
+    if (currentModuleRef.isInitialized) {
+      return app;
+    }
+    currentModuleRef.markInitialized();
+
     // Collect and store APP_FILTER providers
     const appFilters = metadata?.providers?.reduce<any[]>((acc, provider) => {
       if (isCustomProvider(provider) && provider.provide === APP_FILTER) {

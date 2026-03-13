@@ -65,7 +65,9 @@ export function extractProviderInfo(provider: any): {
 export async function initializeSingletonProviders(moduleKey: Type<any>): Promise<void> {
   const container = Container.instance;
   const processedTokens = new Set<unknown>();
+  const instances: unknown[] = [];
 
+  // First pass: load all provider instances
   for (const moduleRef of container.getModules().values()) {
     for (const [token, wrapper] of moduleRef.getProviders()) {
       if (processedTokens.has(token) || !wrapper.metatype) {
@@ -75,15 +77,25 @@ export async function initializeSingletonProviders(moduleKey: Type<any>): Promis
 
       try {
         const instance = await container.get(token, moduleKey);
-        if (
-          instance &&
-          typeof (instance as any).onModuleInit === "function" &&
-          !(instance as any).__onModuleInitCalled
-        ) {
-          await (instance as any).onModuleInit();
-          (instance as any).__onModuleInitCalled = true;
-          getLifecycleManager().register(instance);
+        if (instance) {
+          instances.push(instance);
         }
+      } catch (e) {
+        Logger.error(`Error initializing provider:`, e);
+      }
+    }
+  }
+
+  // Second pass: call onModuleInit after all providers are loaded
+  for (const instance of instances) {
+    if (
+      typeof (instance as any).onModuleInit === "function" &&
+      !(instance as any).__onModuleInitCalled
+    ) {
+      try {
+        await (instance as any).onModuleInit();
+        (instance as any).__onModuleInitCalled = true;
+        getLifecycleManager().register(instance);
       } catch (e) {
         Logger.error(`Error initializing provider:`, e);
       }

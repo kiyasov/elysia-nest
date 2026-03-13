@@ -12,6 +12,7 @@ export class Module {
   private readonly _metatype: Type;
   private _token: string;
   private readonly _container: Container;
+  private _isInitialized = false;
 
   constructor(metatype: Type, container: Container) {
     this._metatype = metatype;
@@ -33,6 +34,14 @@ export class Module {
 
   get name(): string {
     return this._token;
+  }
+
+  get isInitialized(): boolean {
+    return this._isInitialized;
+  }
+
+  markInitialized(): void {
+    this._isInitialized = true;
   }
 
   get imports(): Set<Module> {
@@ -83,6 +92,7 @@ export class Module {
       isAlias,
       aliasTarget,
       scope,
+      host: this,
     });
 
     this._providers.set(token, wrapper);
@@ -92,6 +102,7 @@ export class Module {
     const wrapper = new InstanceWrapper({
       token: controller,
       metatype: controller,
+      host: this,
     });
     this._controllers.set(controller, wrapper);
   }

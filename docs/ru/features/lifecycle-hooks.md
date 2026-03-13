@@ -12,7 +12,7 @@ nestelia предоставляет lifecycle hooks, позволяющие вы
 
 ### OnModuleInit
 
-Вызывается после того, как providers module были инстанциированы:
+Вызывается после того, как **все** providers во всех модулях были инстанциированы. Это гарантирует, что любой provider можно безопасно получить через `ModuleRef` в этот момент:
 
 ```typescript
 import { Injectable, OnModuleInit } from "nestelia";
@@ -22,6 +22,22 @@ class DatabaseService implements OnModuleInit {
   async onModuleInit() {
     await this.connect();
     console.log("Database connected");
+  }
+}
+```
+
+Используйте `ModuleRef` для динамического получения другого provider внутри `onModuleInit`:
+
+```typescript
+import { Injectable, ModuleRef, OnModuleInit } from "nestelia";
+
+@Injectable()
+class CacheService implements OnModuleInit {
+  constructor(private moduleRef: ModuleRef) {}
+
+  onModuleInit() {
+    const db = this.moduleRef.get(DatabaseService);
+    console.log(`Cache connected to ${db.getUrl()}`);
   }
 }
 ```

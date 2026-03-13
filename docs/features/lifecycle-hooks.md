@@ -12,7 +12,7 @@ Implement these interfaces on your `@Injectable()` services or controllers:
 
 ### OnModuleInit
 
-Called once the module's providers have been instantiated:
+Called once **all** providers across all modules have been instantiated. This guarantees that any provider can be safely retrieved via `ModuleRef` at this point:
 
 ```typescript
 import { Injectable, OnModuleInit } from "nestelia";
@@ -22,6 +22,22 @@ class DatabaseService implements OnModuleInit {
   async onModuleInit() {
     await this.connect();
     console.log("Database connected");
+  }
+}
+```
+
+You can use `ModuleRef` to dynamically retrieve another provider inside `onModuleInit`:
+
+```typescript
+import { Injectable, ModuleRef, OnModuleInit } from "nestelia";
+
+@Injectable()
+class CacheService implements OnModuleInit {
+  constructor(private moduleRef: ModuleRef) {}
+
+  onModuleInit() {
+    const db = this.moduleRef.get(DatabaseService);
+    console.log(`Cache connected to ${db.getUrl()}`);
   }
 }
 ```

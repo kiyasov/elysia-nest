@@ -175,8 +175,8 @@ export class Injector {
       return this.resolveDependency(wrapper.aliasTarget, moduleRef, contextId);
     }
 
-    // Ensure instance is loaded
-    await this.loadInstance(wrapper, moduleRef, contextId);
+    // Ensure instance is loaded in the module that owns the wrapper
+    await this.loadInstance(wrapper, wrapper.host ?? moduleRef, contextId);
 
     const instancePerContext = wrapper.getInstanceByContextId(contextId);
     return instancePerContext.instance;

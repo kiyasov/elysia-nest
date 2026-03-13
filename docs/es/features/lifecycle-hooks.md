@@ -12,7 +12,7 @@ Implementa estas interfaces en tus servicios `@Injectable()` o controladores:
 
 ### OnModuleInit
 
-Se llama una vez que los proveedores del módulo han sido instanciados:
+Se llama una vez que **todos** los proveedores de todos los módulos han sido instanciados. Esto garantiza que cualquier proveedor puede obtenerse de forma segura mediante `ModuleRef` en este momento:
 
 ```typescript
 import { Injectable, OnModuleInit } from "nestelia";
@@ -22,6 +22,22 @@ class DatabaseService implements OnModuleInit {
   async onModuleInit() {
     await this.connect();
     console.log("Database connected");
+  }
+}
+```
+
+Puedes usar `ModuleRef` para obtener dinámicamente otro proveedor dentro de `onModuleInit`:
+
+```typescript
+import { Injectable, ModuleRef, OnModuleInit } from "nestelia";
+
+@Injectable()
+class CacheService implements OnModuleInit {
+  constructor(private moduleRef: ModuleRef) {}
+
+  onModuleInit() {
+    const db = this.moduleRef.get(DatabaseService);
+    console.log(`Cache connected to ${db.getUrl()}`);
   }
 }
 ```
