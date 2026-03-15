@@ -73,6 +73,24 @@ As expressões TypeBox de body/params são copiadas literalmente do seu arquivo 
 }
 ```
 
+### Geração automática na inicialização — opção `gen`
+
+Em vez de executar `nestelia-gen` como um script separado, passe `gen: true` para `createElysiaApplication` e o schema será regenerado automaticamente toda vez que a aplicação iniciar:
+
+```typescript
+const app = await createElysiaApplication(AppModule, { gen: true });
+```
+
+Para personalizar o caminho de saída ou o tsconfig, passe um objeto:
+
+```typescript
+const app = await createElysiaApplication(AppModule, {
+  gen: { output: "src/schema.ts", tsconfig: "tsconfig.app.json" },
+});
+```
+
+Isso é equivalente a executar `bunx nestelia-gen [args]` antes do bootstrap — útil em desenvolvimento para não precisar lembrar de re-executar o CLI manualmente.
+
 Em seguida, use o schema com `withSchema()` e `treaty`:
 
 ```typescript

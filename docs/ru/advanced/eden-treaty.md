@@ -73,6 +73,24 @@ export type App = typeof appSchema;
 }
 ```
 
+### Автогенерация при старте — опция `gen`
+
+Вместо запуска `nestelia-gen` отдельным скриптом передайте `gen: true` в `createElysiaApplication` — схема будет перегенерирована автоматически при каждом запуске приложения:
+
+```typescript
+const app = await createElysiaApplication(AppModule, { gen: true });
+```
+
+Для настройки выходного файла или tsconfig передайте объект:
+
+```typescript
+const app = await createElysiaApplication(AppModule, {
+  gen: { output: "src/schema.ts", tsconfig: "tsconfig.app.json" },
+});
+```
+
+Это эквивалентно запуску `bunx nestelia-gen [args]` перед бутстрапом — удобно в разработке, чтобы не запускать CLI вручную после каждого изменения маршрутов.
+
 Затем используйте схему с `withSchema()` и `treaty`:
 
 ```typescript

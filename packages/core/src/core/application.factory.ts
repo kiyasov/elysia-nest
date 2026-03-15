@@ -13,9 +13,27 @@ import { initializeSingletonProviders } from "./module.utils";
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 type ModuleFactory = Function;
 
+export interface GenOptions {
+  /** Path to the output schema file (default: `src/app.schema.ts`). */
+  output?: string;
+  /** Path to tsconfig.json (default: `tsconfig.json`). */
+  tsconfig?: string;
+}
+
 export interface ApplicationOptions {
   /** Override the default logger. Pass `false` to disable logging entirely, or an array of LogLevel to filter. */
   logger?: LoggerService | LogLevel[] | false;
+  /**
+   * Auto-run `nestelia-gen` before the application starts.
+   * Pass `true` to use defaults, or an object to configure output path / tsconfig.
+   *
+   * @example
+   * ```typescript
+   * const app = await createElysiaApplication(AppModule, { gen: true });
+   * const app = await createElysiaApplication(AppModule, { gen: { output: "src/schema.ts" } });
+   * ```
+   */
+  gen?: boolean | GenOptions;
 }
 
 /**
@@ -42,6 +60,20 @@ export async function createElysiaApplication(
 ): Promise<ElysiaNestApplication<Elysia>> {
   if (options?.logger !== undefined) {
     Logger.overrideLogger(options.logger);
+  }
+
+  if (options?.gen) {
+    const genOpts = typeof options.gen === "object" ? options.gen : {};
+    const args = ["nestelia-gen"];
+    if (genOpts.tsconfig) args.push("--tsconfig", genOpts.tsconfig);
+    if (genOpts.output) args.push(genOpts.output);
+    const proc = Bun.spawnSync(["bunx", ...args], {
+      stdout: "inherit",
+      stderr: "inherit",
+    });
+    if (proc.exitCode !== 0) {
+      Logger.warn("nestelia-gen exited with code " + proc.exitCode, "NesteliaGen");
+    }
   }
 
   validateTsConfig();
