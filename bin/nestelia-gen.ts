@@ -22,7 +22,7 @@ import {
   type SourceFile,
 } from "ts-morph";
 import { resolve, relative, dirname } from "node:path";
-import { writeFileSync } from "node:fs";
+import { writeFileSync, readFileSync } from "node:fs";
 
 // ─── CLI ────────────────────────────────────────────────────────────────────
 
@@ -291,7 +291,13 @@ ${chain};
 export type App = typeof appSchema;
 `;
 
-writeFileSync(outputFile, output, "utf8");
-console.log(`Written ${routes.length} routes → ${outputFile}`);
+let existing: string | undefined;
+try { existing = readFileSync(outputFile, "utf8"); } catch {}
+if (existing !== output) {
+  writeFileSync(outputFile, output, "utf8");
+  console.log(`Written ${routes.length} routes → ${outputFile}`);
+} else {
+  console.log(`Up to date → ${outputFile}`);
+}
 
 process.exit(0);
