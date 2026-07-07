@@ -123,8 +123,44 @@ export interface RabbitMQModuleOptions extends RabbitMQConfig {
   exports: [],
 })
 export class RabbitMQModule {
-  private static connectionManager = new AmqpConnectionManager();
-  private static bootstrapped = false;
+  /**
+   * Shared manager that owns every named connection created through this
+   * module. Kept static so that multiple `forRoot`/`forRootAsync`
+   * registrations (one per named connection) share a single registry, and so
+   * the shutdown hook can close them all.
+   */
+  static readonly connectionManager = new AmqpConnectionManager();
+
+  /**
+   * Names of connections whose handlers have already been registered. The
+   * bootstrap guard is PER-CONNECTION (not a single boolean) so that every
+   * named connection registers its handlers exactly once — a single boolean
+   * would let the first connection's bootstrap suppress all the others.
+   */
+  private static readonly bootstrappedConnections = new Set<string>();
+
+  /**
+   * Marks a connection as bootstrapped. Returns `true` when it was already
+   * bootstrapped (the caller should skip re-registration) and `false` on the
+   * first call for that connection name.
+   * @internal
+   */
+  static markConnectionBootstrapped(name: string): boolean {
+    if (RabbitMQModule.bootstrappedConnections.has(name)) {
+      return true;
+    }
+    RabbitMQModule.bootstrappedConnections.add(name);
+    return false;
+  }
+
+  /**
+   * Clears the per-connection bootstrap guard. Called on shutdown so a
+   * subsequent boot (e.g. across test suites) re-registers handlers.
+   * @internal
+   */
+  static resetBootstrapGuard(): void {
+    RabbitMQModule.bootstrappedConnections.clear();
+  }
 
   static async AmqpConnectionFactory(
     config: RabbitMQConfig,
@@ -255,15 +291,27 @@ export class RabbitMQModule {
 // ── Explorer ───────────────────────────────────────────────────────
 
 @Injectable()
-class RabbitMQExplorer {
+export class RabbitMQExplorer {
   private readonly logger = new Logger(RabbitMQExplorer.name);
 
   constructor(
-    @Inject(AmqpConnection) private readonly connection: AmqpConnection,
+    @Inject(AmqpConnectionManager)
+    private readonly connectionManager: AmqpConnectionManager,
   ) {}
 
   async onModuleInit(): Promise<void> {
-    const config = this.connection.configuration;
+    // Bootstrap EVERY registered connection. A single shared explorer instance
+    // is injected with the connection manager (not one connection), so each
+    // named connection registers its own handlers exactly once — multi-
+    // connection setups no longer silently drop the second connection's
+    // handlers.
+    for (const connection of this.connectionManager.getConnections()) {
+      await this.bootstrapConnection(connection);
+    }
+  }
+
+  private async bootstrapConnection(connection: AmqpConnection): Promise<void> {
+    const config = connection.configuration;
 
     if (config.registerHandlers === false) {
       this.logger.log(
@@ -272,10 +320,10 @@ class RabbitMQExplorer {
       return;
     }
 
-    if (RabbitMQModule["bootstrapped"]) {
+    // Per-connection guard: register this connection's handlers only once.
+    if (RabbitMQModule.markConnectionBootstrapped(config.name)) {
       return;
     }
-    (RabbitMQModule as unknown as { bootstrapped: boolean }).bootstrapped = true;
 
     this.logger.log("Initializing RabbitMQ Handlers");
 
@@ -384,7 +432,7 @@ class RabbitMQExplorer {
               try {
                 switch (mergedConfig.type) {
                   case "rpc":
-                    await this.connection.createRpc(
+                    await connection.createRpc(
                       boundHandler,
                       mergedConfig,
                     );
@@ -392,7 +440,7 @@ class RabbitMQExplorer {
 
                   case "subscribe":
                     if (mergedConfig.batchOptions) {
-                      await this.connection.createBatchSubscriber(
+                      await connection.createBatchSubscriber(
                         boundHandler as (
                           msg: (unknown | undefined)[],
                           rawMessage?: unknown[],
@@ -401,7 +449,7 @@ class RabbitMQExplorer {
                         mergedConfig,
                       );
                     } else {
-                      await this.connection.createSubscriber(
+                      await connection.createSubscriber(
                         boundHandler,
                         mergedConfig,
                         methodName,
@@ -434,8 +482,10 @@ class RabbitMQExplorer {
 
   async onApplicationShutdown(): Promise<void> {
     this.logger.verbose?.("Closing AMQP Connections");
-    await this.connection.close();
-    (RabbitMQModule as unknown as { bootstrapped: boolean }).bootstrapped =
-      false;
+    // Close ALL managed connections, not just one — otherwise every extra
+    // named connection leaks its sockets/channels until process exit. The
+    // manager awaits each AmqpConnection.close().
+    await this.connectionManager.close();
+    RabbitMQModule.resetBootstrapGuard();
   }
 }

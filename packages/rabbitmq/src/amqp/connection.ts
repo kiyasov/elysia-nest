@@ -511,7 +511,7 @@ export class AmqpConnection {
       msgOptions: MessageHandlerOptions,
     ) => Promise<string>,
   ): Promise<SubscriptionResult> {
-    return new Promise((res) => {
+    return new Promise((res, rej) => {
       const queueConfig = this.config.queues.find(
         (q) => q.name === msgOptions.queue,
       );
@@ -529,11 +529,20 @@ export class AmqpConnection {
 
       this.selectManagedChannel(msgOptions?.queueOptions?.channel).addSetup(
         async (channel: ConfirmChannel) => {
-          const consumerTag = await setupFunction(
-            channel,
-            deepMerge(consumerTagConfig as MessageHandlerOptions, msgOptions),
-          );
-          res({ consumerTag });
+          // Wrap in try/catch so a setup failure (e.g. assertQueue
+          // PRECONDITION_FAILED) rejects the outer promise instead of leaving
+          // it pending forever. Rethrow so amqp-connection-manager still
+          // observes the failure. Mirrors the createRpc pattern.
+          try {
+            const consumerTag = await setupFunction(
+              channel,
+              deepMerge(consumerTagConfig as MessageHandlerOptions, msgOptions),
+            );
+            res({ consumerTag });
+          } catch (error) {
+            rej(error);
+            throw error;
+          }
         },
       );
     });
@@ -1156,6 +1165,23 @@ export class AmqpConnection {
   }
 
   private registerConsumerForQueue<T, U>(consumer: ConsumerHandler<T, U>) {
+    // amqp-connection-manager replays every addSetup function on each
+    // reconnect, producing a NEW broker-generated consumerTag for the same
+    // logical consumer. Remove any previous entry for that logical consumer
+    // (identified by queue + handler identity, which are stable across
+    // reconnects) before registering the new tag; otherwise the old entry —
+    // pinning a dead ConfirmChannel and its handler closure — would leak and
+    // accumulate over the lifetime of the connection.
+    for (const [tag, existing] of Object.entries(this._consumers)) {
+      if (
+        existing.handler ===
+          (consumer.handler as ConsumerHandler<unknown, unknown>["handler"]) &&
+        existing.msgOptions.queue === consumer.msgOptions.queue
+      ) {
+        delete this._consumers[tag];
+      }
+    }
+
     (this._consumers as Record<ConsumerTag, ConsumerHandler<T, U>>)[
       consumer.consumerTag
     ] = consumer;
@@ -1178,6 +1204,9 @@ export class AmqpConnection {
     if (consumer && consumer.channel) {
       this.logger.log?.(`Canceling consumer with tag: ${consumerTag}`);
       await consumer.channel.cancel(consumerTag);
+      // Drop the registry entry so the cancelled consumer no longer pins its
+      // channel/handler closure (mirrors resumeConsumer's discipline).
+      this.unregisterConsumerForQueue(consumerTag);
     }
   }
 
