@@ -226,6 +226,129 @@ describe("RedisPubSub observability", () => {
     pubsub.unsubscribe(subId);
   });
 
+  it("rolls back map state when the first SUBSCRIBE rejects and heals on retry", async () => {
+    // Fake whose first `subscribe` call rejects, then succeeds afterwards.
+    class FailFirstRedis extends FakeRedis {
+      public subscribeCalls = 0;
+      public failNext = true;
+      override async subscribe(channel: string): Promise<void> {
+        this.subscribeCalls++;
+        if (this.failNext) {
+          this.failNext = false;
+          throw new Error("boom");
+        }
+        return super.subscribe(channel);
+      }
+    }
+
+    const subscriber = new FailFirstRedis();
+    const publisher = new FakeRedis();
+    const pubsub = new RedisPubSub({
+      subscriber: subscriber as unknown as Redis,
+      publisher: publisher as unknown as Redis,
+    });
+
+    // First subscribe fails at the Redis SUBSCRIBE call.
+    await expect(pubsub.subscribe("T", () => {})).rejects.toThrow("boom");
+
+    // (1) No leftover map entries for the failed trigger.
+    expect(pubsub.subscriptionCount).toBe(0);
+    expect(pubsub.channelCount).toBe(0);
+    expect(subscriber.subscribed.has("T")).toBe(false);
+
+    // (2) A second subscribe issues a real Redis SUBSCRIBE again and works.
+    const received: unknown[] = [];
+    const subId = await pubsub.subscribe("T", (m) => received.push(m));
+
+    expect(subscriber.subscribeCalls).toBe(2);
+    expect(subscriber.subscribed.has("T")).toBe(true);
+
+    subscriber.emitMessage("T", JSON.stringify({ ok: true }));
+    expect(received).toEqual([{ ok: true }]);
+
+    pubsub.unsubscribe(subId);
+    expect(pubsub.subscriptionCount).toBe(0);
+    expect(pubsub.channelCount).toBe(0);
+  });
+
+  it("rolls back piggybacked waiters when the shared SUBSCRIBE rejects", async () => {
+    class FailFirstRedis extends FakeRedis {
+      public subscribeCalls = 0;
+      public failNext = true;
+      override async subscribe(channel: string): Promise<void> {
+        this.subscribeCalls++;
+        if (this.failNext) {
+          this.failNext = false;
+          throw new Error("boom");
+        }
+        return super.subscribe(channel);
+      }
+    }
+
+    const subscriber = new FailFirstRedis();
+    const publisher = new FakeRedis();
+    const pubsub = new RedisPubSub({
+      subscriber: subscriber as unknown as Redis,
+      publisher: publisher as unknown as Redis,
+    });
+
+    // First subscribe issues the real SUBSCRIBE (which rejects); the second
+    // piggybacks on the still-in-flight pending promise. Handlers are attached
+    // synchronously via allSettled so neither rejection is ever unhandled.
+    const results = await Promise.allSettled([
+      pubsub.subscribe("T", () => {}),
+      pubsub.subscribe("T", () => {}),
+    ]);
+
+    expect(results[0]?.status).toBe("rejected");
+    expect(results[1]?.status).toBe("rejected");
+
+    // Only one real SUBSCRIBE was attempted, and all state is rolled back.
+    expect(subscriber.subscribeCalls).toBe(1);
+    expect(pubsub.subscriptionCount).toBe(0);
+    expect(pubsub.channelCount).toBe(0);
+
+    // A fresh subscribe heals and issues a new real SUBSCRIBE.
+    const received: unknown[] = [];
+    const subId = await pubsub.subscribe("T", (m) => received.push(m));
+    expect(subscriber.subscribeCalls).toBe(2);
+    expect(subscriber.subscribed.has("T")).toBe(true);
+
+    subscriber.emitMessage("T", JSON.stringify({ ok: true }));
+    expect(received).toEqual([{ ok: true }]);
+
+    pubsub.unsubscribe(subId);
+  });
+
+  it("rolls back a successful sibling subscription when one trigger's SUBSCRIBE fails", async () => {
+    // Fake whose SUBSCRIBE rejects only for channel "B".
+    class FailChannelRedis extends FakeRedis {
+      override async subscribe(channel: string): Promise<void> {
+        if (channel === "B") throw new Error("boom B");
+        return super.subscribe(channel);
+      }
+    }
+
+    const subscriber = new FailChannelRedis();
+    const publisher = new FakeRedis();
+    const pubsub = new RedisPubSub({
+      subscriber: subscriber as unknown as Redis,
+      publisher: publisher as unknown as Redis,
+    });
+
+    // Multi-trigger iterator: "A" subscribes fine, "B" fails.
+    const iter = pubsub.asyncIterator<string>(["A", "B"]);
+
+    // next() awaits subscribeAll(), which propagates B's failure.
+    await expect(iter.next()).rejects.toThrow("boom B");
+
+    // "A" subscribed successfully but MUST have been rolled back — otherwise
+    // it leaks in the engine forever after the partial failure.
+    expect(pubsub.subscriptionCount).toBe(0);
+    expect(pubsub.channelCount).toBe(0);
+    expect(subscriber.subscribed.has("A")).toBe(false);
+  });
+
   it("delivers transformed pattern subscriptions through pmessage", async () => {
     const subscriber = new FakeRedis();
     const publisher = new FakeRedis();

@@ -3,6 +3,7 @@ import type {
   PubSubEngine,
   SubscriptionOptions,
 } from "./interfaces";
+import { packageLogger } from "./logger";
 
 /** Maximum number of unconsumed messages queued before oldest are dropped. */
 const MAX_QUEUE_SIZE = 1_000;
@@ -160,11 +161,20 @@ export class PubSubAsyncIterator<T> implements AsyncIterator<T> {
     }
   }
 
-  /** Subscribes to all configured triggers. No-op if already subscribed. */
+  /**
+   * Subscribes to all configured triggers. No-op if already subscribed.
+   *
+   * Uses `Promise.allSettled` rather than `Promise.all` so a partial failure
+   * — where some triggers subscribe successfully but at least one rejects —
+   * does not silently leak the successful subscriptions. The fulfilled
+   * subscription ids are always captured; on overall failure they are torn
+   * down (unsubscribed + queues drained) before the first error is
+   * propagated to the caller.
+   */
   private async subscribeAll(): Promise<void> {
     if (this.subscriptionIds) return;
 
-    this.subscriptionIds = await Promise.all(
+    const results = await Promise.allSettled(
       this.triggers.map((trigger) =>
         this.pubsub.subscribe(
           trigger,
@@ -173,6 +183,29 @@ export class PubSubAsyncIterator<T> implements AsyncIterator<T> {
         ),
       ),
     );
+
+    const fulfilledIds: number[] = [];
+    let firstError: unknown;
+    let hasError = false;
+    for (const result of results) {
+      if (result.status === "fulfilled") {
+        fulfilledIds.push(result.value);
+      } else if (!hasError) {
+        hasError = true;
+        firstError = result.reason;
+      }
+    }
+
+    // Record the ids that DID subscribe so they can always be released,
+    // even when a sibling trigger failed.
+    this.subscriptionIds = fulfilledIds;
+
+    if (hasError) {
+      // Roll back the subscriptions that succeeded before propagating —
+      // otherwise they remain registered in the engine forever.
+      this.teardown();
+      throw firstError;
+    }
   }
 
   /** Unsubscribes from all triggers and drains both queues. */
@@ -180,23 +213,52 @@ export class PubSubAsyncIterator<T> implements AsyncIterator<T> {
     // Wait for in-flight subscriptions to complete before unsubscribing.
     // Without this, a return() call racing against subscribeAll() sees
     // subscriptionIds === undefined, no-ops, and leaks the subscriptions.
-    await this.subscribePromise;
-
-    if (!this.subscriptionIds) return;
-
-    for (const subId of this.subscriptionIds) {
-      this.pubsub.unsubscribe(subId);
+    // Swallow a subscribeAll() rejection here: teardown already ran inside
+    // subscribeAll on failure, and return()/throw() must still resolve.
+    try {
+      await this.subscribePromise;
+    } catch {
+      // Partial/total subscribe failure already cleaned up in subscribeAll.
     }
 
-    this.subscriptionIds = undefined;
-    this.listening = false;
+    this.teardown();
+  }
 
-    // Drain the pull queue so callers awaiting next() get done = true.
-    for (const resolve of this.pullQueue) {
-      resolve({ value: undefined as unknown as T, done: true });
+  /**
+   * Releases every active subscription and settles the iterator.
+   *
+   * Exception-safe: each `pubsub.unsubscribe(id)` is wrapped so a single
+   * throwing id (e.g. {@link PubSubEngine.unsubscribe} throwing on
+   * inconsistent state) cannot abandon the remaining ids. The `listening`
+   * flag reset and pull-queue drain always run in a `finally`, so pending
+   * `next()` promises are guaranteed to settle with `done = true` rather
+   * than hanging forever.
+   */
+  private teardown(): void {
+    try {
+      if (this.subscriptionIds) {
+        for (const subId of this.subscriptionIds) {
+          try {
+            this.pubsub.unsubscribe(subId);
+          } catch (error) {
+            packageLogger.error(
+              `[PubSubAsyncIterator] Failed to unsubscribe id ${subId}:`,
+              error,
+            );
+          }
+        }
+        this.subscriptionIds = undefined;
+      }
+    } finally {
+      this.listening = false;
+
+      // Drain the pull queue so callers awaiting next() get done = true.
+      for (const resolve of this.pullQueue) {
+        resolve({ value: undefined as unknown as T, done: true });
+      }
+
+      this.pullQueue = [];
+      this.pushQueue = [];
     }
-
-    this.pullQueue = [];
-    this.pushQueue = [];
   }
 }

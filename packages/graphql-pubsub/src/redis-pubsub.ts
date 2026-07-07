@@ -182,7 +182,17 @@ export class RedisPubSub implements PubSubEngine {
       // If the initial Redis SUBSCRIBE is still in-flight, wait for it so
       // the caller doesn't start publishing before the channel is active.
       const pending = this.pendingSubscribes.get(triggerName);
-      if (pending) await pending;
+      if (pending) {
+        try {
+          await pending;
+        } catch (error) {
+          // The shared (P)SUBSCRIBE rejected. Roll back this waiter's state
+          // so it leaves no dangling refs and a later subscribe issues a
+          // fresh real Redis SUBSCRIBE.
+          this.rollbackSubscription(id, triggerName);
+          throw error;
+        }
+      }
       return id;
     }
 
@@ -193,11 +203,41 @@ export class RedisPubSub implements PubSubEngine {
 
     try {
       await subscribePromise;
+    } catch (error) {
+      // The (P)SUBSCRIBE (or readiness wait) rejected. Roll back all state
+      // for this subscription so the end state is identical to never having
+      // called subscribe for this trigger — otherwise the leaked refs entry
+      // makes every subsequent subscribe silently piggyback on a channel
+      // that was never actually subscribed on Redis.
+      this.rollbackSubscription(id, triggerName);
+      throw error;
     } finally {
       this.pendingSubscribes.delete(triggerName);
     }
 
     return id;
+  }
+
+  /**
+   * Removes all bookkeeping for a single subscription id after a failed
+   * (P)SUBSCRIBE.
+   *
+   * Deletes the `subscriptionMap` entry and drops the id from the trigger's
+   * `subsRefsMap` list, removing the trigger key entirely once its last
+   * reference is gone so a later subscribe re-issues a real Redis SUBSCRIBE.
+   */
+  private rollbackSubscription(id: number, triggerName: string): void {
+    this.subscriptionMap.delete(id);
+
+    const refs = this.subsRefsMap.get(triggerName);
+    if (!refs) return;
+
+    const index = refs.indexOf(id);
+    if (index !== -1) refs.splice(index, 1);
+
+    if (refs.length === 0) {
+      this.subsRefsMap.delete(triggerName);
+    }
   }
 
   /**

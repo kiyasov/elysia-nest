@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import { describe, expect, it } from "bun:test";
 import { PubSubAsyncIterator } from "../src/pubsub-async-iterator";
 import type { PubSubEngine } from "../src/interfaces";
@@ -180,6 +182,45 @@ describe("PubSubAsyncIterator", () => {
     expect(res.value).toBe("still-alive");
 
     await iter.return();
+  });
+
+  it("unsubscribeAll survives a throwing unsubscribe and still settles pending next()", async () => {
+    const unsubscribed: number[] = [];
+    let counter = 0;
+
+    // Engine whose unsubscribe THROWS for the first id (mirrors
+    // RedisPubSub.unsubscribe throwing on inconsistent state).
+    const throwingPubSub: PubSubEngine = {
+      subscribe(_trigger: string, _handler: (msg: unknown) => void): Promise<number> {
+        return Promise.resolve(++counter);
+      },
+      unsubscribe(id: number): void {
+        if (id === 1) throw new Error("inconsistent state");
+        unsubscribed.push(id);
+      },
+      async publish(): Promise<void> {},
+      asyncIterator<T>(triggers: string | string[]): AsyncIterator<T> {
+        return new PubSubAsyncIterator<T>(this, Array.isArray(triggers) ? triggers : [triggers]);
+      },
+    };
+
+    const iter = new PubSubAsyncIterator<string>(throwingPubSub, ["A", "B", "C"]);
+    // Let subscribeAll() settle → ids [1, 2, 3].
+    await new Promise((r) => setTimeout(r, 0));
+
+    // A pending consumer that must be released when we return().
+    const pending = iter.next();
+
+    // return() must not throw even though id 1's unsubscribe does.
+    await iter.return();
+
+    // ids 2 and 3 were still unsubscribed despite id 1 throwing.
+    expect(unsubscribed).toContain(2);
+    expect(unsubscribed).toContain(3);
+
+    // The pending next() settled with done=true instead of hanging forever.
+    const res = await pending;
+    expect(res.done).toBe(true);
   });
 
   it("return() during pending subscribeAll() still unsubscribes", async () => {

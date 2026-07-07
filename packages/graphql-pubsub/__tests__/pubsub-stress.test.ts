@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import { describe, expect, it } from "bun:test";
 import { PubSubAsyncIterator } from "../src/pubsub-async-iterator";
 import type { PubSubEngine, MessageHandler } from "../src/interfaces";
