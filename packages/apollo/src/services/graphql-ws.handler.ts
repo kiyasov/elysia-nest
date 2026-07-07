@@ -300,6 +300,16 @@ export class GraphQLWsHandler {
   ): Promise<void> {
     switch (message.type) {
       case "connection_init": {
+        // graphql-ws spec: only ONE connection_init is allowed per socket.
+        // A repeated init on an already-initialized connection is a protocol
+        // violation. Reject it with 4429 instead of re-initializing —
+        // re-initializing would orphan a keep-alive setInterval (one per
+        // duplicate init) that fires for the process lifetime, pinning the
+        // closed-over connection state (socket, context, subscriptions) alive.
+        if (state.isInitialized) {
+          socket.close(CloseCode.TooManyInitialisationRequests);
+          break;
+        }
         await this.handleConnectionInit(
           message as unknown as ConnectionInitMessage,
           state,
@@ -368,6 +378,13 @@ export class GraphQLWsHandler {
         socket.close(CloseCode.Forbidden);
         return;
       }
+      // The socket may have been torn down while we awaited the async
+      // onConnect hook. Bail before sending connection_ack or installing
+      // the keep-alive interval on a dead connection — otherwise we would
+      // leak a timer that cleanupConnection() has already run past.
+      if (state.closed) {
+        return;
+      }
     }
 
     clearTimeout(state.initTimer);
@@ -377,6 +394,13 @@ export class GraphQLWsHandler {
   }
 
   private startKeepAlive(state: ConnectionState): void {
+    // Defensive guard: never install a second interval on the same
+    // connection (a duplicate would never be cleared by cleanupConnection,
+    // which only tracks the last one), and never install one on a socket
+    // that has already been torn down.
+    if (state.closed || state.keepAliveInterval) {
+      return;
+    }
     const intervalMs = this.wsOptions.keepAlive;
     // Disabled explicitly with `false` or `0`.
     if (intervalMs === false || intervalMs === 0) {

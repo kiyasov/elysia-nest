@@ -200,6 +200,77 @@ describe("connection_init", () => {
   });
 });
 
+// ─── Duplicate connection_init (keep-alive leak prevention) ────────────────────
+
+describe("duplicate connection_init", () => {
+  it("rejects a second connection_init with TooManyInitialisationRequests", async () => {
+    const { callbacks } = setup();
+    const socket = await connect(callbacks);
+    expect(socket.messages("connection_ack")).toHaveLength(1);
+
+    // Second init on an already-initialized socket is a protocol violation.
+    await callbacks.message!(socket, { type: "connection_init", payload: {} });
+
+    expect(socket.closedWith).toBe(CloseCode.TooManyInitialisationRequests);
+    // The connection must NOT be re-acknowledged / re-initialized.
+    expect(socket.messages("connection_ack")).toHaveLength(1);
+  });
+
+  it("does not orphan a keep-alive interval on a repeated connection_init", async () => {
+    // Regression: a duplicate init used to install a SECOND setInterval,
+    // while cleanupConnection only ever clears the last one — orphaning the
+    // first, which then fired for the process lifetime.
+    const { callbacks } = setup({
+      wsOptions: { keepAlive: 20, keepAliveTimeout: false },
+    });
+    const socket = await connect(callbacks);
+
+    await callbacks.message!(socket, { type: "connection_init", payload: {} });
+
+    // Let pings fire, then tear the connection down.
+    await wait(55);
+    callbacks.close!(socket);
+    const pingsAtClose = socket.messages("ping").length;
+
+    // After cleanup NO interval may remain — the ping count must be frozen.
+    await wait(60);
+    expect(socket.messages("ping").length).toBe(pingsAtClose);
+  });
+
+  it("does not ack or start keep-alive if the socket closes during async onConnect", async () => {
+    let resolveConnect: (() => void) | undefined;
+    const { callbacks } = setup({
+      wsOptions: {
+        keepAlive: 20,
+        keepAliveTimeout: false,
+        onConnect: () =>
+          new Promise<void>((r) => {
+            resolveConnect = r;
+          }),
+      },
+    });
+    const socket = new MockSocket();
+    callbacks.open!(socket);
+    const initPromise = callbacks.message!(socket, {
+      type: "connection_init",
+      payload: {},
+    });
+
+    // The transport closes the socket while onConnect is still pending.
+    await wait(5);
+    callbacks.close!(socket);
+
+    // Now let the async onConnect resolve — the handler must bail out.
+    resolveConnect!();
+    await initPromise;
+
+    // No ack on a dead socket, and no orphaned keep-alive interval.
+    expect(socket.messages("connection_ack")).toHaveLength(0);
+    await wait(60);
+    expect(socket.messages("ping")).toHaveLength(0);
+  });
+});
+
 // ─── Message routing ──────────────────────────────────────────────────────────
 
 describe("message routing", () => {

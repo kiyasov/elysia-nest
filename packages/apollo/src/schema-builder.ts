@@ -750,10 +750,51 @@ export class SchemaBuilder {
   private createResolver(
     metadata: ResolverFieldMetadata,
   ): GraphQLFieldResolver<unknown, unknown> {
+    const resolverClass = (metadata.target as { constructor: Constructor })
+      .constructor;
+    const methodName = metadata.methodName;
+
+    // ── Hoisted metadata reads (perf A2) ─────────────────────────────────────
+    // All of these decorator metadata entries are written once at
+    // class-definition time and are immutable afterwards, so they are read a
+    // single time here at schema-build time and captured in the closure below.
+    // This keeps the per-invocation hot path free of any `Reflect.getMetadata`
+    // lookups.
+    const argsMetas = Reflect.getMetadata(
+      ARGS_METADATA,
+      metadata.target,
+      methodName,
+    ) as Array<{ index: number; name?: string }> | undefined;
+
+    const parentMetas = Reflect.getMetadata(
+      PARENT_METADATA,
+      metadata.target,
+      methodName,
+    ) as Array<{ index: number }> | undefined;
+
+    const ctxMetas = Reflect.getMetadata(
+      CONTEXT_METADATA,
+      metadata.target,
+      methodName,
+    ) as Array<{ index: number; property?: string }> | undefined;
+
+    const infoMetas = Reflect.getMetadata(
+      INFO_METADATA,
+      metadata.target,
+      methodName,
+    ) as Array<{ index: number }> | undefined;
+
+    const paramMetas =
+      (Reflect.getMetadata(
+        PARAMS_METADATA,
+        resolverClass,
+        methodName,
+      ) as ParamMetadata[] | undefined) ?? [];
+
+    const guards = this.collectGuards(resolverClass, methodName);
+
     return async (parent, args, context, info) => {
-      const resolverClass = (metadata.target as { constructor: Constructor })
-        .constructor;
-      await this.runGuards(resolverClass, metadata.methodName, [
+      await this.runGuards(resolverClass, methodName, guards, [
         parent,
         args,
         context,
@@ -770,17 +811,17 @@ export class SchemaBuilder {
         );
       }
 
-      const method = instance[metadata.methodName];
+      const method = instance[methodName];
       if (typeof method !== "function") {
         throw new Error(
-          `Method "${metadata.methodName}" not found on "${resolverClass.name}"`,
+          `Method "${methodName}" not found on "${resolverClass.name}"`,
         );
       }
 
       const resolvedParams: unknown[] = [];
       const executionContext = this.createGraphQLExecutionContext(
         resolverClass,
-        metadata.methodName,
+        methodName,
         [parent, args, context, info],
       ) as unknown as ExecutionContext;
 
@@ -789,11 +830,6 @@ export class SchemaBuilder {
         resolvedParams[arg.index] = args[arg.name];
       }
 
-      const argsMetas = Reflect.getMetadata(
-        ARGS_METADATA,
-        metadata.target,
-        metadata.methodName,
-      ) as Array<{ index: number; name?: string }> | undefined;
       for (const argMeta of argsMetas ?? []) {
         if (!argMeta.name) {
           resolvedParams[argMeta.index] = args;
@@ -801,21 +837,11 @@ export class SchemaBuilder {
       }
 
       // @Parent / @Root
-      const parentMetas = Reflect.getMetadata(
-        PARENT_METADATA,
-        metadata.target,
-        metadata.methodName,
-      ) as Array<{ index: number }> | undefined;
       for (const p of parentMetas ?? []) {
         resolvedParams[p.index] = parent;
       }
 
       // @Context / @Ctx
-      const ctxMetas = Reflect.getMetadata(
-        CONTEXT_METADATA,
-        metadata.target,
-        metadata.methodName,
-      ) as Array<{ index: number; property?: string }> | undefined;
       for (const c of ctxMetas ?? []) {
         if (
           c.property &&
@@ -832,21 +858,10 @@ export class SchemaBuilder {
       }
 
       // @Info
-      const infoMetas = Reflect.getMetadata(
-        INFO_METADATA,
-        metadata.target,
-        metadata.methodName,
-      ) as Array<{ index: number }> | undefined;
       for (const i of infoMetas ?? []) {
         resolvedParams[i.index] = info;
       }
 
-      const paramMetas =
-        (Reflect.getMetadata(
-          PARAMS_METADATA,
-          resolverClass,
-          metadata.methodName,
-        ) as ParamMetadata[] | undefined) ?? [];
       for (const paramMeta of paramMetas) {
         if (!paramMeta.factory || paramMeta.type !== "__factory__") {
           continue;
@@ -861,11 +876,16 @@ export class SchemaBuilder {
     };
   }
 
-  private async runGuards(
+  /**
+   * Reads the class-level and method-level guard metadata for a resolver
+   * method. Guard metadata is written once at decoration time, so this is
+   * invoked a single time per resolver at schema-build time (see
+   * {@link createResolver}) rather than on every field execution.
+   */
+  private collectGuards(
     resolverClass: Constructor,
     methodName: string,
-    gqlArgs: [unknown, Record<string, unknown>, unknown, unknown],
-  ): Promise<void> {
+  ): unknown[] {
     const classGuards =
       (Reflect.getMetadata(GUARDS_METADATA, resolverClass) as unknown[]) ?? [];
     const methodGuards =
@@ -874,7 +894,15 @@ export class SchemaBuilder {
         resolverClass,
         methodName,
       ) as unknown[]) ?? [];
-    const guards = [...classGuards, ...methodGuards];
+    return [...classGuards, ...methodGuards];
+  }
+
+  private async runGuards(
+    resolverClass: Constructor,
+    methodName: string,
+    guards: unknown[],
+    gqlArgs: [unknown, Record<string, unknown>, unknown, unknown],
+  ): Promise<void> {
     if (guards.length === 0) {
       return;
     }
