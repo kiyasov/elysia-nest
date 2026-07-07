@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { afterEach, describe, expect, it } from "bun:test";
 import { CronTask } from "../src/tasks";
 

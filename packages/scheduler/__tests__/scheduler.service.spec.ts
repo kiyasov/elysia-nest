@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { Scheduler } from "../src";
 
