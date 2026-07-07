@@ -1,6 +1,6 @@
 import type { Provider } from "nestelia";
 
-import { DRIZZLE_MODULE_OPTIONS } from "./drizzle.constants";
+import { getDrizzleOptionsToken } from "./drizzle.constants";
 import type {
   DrizzleModuleAsyncOptions,
   DrizzleModuleOptions,
@@ -10,29 +10,38 @@ import type {
 /**
  * Builds the provider that exposes the drizzle db instance under `token`.
  *
+ * Injects the options from the per-instance token derived from `token`, so
+ * multiple registrations never share (and overwrite) a single options token.
+ *
  * @internal
  */
 export function createDrizzleProvider(token: string | symbol): Provider {
   return {
     provide: token,
     useFactory: (options: DrizzleModuleOptions) => options.db,
-    inject: [DRIZZLE_MODULE_OPTIONS],
+    inject: [getDrizzleOptionsToken(token)],
   };
 }
 
 /**
- * Builds the async providers needed to resolve `DRIZZLE_MODULE_OPTIONS`
- * from a factory, class, or existing provider.
+ * Builds the async providers needed to resolve the per-instance options
+ * token from a factory, class, or existing provider.
+ *
+ * @param options - Async configuration options.
+ * @param token - The drizzle instance token these options belong to.
  *
  * @internal
  */
 export function createDrizzleAsyncProviders(
   options: DrizzleModuleAsyncOptions,
+  token: string | symbol,
 ): Provider[] {
+  const optionsToken = getDrizzleOptionsToken(token);
+
   if (options.useFactory) {
     return [
       {
-        provide: DRIZZLE_MODULE_OPTIONS,
+        provide: optionsToken,
         useFactory: options.useFactory,
         inject: options.inject ?? [],
       },
@@ -46,7 +55,7 @@ export function createDrizzleAsyncProviders(
         useClass: options.useClass,
       },
       {
-        provide: DRIZZLE_MODULE_OPTIONS,
+        provide: optionsToken,
         useFactory: (factory: DrizzleOptionsFactory) =>
           factory.createDrizzleOptions(),
         inject: [options.useClass],
@@ -57,7 +66,7 @@ export function createDrizzleAsyncProviders(
   if (options.useExisting) {
     return [
       {
-        provide: DRIZZLE_MODULE_OPTIONS,
+        provide: optionsToken,
         useFactory: (factory: DrizzleOptionsFactory) =>
           factory.createDrizzleOptions(),
         inject: [options.useExisting],

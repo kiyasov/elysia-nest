@@ -10,7 +10,7 @@ import { Injectable } from "nestelia";
 import { Test } from "../../testing/src/test";
 import {
   DRIZZLE_INSTANCE,
-  DRIZZLE_MODULE_OPTIONS,
+  getDrizzleOptionsToken,
 } from "../src/drizzle.constants";
 import { DrizzleModule } from "../src/drizzle.module";
 import { InjectDrizzle } from "../src/decorators/inject-drizzle.decorator";
@@ -84,15 +84,34 @@ describe("DrizzleModule.forRoot — shape", () => {
     expect(mod.global).toBe(true);
   });
 
-  it("includes DRIZZLE_MODULE_OPTIONS provider", () => {
+  it("includes a per-instance options provider", () => {
     const { db, sqlite } = makeDb();
     const mod = DrizzleModule.forRoot({ db });
     sqlite.close();
 
     const providers = mod.providers as { provide: unknown }[];
-    expect(providers.some((p) => p.provide === DRIZZLE_MODULE_OPTIONS)).toBe(
-      true,
-    );
+    expect(
+      providers.some(
+        (p) => p.provide === getDrizzleOptionsToken(DRIZZLE_INSTANCE),
+      ),
+    ).toBe(true);
+  });
+
+  it("keys the options provider by the custom tag", () => {
+    const { db, sqlite } = makeDb();
+    const mod = DrizzleModule.forRoot({ db, tag: "analytics" });
+    sqlite.close();
+
+    const providers = mod.providers as { provide: unknown }[];
+    // The options token for one tag must never collide with another's.
+    expect(
+      providers.some((p) => p.provide === getDrizzleOptionsToken("analytics")),
+    ).toBe(true);
+    expect(
+      providers.some(
+        (p) => p.provide === getDrizzleOptionsToken(DRIZZLE_INSTANCE),
+      ),
+    ).toBe(false);
   });
 });
 

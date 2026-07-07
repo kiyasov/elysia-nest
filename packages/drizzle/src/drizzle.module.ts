@@ -1,6 +1,6 @@
 import { DynamicModule, Module } from "nestelia";
 
-import { DRIZZLE_INSTANCE, DRIZZLE_MODULE_OPTIONS } from "./drizzle.constants";
+import { DRIZZLE_INSTANCE, getDrizzleOptionsToken } from "./drizzle.constants";
 import {
   createDrizzleAsyncProviders,
   createDrizzleProvider,
@@ -82,7 +82,7 @@ export class DrizzleModule {
       module: DrizzleModule,
       global: options.isGlobal ?? false,
       providers: [
-        { provide: DRIZZLE_MODULE_OPTIONS, useValue: options },
+        { provide: getDrizzleOptionsToken(token), useValue: options },
         createDrizzleProvider(token),
       ],
       exports: [token],
@@ -96,7 +96,7 @@ export class DrizzleModule {
    */
   static forRootAsync(options: DrizzleModuleAsyncOptions): DynamicModule {
     const token = options.tag ?? DRIZZLE_INSTANCE;
-    const asyncProviders = createDrizzleAsyncProviders(options);
+    const asyncProviders = createDrizzleAsyncProviders(options, token);
     return {
       module: DrizzleModule,
       global: options.isGlobal ?? false,
