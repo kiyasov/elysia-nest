@@ -1,6 +1,6 @@
 import passport from "passport";
 
-import { Container } from "nestelia";
+import { Container, UnauthorizedException } from "nestelia";
 import type { CanActivate } from "nestelia";
 import type { ExecutionContext } from "nestelia";
 import {
@@ -67,8 +67,12 @@ export function AuthGuard(type?: StrategyType): Type<IAuthGuard> {
     }
 
     public handleRequest<TUser = unknown>(err: unknown, user: TUser): TUser {
-      if (err) {
-        throw err;
+      // Reject when the strategy errored OR produced no user. A failed
+      // authentication resolves `user` as null/undefined/false with no error;
+      // returning it here (as the old code did) authorized the request with an
+      // unset `request.user` — an auth bypass. Mirrors NestJS's AuthGuard.
+      if (err || !user) {
+        throw err ?? new UnauthorizedException();
       }
       return user;
     }

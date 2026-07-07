@@ -80,5 +80,32 @@ describe("AuthGuard", () => {
       const err = new Error("Unauthorized");
       expect(() => guard.handleRequest(err, null)).toThrow("Unauthorized");
     });
+
+    it("throws Unauthorized when user is falsy (null/undefined/false)", () => {
+      const Guard = AuthGuard();
+      const guard = new Guard();
+      // A strategy that fails auth resolves user = null/undefined/false with no
+      // error; the guard must reject the request, not authorize it.
+      expect(() => guard.handleRequest(null, null)).toThrow();
+      expect(() => guard.handleRequest(null, undefined)).toThrow();
+      expect(() => guard.handleRequest(null, false)).toThrow();
+    });
+  });
+
+  describe("canActivate — no auth-bypass on falsy user", () => {
+    it("throws instead of returning true when authentication yields no user", async () => {
+      const Base = AuthGuard("jwt");
+      class NullAuthGuard extends Base {
+        // Override authenticate (present on the runtime prototype) to simulate a
+        // strategy that resolves without a user (auth failure, no thrown error).
+        protected async authenticate(): Promise<unknown> {
+          return null;
+        }
+      }
+      const guard = new NullAuthGuard();
+      await expect(
+        guard.canActivate(makeContext({ method: "GET" })),
+      ).rejects.toThrow();
+    });
   });
 });

@@ -1,15 +1,17 @@
 import { Module } from "nestelia";
-import type { OnModuleDestroy } from "nestelia";
 
-import { clearStrategyRegistries } from "./passport-strategy";
+import { PassportCleanupService } from "./passport-cleanup.service";
 
 /**
- * PassportModule clears strategy registries on module destroy
- * to prevent memory leaks across application restarts.
+ * PassportModule registers {@link PassportCleanupService}, which clears the
+ * strategy registries on application shutdown to prevent memory leaks across
+ * application restarts.
+ *
+ * Note: the cleanup MUST live on an injectable provider, not on this module
+ * class. `@Module` replaces the class with a factory function that is never
+ * instantiated, so lifecycle hooks declared here would never fire.
  */
-@Module({})
-export class PassportModule implements OnModuleDestroy {
-  onModuleDestroy(): void {
-    clearStrategyRegistries();
-  }
-}
+@Module({
+  providers: [PassportCleanupService],
+})
+export class PassportModule {}
