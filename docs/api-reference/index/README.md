@@ -9,6 +9,7 @@
 | [ConsoleLogger](classes/ConsoleLogger.md) | - |
 | [Container](classes/Container.md) | - |
 | [DIError](classes/DIError.md) | Error thrown when the DI container cannot resolve a dependency. |
+| [EventEmitter](classes/EventEmitter.md) | Event emitter for dispatching and handling events |
 | [FileValidationError](classes/FileValidationError.md) | - |
 | [ForbiddenException](classes/ForbiddenException.md) | Exception for 403 Forbidden errors |
 | [HttpAdapterHost](classes/HttpAdapterHost.md) | Host class for accessing the HTTP adapter. Used to abstract the underlying HTTP server. |
@@ -40,10 +41,11 @@
 | [createMetadataCache](functions/createMetadataCache.md) | Lazily-populated cache for generic Reflect metadata keyed by (target, metadataKey). Two-level lookup: WeakMap<object, Map<key, T>>. |
 | [createMethodMetadataCache](functions/createMethodMetadataCache.md) | Lazily-populated cache for method-level Reflect metadata. Two-level lookup: WeakMap<object, Map<string | symbol, T>>. |
 | [createParamDecorator](functions/createParamDecorator.md) | - |
+| [EventSubscriber](functions/EventSubscriber.md) | Decorator to mark a class as an event subscriber |
 | [forwardRef](functions/forwardRef.md) | - |
 | [getCatchExceptionsMetadata](functions/getCatchExceptionsMetadata.md) | Get the exception types that a filter catches |
 | [getElysiaHooksMetadata](functions/getElysiaHooksMetadata.md) | Get all Elysia lifecycle hooks metadata for a controller |
-| [getEventEmitter](functions/getEventEmitter.md) | - |
+| [getEventEmitter](functions/getEventEmitter.md) | Get the global event emitter instance |
 | [getLifecycleManager](functions/getLifecycleManager.md) | Get the global lifecycle manager instance |
 | [Global](functions/Global.md) | Marks a module as global, meaning its providers can be accessed from any other module without explicitly importing it. |
 | [Header](functions/Header.md) | Decorator that sets HTTP headers for the response. |
@@ -70,11 +72,13 @@
 | [Middleware](functions/Middleware.md) | Marks a class as middleware. Implies `@Injectable()`. |
 | [Module](functions/Module.md) | Module decorator that creates an Elysia plugin from the module configuration. |
 | [OnClose](functions/OnClose.md) | Marks a gateway method as the WebSocket `close` handler. Called when a client disconnects. |
+| [OnEvent](functions/OnEvent.md) | Decorator to mark a method as an event handler |
 | [OnMessage](functions/OnMessage.md) | Marks a gateway method as the WebSocket `message` handler. Called when a message is received from a client. |
 | [OnOpen](functions/OnOpen.md) | Marks a gateway method as the WebSocket `open` handler. Called when a client establishes a connection. |
 | [Optional](functions/Optional.md) | - |
 | [parseValidationError](functions/parseValidationError.md) | - |
 | [processParameters](functions/processParameters.md) | Extract and validate parameters based on metadata |
+| [registerEventHandlers](functions/registerEventHandlers.md) | Function to register event handlers from a class instance |
 | [Schema](functions/Schema.md) | - |
 | [SetMetadata](functions/SetMetadata.md) | Decorator that assigns metadata to the class using the specified key. |
 | [UseGuards](functions/UseGuards.md) | Decorator that binds guards to the scope of the controller or method, depending on its context. |
@@ -100,7 +104,7 @@
 | [DynamicModule](interfaces/DynamicModule.md) | Dynamic module configuration |
 | [ElysiaHookMetadata](interfaces/ElysiaHookMetadata.md) | Metadata for Elysia lifecycle hooks |
 | [ElysiaNestMiddleware](interfaces/ElysiaNestMiddleware.md) | Interface for class-based middleware. Instances will be resolved from the DI container. |
-| [EventEmitter](interfaces/EventEmitter.md) | - |
+| [EventHandlerRegistration](interfaces/EventHandlerRegistration.md) | Event handler registration with metadata |
 | [ExceptionContext](interfaces/ExceptionContext.md) | Context for exception filters |
 | [ExceptionFilter](interfaces/ExceptionFilter.md) | Interface for exception filters |
 | [ExceptionFilterMetadata](interfaces/ExceptionFilterMetadata.md) | - |
@@ -112,6 +116,7 @@
 | [GetOptions](interfaces/GetOptions.md) | Options for ModuleRef.get() method |
 | [HttpAdapter](interfaces/HttpAdapter.md) | Interface for HTTP adapter - abstracts HTTP server operations |
 | [HttpArgumentsHost](interfaces/HttpArgumentsHost.md) | HTTP context interface for request/response access |
+| [IEventEmitter](interfaces/IEventEmitter.md) | Interface for event emitter |
 | [InjectableOptions](interfaces/InjectableOptions.md) | - |
 | [InstancePerContext](interfaces/InstancePerContext.md) | - |
 | [Interceptor](interfaces/Interceptor.md) | Interface for request interceptors |
@@ -123,6 +128,7 @@
 | [NestInterceptor](interfaces/NestInterceptor.md) | Elysia-Nest interceptor interface |
 | [OnApplicationBootstrap](interfaces/OnApplicationBootstrap.md) | Interface for lifecycle hooks called when the application is bootstrapped This method is called after all modules have been initialized |
 | [OnApplicationShutdown](interfaces/OnApplicationShutdown.md) | Interface for lifecycle hooks called when the application is shutting down This method is called when all connections are closed and the application is about to exit |
+| [OnEventOptions](interfaces/OnEventOptions.md) | Options for the OnEvent decorator |
 | [OnModuleDestroy](interfaces/OnModuleDestroy.md) | Interface for lifecycle hooks called before a module is destroyed This method is called when the application is shutting down |
 | [OnModuleInit](interfaces/OnModuleInit.md) | Interface for lifecycle hooks called when a module is initialized This method is called once all the modules are instantiated but before the application is fully started |
 | [ParamInfo](interfaces/ParamInfo.md) | - |
@@ -150,6 +156,7 @@
 | [ConfigurableModuleOptionsFactory](type-aliases/ConfigurableModuleOptionsFactory.md) | Interface that must be implemented by the module options factory class. Method key varies depending on the "FactoryClassMethodKey" type argument. |
 | [ElysiaHookName](type-aliases/ElysiaHookName.md) | Type for Elysia lifecycle hook names |
 | [ElysiaWsContext](type-aliases/ElysiaWsContext.md) | The WebSocket context object passed to gateway handler methods. Wraps Elysia's ElysiaWS with an untyped data payload for general use. |
+| [EventHandler](type-aliases/EventHandler.md) | Event handler function type |
 | [FunctionalMiddleware](type-aliases/FunctionalMiddleware.md) | Functional middleware type. Directly an Elysia handler or a similar function. |
 | [~~GuardContext~~](type-aliases/GuardContext.md) | - |
 | [InjectionToken](type-aliases/InjectionToken.md) | - |
@@ -184,6 +191,7 @@
 | [ELYSIA\_HOOKS\_METADATA](variables/ELYSIA_HOOKS_METADATA.md) | - |
 | [ElysiaContext](variables/ElysiaContext.md) | - |
 | [EVENT\_LISTENER\_METADATA](variables/EVENT_LISTENER_METADATA.md) | - |
+| [EVENTS\_METADATA](variables/EVENTS_METADATA.md) | - |
 | [EXCEPTION\_FILTER\_METADATA](variables/EXCEPTION_FILTER_METADATA.md) | - |
 | [File](variables/File.md) | - |
 | [Files](variables/Files.md) | - |

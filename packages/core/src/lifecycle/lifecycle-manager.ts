@@ -1,10 +1,8 @@
 import type {
-  BeforeApplicationShutdown,
   OnApplicationBootstrap,
-  OnApplicationShutdown,
-  OnModuleDestroy,
   OnModuleInit,
 } from "../interfaces/lifecycle.interface";
+import { Logger } from "../logger";
 
 /**
  * Class to manage lifecycle hooks across the application
@@ -12,6 +10,36 @@ import type {
 export class LifecycleManager {
   private providers: any[] = [];
   private bootstrapTriggered = false;
+
+  /**
+   * Invoke `hookName` on every registered provider that implements it, awaiting
+   * the result so async hooks (DB/connection close, worker drain) fully settle
+   * before the phase is considered complete. Runs best-effort: a throwing or
+   * rejecting hook is logged and does NOT prevent the remaining providers'
+   * hooks — or the later shutdown phases — from running.
+   */
+  private async runHook(
+    hookName:
+      | "onModuleDestroy"
+      | "beforeApplicationShutdown"
+      | "onApplicationShutdown",
+  ): Promise<void> {
+    for (const provider of this.providers) {
+      if (typeof provider !== "object" || provider === null) continue;
+      const hook = (provider as Record<string, unknown>)[hookName];
+      if (typeof hook !== "function") continue;
+      try {
+        await (hook as () => unknown).call(provider);
+      } catch (error) {
+        Logger.error(
+          `Error in ${hookName} hook: ${
+            error instanceof Error ? error.stack ?? error.message : String(error)
+          }`,
+          "LifecycleManager",
+        );
+      }
+    }
+  }
 
   /**
    * Register a provider with lifecycle hooks
@@ -55,31 +83,19 @@ export class LifecycleManager {
   }
 
   /**
-   * Trigger onModuleDestroy hooks for all registered providers
+   * Trigger onModuleDestroy hooks for all registered providers.
+   * Awaits async hooks so cleanup completes before the caller proceeds.
    */
-  public triggerOnModuleDestroy() {
-    for (const provider of this.providers) {
-      if (
-        typeof provider === "object" &&
-        (provider as OnModuleDestroy).onModuleDestroy
-      ) {
-        (provider as OnModuleDestroy).onModuleDestroy();
-      }
-    }
+  public async triggerOnModuleDestroy(): Promise<void> {
+    await this.runHook("onModuleDestroy");
   }
 
   /**
-   * Trigger beforeApplicationShutdown hooks for all registered providers
+   * Trigger beforeApplicationShutdown hooks for all registered providers.
+   * Awaits async hooks so cleanup completes before the caller proceeds.
    */
-  public triggerBeforeApplicationShutdown() {
-    for (const provider of this.providers) {
-      if (
-        typeof provider === "object" &&
-        (provider as BeforeApplicationShutdown).beforeApplicationShutdown
-      ) {
-        (provider as BeforeApplicationShutdown).beforeApplicationShutdown();
-      }
-    }
+  public async triggerBeforeApplicationShutdown(): Promise<void> {
+    await this.runHook("beforeApplicationShutdown");
   }
 
   /**
@@ -91,17 +107,11 @@ export class LifecycleManager {
   }
 
   /**
-   * Trigger onApplicationShutdown hooks for all registered providers
+   * Trigger onApplicationShutdown hooks for all registered providers.
+   * Awaits async hooks so cleanup completes before the caller proceeds.
    */
-  public triggerOnApplicationShutdown() {
-    for (const provider of this.providers) {
-      if (
-        typeof provider === "object" &&
-        (provider as OnApplicationShutdown).onApplicationShutdown
-      ) {
-        (provider as OnApplicationShutdown).onApplicationShutdown();
-      }
-    }
+  public async triggerOnApplicationShutdown(): Promise<void> {
+    await this.runHook("onApplicationShutdown");
   }
 }
 

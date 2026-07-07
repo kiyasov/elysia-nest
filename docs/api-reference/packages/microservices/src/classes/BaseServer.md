@@ -1,6 +1,6 @@
 # Abstract Class: BaseServer
 
-Defined in: [packages/microservices/src/transports/server.ts:19](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L19)
+Defined in: [packages/microservices/src/transports/server.ts:20](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L20)
 
 Abstract base class for all built-in transport servers.
 
@@ -119,7 +119,7 @@ EventEmitter.[captureRejectionSymbol]
 addEventHandler(pattern, callback): void;
 ```
 
-Defined in: [packages/microservices/src/transports/server.ts:49](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L49)
+Defined in: [packages/microservices/src/transports/server.ts:50](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L50)
 
 Registers `callback` as a fire-and-forget event handler for `pattern`.
 The handler's return value is ignored.
@@ -143,7 +143,7 @@ The handler's return value is ignored.
 addHandler(pattern, callback): void;
 ```
 
-Defined in: [packages/microservices/src/transports/server.ts:32](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L32)
+Defined in: [packages/microservices/src/transports/server.ts:33](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L33)
 
 Registers `callback` as a request-response handler for `pattern`.
 Equivalent to [addMessageHandler](#addmessagehandler).
@@ -210,7 +210,7 @@ EventEmitter.addListener
 addMessageHandler(pattern, callback): void;
 ```
 
-Defined in: [packages/microservices/src/transports/server.ts:41](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L41)
+Defined in: [packages/microservices/src/transports/server.ts:42](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L42)
 
 Registers `callback` as a request-response handler for `pattern`.
 The handler is expected to return a value that will be sent back to
@@ -235,7 +235,7 @@ the caller.
 protected cleanup(): void;
 ```
 
-Defined in: [packages/microservices/src/transports/server.ts:71](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L71)
+Defined in: [packages/microservices/src/transports/server.ts:89](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L89)
 
 Removes all EventEmitter listeners and clears both handler maps.
 Subclasses should call this in their `close()` implementation to
@@ -253,7 +253,7 @@ prevent memory leaks.
 abstract close(): void;
 ```
 
-Defined in: [packages/microservices/src/transports/server.ts:60](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L60)
+Defined in: [packages/microservices/src/transports/server.ts:61](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L61)
 
 Shut down the transport and release all resources.
 
@@ -343,13 +343,41 @@ EventEmitter.emit
 
 ***
 
+### emitError()
+
+```ts
+protected emitError(error): void;
+```
+
+Defined in: [packages/microservices/src/transports/server.ts:76](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L76)
+
+Safely surfaces a transport-level error.
+
+Node's EventEmitter throws `ERR_UNHANDLED_ERROR` when `"error"` is
+emitted with no registered listener, which would crash the whole process
+on a routine `ECONNRESET`, Redis blip, or malformed frame. This helper only
+re-emits when a listener is attached; otherwise it logs the error so it is
+never silently swallowed and never crashes the process.
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `error` | `unknown` |
+
+#### Returns
+
+`void`
+
+***
+
 ### emitEvent()
 
 ```ts
 abstract emitEvent<T>(pattern, data): void;
 ```
 
-Defined in: [packages/microservices/src/transports/server.ts:58](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L58)
+Defined in: [packages/microservices/src/transports/server.ts:59](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L59)
 
 Publish a fire-and-forget event.
 
@@ -451,13 +479,14 @@ EventEmitter.getMaxListeners
 protected handleEvent<T>(
    pattern, 
    data, 
-   ctx): void;
+   ctx): unknown;
 ```
 
-Defined in: [packages/microservices/src/transports/server.ts:97](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L97)
+Defined in: [packages/microservices/src/transports/server.ts:116](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L116)
 
-Dispatches an incoming event to the matching event handler.
-Silently ignores events without a registered handler.
+Dispatches an incoming event to the matching event handler and returns the
+handler's result so transports can `await` it before acknowledging the
+message. Silently ignores events without a registered handler.
 
 #### Type Parameters
 
@@ -475,7 +504,7 @@ Silently ignores events without a registered handler.
 
 #### Returns
 
-`void`
+`unknown`
 
 ***
 
@@ -488,7 +517,7 @@ protected handleMessage<T, R>(
    ctx): unknown;
 ```
 
-Defined in: [packages/microservices/src/transports/server.ts:81](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L81)
+Defined in: [packages/microservices/src/transports/server.ts:99](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L99)
 
 Dispatches an incoming request to the matching message handler.
 
@@ -523,7 +552,7 @@ When no handler is registered for `pattern`.
 abstract listen(callback?): void | Promise<void>;
 ```
 
-Defined in: [packages/microservices/src/transports/server.ts:62](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L62)
+Defined in: [packages/microservices/src/transports/server.ts:63](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L63)
 
 Start the transport server.
 
@@ -1133,7 +1162,7 @@ EventEmitter.removeListener
 abstract sendMessage<T>(pattern, data): Promise<unknown>;
 ```
 
-Defined in: [packages/microservices/src/transports/server.ts:53](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L53)
+Defined in: [packages/microservices/src/transports/server.ts:54](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L54)
 
 Send a request and wait for the response.
 
@@ -1200,5 +1229,5 @@ EventEmitter.setMaxListeners
 
 | Property | Modifier | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="eventhandlers"></a> `eventHandlers` | `readonly` | `Map`\<`string`, [`MessageHandler`](../type-aliases/MessageHandler.md)\> | Handlers for fire-and-forget event patterns. | [packages/microservices/src/transports/server.ts:26](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L26) |
-| <a id="messagehandlers"></a> `messageHandlers` | `readonly` | `Map`\<`string`, [`MessageHandler`](../type-aliases/MessageHandler.md)\> | Handlers for request-response patterns. | [packages/microservices/src/transports/server.ts:24](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L24) |
+| <a id="eventhandlers"></a> `eventHandlers` | `readonly` | `Map`\<`string`, [`MessageHandler`](../type-aliases/MessageHandler.md)\> | Handlers for fire-and-forget event patterns. | [packages/microservices/src/transports/server.ts:27](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L27) |
+| <a id="messagehandlers"></a> `messageHandlers` | `readonly` | `Map`\<`string`, [`MessageHandler`](../type-aliases/MessageHandler.md)\> | Handlers for request-response patterns. | [packages/microservices/src/transports/server.ts:25](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L25) |

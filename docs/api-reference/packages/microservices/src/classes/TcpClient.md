@@ -1,6 +1,6 @@
 # Class: TcpClient
 
-Defined in: [packages/microservices/src/client/tcp.client.ts:25](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/tcp.client.ts#L25)
+Defined in: [packages/microservices/src/client/tcp.client.ts:26](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/tcp.client.ts#L26)
 
 Client proxy that communicates over raw TCP with newline-delimited JSON
 framing.
@@ -20,7 +20,7 @@ framing.
 new TcpClient(options): TcpClient;
 ```
 
-Defined in: [packages/microservices/src/client/tcp.client.ts:37](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/tcp.client.ts#L37)
+Defined in: [packages/microservices/src/client/tcp.client.ts:44](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/tcp.client.ts#L44)
 
 #### Parameters
 
@@ -44,9 +44,9 @@ Defined in: [packages/microservices/src/client/tcp.client.ts:37](https://github.
 close(): void;
 ```
 
-Defined in: [packages/microservices/src/client/tcp.client.ts:141](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/tcp.client.ts#L141)
+Defined in: [packages/microservices/src/client/tcp.client.ts:171](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/tcp.client.ts#L171)
 
-Destroys the socket and clears pending requests.
+Destroys the socket and rejects any in-flight requests.
 
 #### Returns
 
@@ -64,7 +64,7 @@ Destroys the socket and clears pending requests.
 connect(): Promise<void>;
 ```
 
-Defined in: [packages/microservices/src/client/tcp.client.ts:42](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/tcp.client.ts#L42)
+Defined in: [packages/microservices/src/client/tcp.client.ts:49](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/tcp.client.ts#L49)
 
 Opens a TCP connection to the configured host/port.
 
@@ -84,7 +84,7 @@ Opens a TCP connection to the configured host/port.
 emit<T>(pattern, data): void;
 ```
 
-Defined in: [packages/microservices/src/client/tcp.client.ts:133](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/tcp.client.ts#L133)
+Defined in: [packages/microservices/src/client/tcp.client.ts:163](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/tcp.client.ts#L163)
 
 Writes a fire-and-forget event to the server.
 
@@ -117,7 +117,7 @@ Writes a fire-and-forget event to the server.
 send<T, R>(pattern, data): Observable<R>;
 ```
 
-Defined in: [packages/microservices/src/client/tcp.client.ts:104](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/tcp.client.ts#L104)
+Defined in: [packages/microservices/src/client/tcp.client.ts:134](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/tcp.client.ts#L134)
 
 Sends a request to `pattern` and returns an Observable that emits the
 response then completes. Times out after **5 seconds**.

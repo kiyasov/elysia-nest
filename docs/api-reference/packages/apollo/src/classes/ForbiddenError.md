@@ -347,7 +347,7 @@ GraphQLError.prepareStackTrace
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
 | <a id="cause"></a> `cause?` | `public` | `unknown` | The cause of the error. | `GraphQLError.cause` | node\_modules/typescript/lib/lib.es2022.error.d.ts:24 |
-| <a id="coordinate"></a> `coordinate?` | `readonly` | `string` | An optional schema coordinate (e.g. "MyType.myField") associated with this error. | `GraphQLError.coordinate` | node\_modules/@graphql-tools/utils/typings/errors.d.ts:19 |
+| <a id="coordinate"></a> `coordinate?` | `readonly` | `string` | An optional schema coordinate (e.g. "MyType.myField") associated with this error. | `GraphQLError.coordinate` | node\_modules/@apollo/server/node\_modules/@graphql-tools/schema/node\_modules/@graphql-tools/utils/typings/errors.d.ts:19 |
 | <a id="extensions"></a> `extensions` | `readonly` | `GraphQLErrorExtensions` | Extension fields to add to the formatted error. | `GraphQLError.extensions` | node\_modules/graphql/error/GraphQLError.d.ts:90 |
 | <a id="locations"></a> `locations` | `readonly` | readonly `SourceLocation`[] \| `undefined` | An array of `{ line, column }` locations within the source GraphQL document which correspond to this error. Errors during validation often contain multiple locations, for example to point out two things with the same name. Errors during execution include a single location, the field which produced the error. Enumerable, and appears in the result of JSON.stringify(). | `GraphQLError.locations` | node\_modules/graphql/error/GraphQLError.d.ts:65 |
 | <a id="message"></a> `message` | `public` | `string` | - | `GraphQLError.message` | node\_modules/typescript/lib/lib.es5.d.ts:1075 |

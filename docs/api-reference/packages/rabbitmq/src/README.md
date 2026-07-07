@@ -10,6 +10,7 @@
 | [ConnectionNotAvailableError](classes/ConnectionNotAvailableError.md) | - |
 | [Nack](classes/Nack.md) | - |
 | [NullMessageError](classes/NullMessageError.md) | - |
+| [RabbitMQExplorer](classes/RabbitMQExplorer.md) | - |
 | [RabbitMQModule](classes/RabbitMQModule.md) | - |
 | [RpcTimeoutError](classes/RpcTimeoutError.md) | - |
 

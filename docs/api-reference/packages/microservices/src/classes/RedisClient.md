@@ -1,6 +1,6 @@
 # Class: RedisClient
 
-Defined in: [packages/microservices/src/client/redis.client.ts:30](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/redis.client.ts#L30)
+Defined in: [packages/microservices/src/client/redis.client.ts:31](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/redis.client.ts#L31)
 
 Client proxy that communicates over Redis Pub/Sub.
 
@@ -22,7 +22,7 @@ Requires the optional peer dependency `ioredis`.
 new RedisClient(options): RedisClient;
 ```
 
-Defined in: [packages/microservices/src/client/redis.client.ts:45](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/redis.client.ts#L45)
+Defined in: [packages/microservices/src/client/redis.client.ts:46](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/redis.client.ts#L46)
 
 #### Parameters
 
@@ -46,7 +46,7 @@ Defined in: [packages/microservices/src/client/redis.client.ts:45](https://githu
 close(): void;
 ```
 
-Defined in: [packages/microservices/src/client/redis.client.ts:145](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/redis.client.ts#L145)
+Defined in: [packages/microservices/src/client/redis.client.ts:196](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/redis.client.ts#L196)
 
 Disconnects both Redis clients and clears pending state.
 
@@ -66,7 +66,7 @@ Disconnects both Redis clients and clears pending state.
 connect(): Promise<void>;
 ```
 
-Defined in: [packages/microservices/src/client/redis.client.ts:56](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/redis.client.ts#L56)
+Defined in: [packages/microservices/src/client/redis.client.ts:57](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/redis.client.ts#L57)
 
 Opens publisher and subscriber connections.
 
@@ -86,7 +86,7 @@ Opens publisher and subscriber connections.
 emit<T>(pattern, data): void;
 ```
 
-Defined in: [packages/microservices/src/client/redis.client.ts:137](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/redis.client.ts#L137)
+Defined in: [packages/microservices/src/client/redis.client.ts:188](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/redis.client.ts#L188)
 
 Publishes a fire-and-forget event to `pattern`.
 
@@ -119,7 +119,7 @@ Publishes a fire-and-forget event to `pattern`.
 send<T, R>(pattern, data): Observable<R>;
 ```
 
-Defined in: [packages/microservices/src/client/redis.client.ts:106](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/redis.client.ts#L106)
+Defined in: [packages/microservices/src/client/redis.client.ts:150](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/redis.client.ts#L150)
 
 Sends a request to `pattern` and returns an Observable that emits the
 response then completes. Times out after **5 seconds**.

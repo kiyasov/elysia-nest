@@ -72,7 +72,23 @@ export async function initializeSingletonProviders(): Promise<void> {
   for (const moduleRef of container.getModules().values()) {
     // Providers
     for (const [token, wrapper] of moduleRef.getProviders()) {
-      if (processedTokens.has(token) || !wrapper.metatype) {
+      if (processedTokens.has(token)) {
+        continue;
+      }
+
+      // `useValue` providers have no metatype and are already resolved eagerly
+      // (their instance is set at registration time). We must NOT `container.get`
+      // a valueless wrapper, but we DO want to run their lifecycle hooks, so pick
+      // up the pre-set instance directly. `useExisting` aliases also have no
+      // metatype but a null instance, so they are skipped here (their target
+      // provider gets its own lifecycle). Instance-level guards below ensure
+      // nothing double-fires.
+      if (!wrapper.metatype) {
+        const eager = wrapper.instance;
+        if (eager !== null && typeof eager === "object") {
+          processedTokens.add(token);
+          instances.push(eager);
+        }
         continue;
       }
       processedTokens.add(token);

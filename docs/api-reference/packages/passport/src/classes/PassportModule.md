@@ -1,13 +1,14 @@
 # Class: PassportModule
 
-Defined in: [packages/passport/src/passport.module.ts:11](https://github.com/nestelia/nestelia/blob/main/packages/passport/src/passport.module.ts#L11)
+Defined in: [packages/passport/src/passport.module.ts:17](https://github.com/nestelia/nestelia/blob/main/packages/passport/src/passport.module.ts#L17)
 
-PassportModule clears strategy registries on module destroy
-to prevent memory leaks across application restarts.
+PassportModule registers PassportCleanupService, which clears the
+strategy registries on application shutdown to prevent memory leaks across
+application restarts.
 
-## Implements
-
-- [`OnModuleDestroy`](../../../../index/interfaces/OnModuleDestroy.md)
+Note: the cleanup MUST live on an injectable provider, not on this module
+class. `@Module` replaces the class with a factory function that is never
+instantiated, so lifecycle hooks declared here would never fire.
 
 ## Constructors
 
@@ -20,21 +21,3 @@ new PassportModule(): PassportModule;
 #### Returns
 
 `PassportModule`
-
-## Methods
-
-### onModuleDestroy()
-
-```ts
-onModuleDestroy(): void;
-```
-
-Defined in: [packages/passport/src/passport.module.ts:12](https://github.com/nestelia/nestelia/blob/main/packages/passport/src/passport.module.ts#L12)
-
-#### Returns
-
-`void`
-
-#### Implementation of
-
-[`OnModuleDestroy`](../../../../index/interfaces/OnModuleDestroy.md).[`onModuleDestroy`](../../../../index/interfaces/OnModuleDestroy.md#onmoduledestroy)

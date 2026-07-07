@@ -1,6 +1,6 @@
 # Class: RabbitMQClient
 
-Defined in: [packages/microservices/src/client/rabbitmq.client.ts:72](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/rabbitmq.client.ts#L72)
+Defined in: [packages/microservices/src/client/rabbitmq.client.ts:75](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/rabbitmq.client.ts#L75)
 
 Client proxy that communicates over RabbitMQ (AMQP via amqplib).
 
@@ -22,7 +22,7 @@ Requires the optional peer dependency `amqplib`.
 new RabbitMQClient(options): RabbitMQClient;
 ```
 
-Defined in: [packages/microservices/src/client/rabbitmq.client.ts:88](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/rabbitmq.client.ts#L88)
+Defined in: [packages/microservices/src/client/rabbitmq.client.ts:91](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/rabbitmq.client.ts#L91)
 
 #### Parameters
 
@@ -46,7 +46,7 @@ Defined in: [packages/microservices/src/client/rabbitmq.client.ts:88](https://gi
 close(): void;
 ```
 
-Defined in: [packages/microservices/src/client/rabbitmq.client.ts:217](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/rabbitmq.client.ts#L217)
+Defined in: [packages/microservices/src/client/rabbitmq.client.ts:252](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/rabbitmq.client.ts#L252)
 
 Cancels the consumer, closes channel and connection.
 
@@ -66,7 +66,7 @@ Cancels the consumer, closes channel and connection.
 connect(): Promise<void>;
 ```
 
-Defined in: [packages/microservices/src/client/rabbitmq.client.ts:99](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/rabbitmq.client.ts#L99)
+Defined in: [packages/microservices/src/client/rabbitmq.client.ts:102](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/rabbitmq.client.ts#L102)
 
 Connects to RabbitMQ and sets up the exclusive reply queue.
 
@@ -86,7 +86,7 @@ Connects to RabbitMQ and sets up the exclusive reply queue.
 emit<T>(pattern, data): void;
 ```
 
-Defined in: [packages/microservices/src/client/rabbitmq.client.ts:199](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/rabbitmq.client.ts#L199)
+Defined in: [packages/microservices/src/client/rabbitmq.client.ts:234](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/rabbitmq.client.ts#L234)
 
 Publishes a fire-and-forget event to `pattern`.
 
@@ -119,7 +119,7 @@ Publishes a fire-and-forget event to `pattern`.
 send<T, R>(pattern, data): Observable<R>;
 ```
 
-Defined in: [packages/microservices/src/client/rabbitmq.client.ts:158](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/rabbitmq.client.ts#L158)
+Defined in: [packages/microservices/src/client/rabbitmq.client.ts:186](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/client/rabbitmq.client.ts#L186)
 
 Sends a request to `pattern` and returns an Observable that emits the
 server's response then completes. Times out after **5 seconds**.

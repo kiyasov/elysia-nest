@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Context as ElysiaContextType } from "elysia";
 
-import { GUARDS_METADATA, INTERCEPTORS_METADATA, PARAMS_METADATA } from "../decorators/constants";
+import {
+  GUARDS_METADATA,
+  INJECTABLE_METADATA,
+  INTERCEPTORS_METADATA,
+  PARAMS_METADATA,
+} from "../decorators/constants";
 import {
   PARAMS_METADATA as FILE_PARAMS_METADATA,
   processParameters,
@@ -9,7 +14,7 @@ import {
 import { HEADERS_METADATA } from "../decorators/header.decorator";
 import { HTTP_CODE_METADATA } from "../decorators/http-code.decorator";
 import type { ParamMetadata } from "../decorators/types";
-import { Container, DIContainer, type Type } from "../di";
+import { Container, DIContainer, Scope, type Type } from "../di";
 import type { ExecutionContext } from "../interfaces/execution-context.interface";
 import { Logger } from "../logger/logger.service";
 import { resolveParam } from "./param-resolver";
@@ -129,12 +134,77 @@ function buildHttpExecutionContext(
   };
 }
 
+/** Resolves an enhancer (guard/interceptor) instance for a single request. */
+type EnhancerResolver = () => unknown | Promise<unknown>;
+
+/**
+ * Whether a class-based enhancer is request- or transient-scoped and therefore
+ * must be resolved per request. Singleton/unscoped enhancers are resolved once at
+ * bootstrap and reused, so only `guard.canActivate()` / `interceptor.intercept()`
+ * runs per request (issues C2/C3).
+ */
+function isPerRequestScope(token: unknown): boolean {
+  if (typeof token !== "function") return false;
+  const scope = Reflect.getMetadata(INJECTABLE_METADATA, token)?.scope;
+  return scope === Scope.REQUEST || scope === Scope.TRANSIENT;
+}
+
+/**
+ * Builds one resolver per guard, closing over the resolved instance where safe.
+ * - Pre-supplied instances are reused as-is.
+ * - Request/transient-scoped guards are re-resolved per request to honor scope.
+ * - Singleton/unscoped guards are DI-resolved (with a `new` fallback) once, lazily
+ *   on the first request to avoid any bootstrap ordering hazard, then cached.
+ */
+function buildGuardResolvers(guards: unknown[], moduleinstance: any): EnhancerResolver[] {
+  return guards.map((guardToken): EnhancerResolver => {
+    if (typeof guardToken !== "function") {
+      return () => guardToken;
+    }
+    if (isPerRequestScope(guardToken)) {
+      return async () =>
+        (await DIContainer.get(guardToken as Type, moduleinstance as Type)) ??
+        new (guardToken as any)();
+    }
+    let cached: unknown;
+    let resolved = false;
+    return async () => {
+      if (!resolved) {
+        cached =
+          (await DIContainer.get(guardToken as Type, moduleinstance as Type)) ??
+          new (guardToken as any)();
+        resolved = true;
+      }
+      return cached;
+    };
+  });
+}
+
+/**
+ * Builds one resolver per interceptor. Mirrors the historical `new Interceptor()`
+ * semantics (no DI) but instantiates singleton/unscoped interceptors ONCE at
+ * bootstrap and reuses them, so stateful interceptors keep state across requests
+ * (issue C3). Pre-supplied instances are reused; request/transient-scoped
+ * interceptors get a fresh instance per request.
+ */
+function buildInterceptorResolvers(interceptors: any[]): EnhancerResolver[] {
+  return interceptors.map((InterceptorClass): EnhancerResolver => {
+    if (typeof InterceptorClass !== "function") {
+      return () => InterceptorClass;
+    }
+    if (isPerRequestScope(InterceptorClass)) {
+      return () => new InterceptorClass();
+    }
+    const instance = new InterceptorClass();
+    return () => instance;
+  });
+}
+
 async function runGuards(
-  guards: unknown[],
+  guardResolvers: EnhancerResolver[],
   controllerClass: Type,
   handlerMethodName: string,
   controllerInstance: object,
-  moduleinstance: any,
   elysiaContext: ElysiaContextType,
 ): Promise<{ statusCode: 403; error: string; message: string } | undefined> {
   const executionContext = buildHttpExecutionContext(
@@ -144,12 +214,8 @@ async function runGuards(
     elysiaContext,
   );
 
-  for (const guardToken of guards) {
-    const guard: any =
-      typeof guardToken === "function"
-        ? (await DIContainer.get(guardToken as Type, moduleinstance as Type)) ??
-          new (guardToken as any)()
-        : guardToken;
+  for (const resolve of guardResolvers) {
+    const guard: any = await resolve();
 
     if (typeof guard?.canActivate === "function") {
       const allowed = await guard.canActivate(executionContext);
@@ -340,6 +406,14 @@ export function createRouteHandler(
   }
 
   // ── Full path ──────────────────────────────────────────────────────────────
+  // Resolve guard/interceptor instances ONCE (closed over) so per-request work is
+  // limited to canActivate()/intercept(). Request/transient-scoped enhancers are
+  // still resolved per request inside their resolvers (see build* helpers).
+  const guardResolvers = hasGuards ? buildGuardResolvers(meta.guards, moduleinstance) : null;
+  const interceptorResolvers = hasInterceptors
+    ? buildInterceptorResolvers(meta.interceptors)
+    : null;
+
   return async (elysiaContext: ElysiaContextType) =>
     Container.runInRequestContext({ id: ++_reqId, container: new Map() }, async () => {
       const controllerInstance = await DIContainer.get(controllerClass, moduleinstance as Type<any>);
@@ -361,18 +435,19 @@ export function createRouteHandler(
       // Guards
       if (hasGuards) {
         const denied = await runGuards(
-          meta.guards, controllerClass, handlerMethodName,
-          controllerInstance, moduleinstance, elysiaContext,
+          guardResolvers!, controllerClass, handlerMethodName,
+          controllerInstance, elysiaContext,
         );
         if (denied) return denied;
       }
 
       // Interceptors
-      for (const InterceptorClass of meta.interceptors) {
-        const interceptor =
-          typeof InterceptorClass === "function" ? new InterceptorClass() : InterceptorClass;
-        if (typeof interceptor.intercept === "function") {
-          await interceptor.intercept(elysiaContext);
+      if (hasInterceptors) {
+        for (const resolve of interceptorResolvers!) {
+          const interceptor: any = resolve();
+          if (typeof interceptor?.intercept === "function") {
+            await interceptor.intercept(elysiaContext);
+          }
         }
       }
 

@@ -1,6 +1,6 @@
 # Class: GraphQLModule
 
-Defined in: [packages/apollo/src/graphql.module.ts:24](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/graphql.module.ts#L24)
+Defined in: [packages/apollo/src/graphql.module.ts:61](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/graphql.module.ts#L61)
 
 GraphQL module for nestelia backed by Apollo Server.
 Provides static and async configuration methods.
@@ -39,7 +39,7 @@ new GraphQLModule(): GraphQLModule;
 onModuleDestroy(): void;
 ```
 
-Defined in: [packages/apollo/src/graphql.module.ts:25](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/graphql.module.ts#L25)
+Defined in: [packages/apollo/src/graphql.module.ts:62](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/graphql.module.ts#L62)
 
 #### Returns
 
@@ -57,7 +57,7 @@ Defined in: [packages/apollo/src/graphql.module.ts:25](https://github.com/nestel
 static forRoot(options): DynamicModule;
 ```
 
-Defined in: [packages/apollo/src/graphql.module.ts:54](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/graphql.module.ts#L54)
+Defined in: [packages/apollo/src/graphql.module.ts:91](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/graphql.module.ts#L91)
 
 Configures GraphQL with static options.
 The Apollo Server is started eagerly during module bootstrap.
@@ -101,7 +101,7 @@ class AppModule {}
 static forRootAsync(options): DynamicModule;
 ```
 
-Defined in: [packages/apollo/src/graphql.module.ts:102](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/graphql.module.ts#L102)
+Defined in: [packages/apollo/src/graphql.module.ts:140](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/graphql.module.ts#L140)
 
 Configures GraphQL with async options resolved from the DI container.
 

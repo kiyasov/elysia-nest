@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { beforeEach, describe, expect, it } from "bun:test";
 
 import type {
@@ -148,7 +149,7 @@ describe("LifecycleManager", () => {
   });
 
   describe("OnModuleDestroy", () => {
-    it("should call onModuleDestroy on registered providers", () => {
+    it("should call onModuleDestroy on registered providers", async () => {
       let called = false;
       const provider: OnModuleDestroy = {
         onModuleDestroy() {
@@ -157,12 +158,12 @@ describe("LifecycleManager", () => {
       };
 
       manager.register(provider);
-      manager.triggerOnModuleDestroy();
+      await manager.triggerOnModuleDestroy();
 
       expect(called).toBe(true);
     });
 
-    it("should call onModuleDestroy on all registered providers", () => {
+    it("should call onModuleDestroy on all registered providers", async () => {
       const calls: string[] = [];
 
       const provider1: OnModuleDestroy = {
@@ -179,14 +180,14 @@ describe("LifecycleManager", () => {
 
       manager.register(provider1);
       manager.register(provider2);
-      manager.triggerOnModuleDestroy();
+      await manager.triggerOnModuleDestroy();
 
       expect(calls).toEqual(["provider1", "provider2"]);
     });
   });
 
   describe("BeforeApplicationShutdown", () => {
-    it("should call beforeApplicationShutdown on registered providers", () => {
+    it("should call beforeApplicationShutdown on registered providers", async () => {
       let called = false;
       const provider: BeforeApplicationShutdown = {
         beforeApplicationShutdown() {
@@ -195,12 +196,12 @@ describe("LifecycleManager", () => {
       };
 
       manager.register(provider);
-      manager.triggerBeforeApplicationShutdown();
+      await manager.triggerBeforeApplicationShutdown();
 
       expect(called).toBe(true);
     });
 
-    it("should call beforeApplicationShutdown on all registered providers", () => {
+    it("should call beforeApplicationShutdown on all registered providers", async () => {
       const calls: string[] = [];
 
       const provider1: BeforeApplicationShutdown = {
@@ -217,14 +218,14 @@ describe("LifecycleManager", () => {
 
       manager.register(provider1);
       manager.register(provider2);
-      manager.triggerBeforeApplicationShutdown();
+      await manager.triggerBeforeApplicationShutdown();
 
       expect(calls).toEqual(["provider1", "provider2"]);
     });
   });
 
   describe("OnApplicationShutdown", () => {
-    it("should call onApplicationShutdown on registered providers", () => {
+    it("should call onApplicationShutdown on registered providers", async () => {
       let called = false;
       const provider: OnApplicationShutdown = {
         onApplicationShutdown() {
@@ -233,12 +234,12 @@ describe("LifecycleManager", () => {
       };
 
       manager.register(provider);
-      manager.triggerOnApplicationShutdown();
+      await manager.triggerOnApplicationShutdown();
 
       expect(called).toBe(true);
     });
 
-    it("should call onApplicationShutdown on all registered providers", () => {
+    it("should call onApplicationShutdown on all registered providers", async () => {
       const calls: string[] = [];
 
       const provider1: OnApplicationShutdown = {
@@ -255,14 +256,14 @@ describe("LifecycleManager", () => {
 
       manager.register(provider1);
       manager.register(provider2);
-      manager.triggerOnApplicationShutdown();
+      await manager.triggerOnApplicationShutdown();
 
       expect(calls).toEqual(["provider1", "provider2"]);
     });
   });
 
   describe("Multiple hooks on single provider", () => {
-    it("should support provider with multiple lifecycle hooks", () => {
+    it("should support provider with multiple lifecycle hooks", async () => {
       const calls: string[] = [];
 
       const provider: OnModuleInit & OnApplicationBootstrap & OnModuleDestroy =
@@ -281,7 +282,7 @@ describe("LifecycleManager", () => {
       manager.register(provider);
       manager.triggerOnModuleInit();
       manager.triggerOnApplicationBootstrap();
-      manager.triggerOnModuleDestroy();
+      await manager.triggerOnModuleDestroy();
 
       expect(calls).toEqual([
         "onModuleInit",
@@ -290,7 +291,7 @@ describe("LifecycleManager", () => {
       ]);
     });
 
-    it("should support all lifecycle hooks on single provider", () => {
+    it("should support all lifecycle hooks on single provider", async () => {
       const calls: string[] = [];
 
       const provider: OnModuleInit &
@@ -318,9 +319,9 @@ describe("LifecycleManager", () => {
       manager.register(provider);
       manager.triggerOnModuleInit();
       manager.triggerOnApplicationBootstrap();
-      manager.triggerOnModuleDestroy();
-      manager.triggerBeforeApplicationShutdown();
-      manager.triggerOnApplicationShutdown();
+      await manager.triggerOnModuleDestroy();
+      await manager.triggerBeforeApplicationShutdown();
+      await manager.triggerOnApplicationShutdown();
 
       expect(calls).toEqual([
         "onModuleInit",

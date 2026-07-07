@@ -34,6 +34,7 @@ export class AppModule {}
 
 | Function | Description |
 | ------ | ------ |
+| [getDrizzleOptionsToken](functions/getDrizzleOptionsToken.md) | Builds the per-instance options token for a given drizzle instance token. |
 | [InjectDrizzle](functions/InjectDrizzle.md) | Parameter/property decorator that injects a Drizzle ORM database instance. |
 
 ## Interfaces
@@ -49,4 +50,4 @@ export class AppModule {}
 | Variable | Description |
 | ------ | ------ |
 | [DRIZZLE\_INSTANCE](variables/DRIZZLE_INSTANCE.md) | Default injection token for the Drizzle ORM database instance. |
-| [DRIZZLE\_MODULE\_OPTIONS](variables/DRIZZLE_MODULE_OPTIONS.md) | Injection token for the raw Drizzle module options object. |
+| [DRIZZLE\_MODULE\_OPTIONS](variables/DRIZZLE_MODULE_OPTIONS.md) | Base injection token for the raw Drizzle module options object. |

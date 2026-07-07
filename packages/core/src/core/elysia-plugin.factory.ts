@@ -76,12 +76,14 @@ export function createElysiaPlugin(
     }, []);
 
     if (appFilters?.length) {
-      const existingFilters = Reflect.getMetadata(APP_FILTERS_METADATA, moduleinstance) || [];
-      Reflect.defineMetadata(
-        APP_FILTERS_METADATA,
-        [...existingFilters, ...appFilters],
-        moduleinstance,
-      );
+      // Overwrite instead of append. Reflect metadata is process-global and is NOT
+      // reset by beginInitSession(), so appending accumulated a fresh copy on every
+      // application (re-)creation (integration tests, hot reload, serverless warm
+      // re-init). The session guard above (isInitializedInSession) guarantees this
+      // block runs exactly once per module per session, and `appFilters` already holds
+      // the complete set of this module's APP_FILTER providers in declaration order, so
+      // overwriting is both leak-free and order-preserving.
+      Reflect.defineMetadata(APP_FILTERS_METADATA, appFilters, moduleinstance);
     }
 
     // Register global module with providers

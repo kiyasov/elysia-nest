@@ -92,7 +92,7 @@ Defined in: [packages/rabbitmq/src/amqp/connection.ts:170](https://github.com/ne
 get consumerTags(): string[];
 ```
 
-Defined in: [packages/rabbitmq/src/amqp/connection.ts:1172](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L1172)
+Defined in: [packages/rabbitmq/src/amqp/connection.ts:1198](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L1198)
 
 ##### Returns
 
@@ -174,7 +174,7 @@ Defined in: [packages/rabbitmq/src/amqp/connection.ts:153](https://github.com/ne
 cancelConsumer(consumerTag): Promise<void>;
 ```
 
-Defined in: [packages/rabbitmq/src/amqp/connection.ts:1176](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L1176)
+Defined in: [packages/rabbitmq/src/amqp/connection.ts:1202](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L1202)
 
 #### Parameters
 
@@ -194,7 +194,7 @@ Defined in: [packages/rabbitmq/src/amqp/connection.ts:1176](https://github.com/n
 close(): Promise<void>;
 ```
 
-Defined in: [packages/rabbitmq/src/amqp/connection.ts:1221](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L1221)
+Defined in: [packages/rabbitmq/src/amqp/connection.ts:1250](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L1250)
 
 #### Returns
 
@@ -239,7 +239,7 @@ Defined in: [packages/rabbitmq/src/amqp/connection.ts:488](https://github.com/ne
 createRpc<T, U>(handler, rpcOptions): Promise<SubscriptionResult>;
 ```
 
-Defined in: [packages/rabbitmq/src/amqp/connection.ts:799](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L799)
+Defined in: [packages/rabbitmq/src/amqp/connection.ts:808](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L808)
 
 #### Type Parameters
 
@@ -318,7 +318,7 @@ publish(
 options?): Promise<boolean>;
 ```
 
-Defined in: [packages/rabbitmq/src/amqp/connection.ts:984](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L984)
+Defined in: [packages/rabbitmq/src/amqp/connection.ts:993](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L993)
 
 #### Parameters
 
@@ -367,7 +367,7 @@ Defined in: [packages/rabbitmq/src/amqp/connection.ts:420](https://github.com/ne
 resumeConsumer<T, U>(consumerTag): Promise<string | null>;
 ```
 
-Defined in: [packages/rabbitmq/src/amqp/connection.ts:1184](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L1184)
+Defined in: [packages/rabbitmq/src/amqp/connection.ts:1213](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L1213)
 
 #### Type Parameters
 
@@ -397,7 +397,7 @@ setupRpcChannel<T, U>(
 channel): Promise<string>;
 ```
 
-Defined in: [packages/rabbitmq/src/amqp/connection.ts:860](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L860)
+Defined in: [packages/rabbitmq/src/amqp/connection.ts:869](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L869)
 
 #### Type Parameters
 

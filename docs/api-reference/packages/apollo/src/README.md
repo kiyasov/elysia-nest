@@ -5,6 +5,7 @@
 | Class | Description |
 | ------ | ------ |
 | [ApolloService](classes/ApolloService.md) | Service for managing Apollo Server instance and GraphQL operations. Handles schema resolution, server startup, context creation, and WebSocket subscriptions. |
+| [ApolloShutdownService](classes/ApolloShutdownService.md) | Internal provider that shuts the Apollo Server down on application teardown. It disposes every live WebSocket connection (clearing their keep-alive intervals and init timers) and stops the ApolloServer's background machinery, preventing a per-restart leak. |
 | [AuthenticationError](classes/AuthenticationError.md) | Error thrown when the user is not authenticated. |
 | [Float](classes/Float.md) | Marker class for GraphQL Float scalar. Use with @Field(() => Float). |
 | [ForbiddenError](classes/ForbiddenError.md) | Error thrown when the user is not authorized to access a resource. |

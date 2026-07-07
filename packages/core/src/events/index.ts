@@ -1,35 +1,25 @@
-// Event system exports - to be implemented
-export interface EventEmitter {
-  // Will be implemented in the future
-  emit(event: string, data?: unknown): void;
-  on(event: string, callback: (data: unknown) => void): void;
-}
-
-// Placeholder implementation
-class BaseEventEmitter implements EventEmitter {
-  private listeners: Record<string, ((data: unknown) => void)[]> = {};
-
-  emit(event: string, data?: unknown): void {
-    if (!this.listeners[event]) {
-      return;
-    }
-    this.listeners[event].forEach((callback) => callback(data));
-  }
-
-  on(event: string, callback: (data: unknown) => void): void {
-    if (!this.listeners[event]) {
-      this.listeners[event] = [];
-    }
-    this.listeners[event].push(callback);
-  }
-}
-
-// Event emitter singleton
-let emitter: EventEmitter | null = null;
-
-export function getEventEmitter(): EventEmitter {
-  if (!emitter) {
-    emitter = new BaseEventEmitter();
-  }
-  return emitter;
-}
+/**
+ * Event system public exports.
+ *
+ * Historically this barrel exported a standalone placeholder emitter that
+ * implemented only `on`/`emit`. That produced a split-brain: the framework
+ * internals (`registerEventHandlers`, `Container.clear()`) operated on a
+ * DIFFERENT singleton defined in `event-emitter.container.ts`, which has full
+ * `off`/`once`/`removeAllListeners` support that `Container.clear()` actually
+ * resets. Public consumers therefore leaked listeners (no removal API existed)
+ * and never received events emitted through the `@OnEvent` decorator path.
+ *
+ * This barrel now re-exports the single, unified emitter so there is exactly
+ * ONE global event emitter. `getEventEmitter()` still returns an object with
+ * `.on`/`.emit`, and now ALSO exposes `.off`/`.once`/`.removeAllListeners`.
+ */
+export * from "./event-emitter";
+export * from "./event-emitter.interface";
+export { getEventEmitter } from "./event-emitter.container";
+export {
+  EVENTS_METADATA,
+  EventSubscriber,
+  OnEvent,
+  registerEventHandlers,
+} from "./event.decorators";
+export type { OnEventOptions } from "./event.decorators";
