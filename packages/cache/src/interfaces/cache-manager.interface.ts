@@ -95,6 +95,29 @@ export interface CacheManagerOptions extends Omit<
   ttl?: number;
 
   /**
+   * Maximum number of entries kept in the built-in default in-memory store.
+   *
+   * This bound only applies when no custom {@link CacheManagerOptions.stores}
+   * are provided. The default store is an LRU-backed `CacheableMemory` cache,
+   * so once this many entries exist the least-recently-used ones are evicted.
+   * This prevents unbounded heap growth (and eventual OOM) when distinct cache
+   * keys — e.g. one per unique request URL — accumulate without a TTL.
+   *
+   * Set to `0` to disable the LRU bound (unbounded — not recommended).
+   *
+   * Ignored when you supply your own `stores`; in that case you are fully
+   * responsible for bounding memory yourself.
+   *
+   * @default 5000
+   *
+   * @example
+   * ```typescript
+   * lruSize: 10000 // keep at most 10k entries in the default store
+   * ```
+   */
+  lruSize?: number;
+
+  /**
    * Threshold for background refresh of cached values.
    *
    * When set, if a cached value is retrieved and its remaining TTL

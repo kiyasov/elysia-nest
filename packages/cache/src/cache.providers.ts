@@ -1,11 +1,21 @@
 import { type Cache as CacheManagerInstance, createCache } from "cache-manager";
-import type { Cacheable } from "cacheable";
+import { type Cacheable, createKeyv } from "cacheable";
 import Keyv, { type KeyvStoreAdapter } from "keyv";
 
 import type { Provider } from "nestelia";
 import { CACHE_MANAGER } from "./cache.constants";
 import { MODULE_OPTIONS_TOKEN } from "./cache.module-definition";
 import { CacheManagerOptions } from "./interfaces/cache-manager.interface";
+
+/**
+ * Default maximum number of entries retained by the built-in in-memory store
+ * when the user does not supply their own {@link CacheManagerOptions.stores}.
+ *
+ * Bounds the entry count of the default LRU store so that caching one value per
+ * distinct key (for example, per unique request URL) cannot grow the heap
+ * without limit. Override with {@link CacheManagerOptions.lruSize}.
+ */
+export const DEFAULT_CACHE_LRU_SIZE = 5000;
 
 /**
  * Returns `true` when `store` is a `Cacheable` multi-tier instance
@@ -48,6 +58,30 @@ function normaliseStore(
 }
 
 /**
+ * Builds the built-in default in-memory store used when the caller does not
+ * supply their own {@link CacheManagerOptions.stores}.
+ *
+ * Uses an LRU-backed `CacheableMemory` (via `createKeyv`) so the number of
+ * retained entries is bounded by `lruSize`. Without this bound, cache-manager's
+ * default store is an unbounded `Map`: caching one value per distinct key
+ * (for example, per unique request URL) would grow the heap monotonically
+ * until the process runs out of memory.
+ *
+ * The bound is overridable via {@link CacheManagerOptions.lruSize} and defaults
+ * to {@link DEFAULT_CACHE_LRU_SIZE}. Setting `lruSize` to `0` disables the LRU
+ * bound (unbounded — not recommended).
+ */
+function createDefaultStore(
+  options: Omit<CacheManagerOptions, "stores">,
+): Keyv {
+  return createKeyv({
+    lruSize: options.lruSize ?? DEFAULT_CACHE_LRU_SIZE,
+    ...(options.ttl !== undefined && { ttl: options.ttl }),
+    ...(options.namespace !== undefined && { namespace: options.namespace }),
+  });
+}
+
+/**
  * Builds the `CACHE_MANAGER` provider that creates and configures a
  * `cache-manager` instance from the module options resolved by DI.
  *
@@ -68,28 +102,26 @@ export function createCacheManager(): Provider {
     useFactory: async (
       options: CacheManagerOptions,
     ): Promise<CacheManagerInstance> => {
-      const stores: Array<Keyv | Cacheable> | undefined = Array.isArray(
-        options.stores,
-      )
-        ? options.stores.map((store) => normaliseStore(store, options))
-        : options.stores
-          ? [normaliseStore(options.stores, options)]
-          : undefined;
+      const explicitStores: Array<Keyv | Cacheable> | undefined =
+        Array.isArray(options.stores)
+          ? options.stores.map((store) => normaliseStore(store, options))
+          : options.stores
+            ? [normaliseStore(options.stores, options)]
+            : undefined;
+
+      // When the caller provides no stores, fall back to a bounded LRU store
+      // instead of cache-manager's unbounded default `Map`, so the default
+      // configuration cannot grow the heap without limit.
+      const stores: Array<Keyv | Cacheable> =
+        explicitStores && explicitStores.length > 0
+          ? explicitStores
+          : [createDefaultStore(options)];
 
       const cacheManager: CacheManagerInstance & {
         onModuleDestroy?: () => Promise<void>;
-      } =
-        stores && stores.length > 0
-          ? createCache({ ...options, stores: stores as Keyv[] })
-          : createCache({
-              ttl: options.ttl,
-              refreshThreshold: options.refreshThreshold,
-              nonBlocking: options.nonBlocking,
-            });
+      } = createCache({ ...options, stores: stores as Keyv[] });
 
       cacheManager.onModuleDestroy = async (): Promise<void> => {
-        if (!stores) return;
-
         await Promise.all(
           stores.map(async (store) => {
             if (
