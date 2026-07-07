@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import { beforeEach, describe, expect, it } from "bun:test";
 
 import { Injectable } from "nestelia";

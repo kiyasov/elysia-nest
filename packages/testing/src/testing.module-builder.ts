@@ -7,6 +7,7 @@ import {
   STATIC_CONTEXT,
 } from "nestelia";
 import { Injector } from "nestelia";
+import { Logger } from "nestelia";
 import type { Module as ModuleType } from "../../core/src/di/module";
 import type { Type } from "nestelia";
 import type { OverridesMetadata } from "./interfaces/overrides-metadata.interface";
@@ -155,10 +156,25 @@ export class TestingModuleBuilder {
       }
     }
 
-    // Initialize singleton providers
-    await this.initializeSingletons(moduleRef, testContainer);
+    // Initialize singleton providers and collect their resolved instances.
+    const instances = await this.initializeSingletons(moduleRef, testContainer);
 
-    return new TestingModule(moduleRef, testContainer);
+    // Fire onModuleInit on every provider that implements it, awaiting each so
+    // async initialization (opening DB/Redis/RabbitMQ connections, wiring up
+    // workers in QueueExplorer, etc.) fully settles before compile() resolves.
+    // Without this, providers that self-wire in onModuleInit would silently
+    // never initialize under Test.createTestingModule.
+    for (const instance of instances) {
+      if (!instance || typeof instance !== "object") {
+        continue;
+      }
+      const hook = (instance as { onModuleInit?: () => unknown }).onModuleInit;
+      if (typeof hook === "function") {
+        await hook.call(instance);
+      }
+    }
+
+    return new TestingModule(moduleRef, testContainer, instances);
   }
 
   /**
@@ -252,29 +268,56 @@ export class TestingModuleBuilder {
   }
 
   /**
-   * Initialize all singleton providers
+   * Initialize all singleton providers and return their resolved instances.
+   *
+   * The returned list is used to drive lifecycle hooks (onModuleInit on
+   * compile, the destroy hooks on close). It includes useValue providers,
+   * which are pre-resolved but may still implement lifecycle hooks, and
+   * excludes alias providers, which delegate to their target.
    */
-  private async initializeSingletons(moduleRef: ModuleType, testContainer: Container): Promise<void> {
+  private async initializeSingletons(
+    moduleRef: ModuleType,
+    testContainer: Container,
+  ): Promise<unknown[]> {
     const injector = new Injector(testContainer);
+    const instances: unknown[] = [];
 
     for (const [token, wrapper] of moduleRef.getProviders()) {
-      if (!wrapper.metatype) {
+      // Aliases (useExisting) resolve to another provider — skip them.
+      if (wrapper.isAlias) {
         continue;
       }
 
       const instancePerContext = wrapper.getInstanceByContextId(STATIC_CONTEXT);
-      if (instancePerContext.isResolved) {
-        continue;
+
+      if (!instancePerContext.isResolved) {
+        // useValue providers have no metatype but are already resolved above.
+        if (!wrapper.metatype) {
+          continue;
+        }
+
+        try {
+          await injector.loadInstance(wrapper, moduleRef, STATIC_CONTEXT);
+        } catch (e) {
+          const tokenName =
+            typeof token === "function" ? token.name : String(token);
+          Logger.error(
+            `Failed to initialize provider ${tokenName}: ${
+              e instanceof Error ? e.stack ?? e.message : String(e)
+            }`,
+            "TestingModule",
+          );
+          continue;
+        }
       }
 
-      try {
-        await injector.loadInstance(wrapper, moduleRef, STATIC_CONTEXT);
-      } catch (e) {
-        const tokenName =
-          typeof token === "function" ? token.name : String(token);
-        console.error(`Failed to initialize provider ${tokenName}:`, e);
+      const resolved = wrapper.getInstanceByContextId(STATIC_CONTEXT);
+      if (resolved.isResolved && resolved.instance != null) {
+        instances.push(resolved.instance);
       }
     }
+
+    return instances;
   }
 }
 
@@ -285,6 +328,11 @@ export class TestingModule {
   constructor(
     private readonly _module: ModuleType,
     private readonly _container: Container,
+    /**
+     * Resolved provider instances collected during compile(), in registration
+     * order. Used to drive the destroy lifecycle hooks on close().
+     */
+    private _instances: unknown[] = [],
   ) {}
 
   /**
@@ -364,9 +412,58 @@ export class TestingModule {
   }
 
   /**
-   * Clean up the testing module, clearing the container and releasing resources.
+   * Clean up the testing module, firing destroy lifecycle hooks and releasing
+   * the resources this module owns.
+   *
+   * Fires the destroy hooks in NestJS order — onModuleDestroy →
+   * beforeApplicationShutdown → onApplicationShutdown — over every collected
+   * provider instance, awaiting each so async cleanup (closing DB/Redis/
+   * RabbitMQ connections, draining workers) settles before close() resolves.
+   * Runs best-effort: a throwing hook is logged and never prevents the
+   * remaining hooks from running.
+   *
+   * Note: this intentionally does NOT call `Container.clear()`. That method
+   * wipes PROCESS-GLOBAL singletons — the lifecycle manager, the global
+   * exception filters, the global event emitter and the schema cache — which
+   * are shared with real applications booted via createElysiaApplication and
+   * with other tests. Clearing them here would silently destroy an unrelated
+   * running app's lifecycle registrations / filters / listeners.
+   *
+   * The isolated test container created in compile() is not registered in any
+   * global registry, so once this TestingModule is dropped it becomes eligible
+   * for garbage collection on its own. Container exposes no instance-scoped
+   * clear (adding one would require a core change, which is out of scope), so
+   * we clear only the state we own here: the collected instance list.
    */
   async close(): Promise<void> {
-    this._container.clear();
+    const hookOrder = [
+      "onModuleDestroy",
+      "beforeApplicationShutdown",
+      "onApplicationShutdown",
+    ] as const;
+
+    for (const hookName of hookOrder) {
+      for (const instance of this._instances) {
+        if (!instance || typeof instance !== "object") {
+          continue;
+        }
+        const hook = (instance as Record<string, unknown>)[hookName];
+        if (typeof hook !== "function") {
+          continue;
+        }
+        try {
+          await (hook as () => unknown).call(instance);
+        } catch (error) {
+          Logger.error(
+            `Error in ${hookName} hook: ${
+              error instanceof Error ? error.stack ?? error.message : String(error)
+            }`,
+            "TestingModule",
+          );
+        }
+      }
+    }
+
+    this._instances = [];
   }
 }
