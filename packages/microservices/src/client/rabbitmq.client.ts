@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { Observable, type Observer } from "rxjs";
 
 import type { RabbitMQOptions } from "../interfaces";
+import { packageLogger } from "../logger";
 import { ClientProxy } from "./client-proxy";
 
 // ─── Minimal amqplib types ────────────────────────────────────────────────────
@@ -35,11 +36,13 @@ interface AmqpChannel {
     content: Buffer,
     options?: Record<string, unknown>,
   ): boolean;
+  on(event: string, listener: (...args: unknown[]) => void): void;
   close(): Promise<void>;
 }
 
 interface AmqpConnection {
   createChannel(): Promise<AmqpChannel>;
+  on(event: string, listener: (...args: unknown[]) => void): void;
   close(): Promise<void>;
 }
 
@@ -76,10 +79,10 @@ export class RabbitMQClient extends ClientProxy {
   /** Exclusive reply queue name for this client instance. */
   private replyQueue?: string;
 
-  /** Correlation id → resolve callback for pending requests. */
+  /** Correlation id → settle callback for pending requests. */
   private readonly pendingRequests = new Map<
     string,
-    (value: unknown) => void
+    (content: unknown, isError: boolean) => void
   >();
 
   private isConnected = false;
@@ -132,6 +135,27 @@ export class RabbitMQClient extends ClientProxy {
     );
     this.consumerTag = consumer.consumerTag;
 
+    // amqplib Connection/Channel are EventEmitters that emit "error"/"close".
+    // Without listeners an "error" throws and crashes the process on a broker
+    // blip. We LOG and mark the client not-connected so the failure is visible.
+    // NOTE: automatic reconnection is intentionally out of scope here.
+    this.connection.on("error", (err: unknown) => {
+      this.isConnected = false;
+      packageLogger.error("RabbitMQ connection error:", err);
+    });
+    this.connection.on("close", () => {
+      this.isConnected = false;
+      packageLogger.warn("RabbitMQ connection closed");
+    });
+    this.channel.on("error", (err: unknown) => {
+      this.isConnected = false;
+      packageLogger.error("RabbitMQ channel error:", err);
+    });
+    this.channel.on("close", () => {
+      this.isConnected = false;
+      packageLogger.warn("RabbitMQ channel closed");
+    });
+
     this.isConnected = true;
   }
 
@@ -139,11 +163,15 @@ export class RabbitMQClient extends ClientProxy {
     try {
       const content = JSON.parse(msg.content.toString()) as unknown;
       const { correlationId } = msg.properties;
+      // An `error: true` header marks a failed remote handler. Using the header
+      // (not the payload) keeps a legitimate response with an `error` field from
+      // being misinterpreted as a failure.
+      const isError = msg.properties.headers?.error === true;
       if (correlationId) {
-        const resolve = this.pendingRequests.get(correlationId);
-        if (resolve) {
-          resolve(content);
+        const settle = this.pendingRequests.get(correlationId);
+        if (settle) {
           this.pendingRequests.delete(correlationId);
+          settle(content, isError);
         }
       }
     } catch {
@@ -174,10 +202,17 @@ export class RabbitMQClient extends ClientProxy {
         observer.error(new Error(`Request timeout for pattern: "${pattern}"`));
       }, 5_000);
 
-      this.pendingRequests.set(correlationId, (response: unknown) => {
+      this.pendingRequests.set(correlationId, (content, isError) => {
         clearTimeout(timer);
-        observer.next(response as R);
-        observer.complete();
+        if (isError) {
+          const message =
+            (content as { error?: string } | null)?.error ??
+            "Remote handler error";
+          observer.error(new Error(message));
+        } else {
+          observer.next(content as R);
+          observer.complete();
+        }
       });
 
       const published = this.channel!.publish(exchange, routingKey, buffer, {

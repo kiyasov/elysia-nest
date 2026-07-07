@@ -5,6 +5,7 @@ import type {
   MessageHandler,
   Server as ServerInterface,
 } from "../interfaces/server.interface";
+import { packageLogger } from "../logger";
 
 /**
  * Abstract base class for all built-in transport servers.
@@ -64,6 +65,23 @@ export abstract class BaseServer
   ): void | Promise<void>;
 
   /**
+   * Safely surfaces a transport-level error.
+   *
+   * Node's {@link EventEmitter} throws `ERR_UNHANDLED_ERROR` when `"error"` is
+   * emitted with no registered listener, which would crash the whole process
+   * on a routine `ECONNRESET`, Redis blip, or malformed frame. This helper only
+   * re-emits when a listener is attached; otherwise it logs the error so it is
+   * never silently swallowed and never crashes the process.
+   */
+  protected emitError(error: unknown): void {
+    if (this.listenerCount("error") > 0) {
+      this.emit("error", error);
+    } else {
+      packageLogger.error("Unhandled transport error:", error);
+    }
+  }
+
+  /**
    * Removes all EventEmitter listeners and clears both handler maps.
    * Subclasses should call this in their `close()` implementation to
    * prevent memory leaks.
@@ -91,17 +109,19 @@ export abstract class BaseServer
   }
 
   /**
-   * Dispatches an incoming event to the matching event handler.
-   * Silently ignores events without a registered handler.
+   * Dispatches an incoming event to the matching event handler and returns the
+   * handler's result so transports can `await` it before acknowledging the
+   * message. Silently ignores events without a registered handler.
    */
   protected handleEvent<T = unknown>(
     pattern: string,
     data: T,
     ctx: Record<string, unknown>,
-  ): void {
+  ): Promise<unknown> | unknown {
     const handler = this.eventHandlers.get(pattern);
     if (handler) {
-      handler(data, ctx);
+      return handler(data, ctx);
     }
+    return undefined;
   }
 }

@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { StringDecoder } from "node:string_decoder";
 import { createServer, type Server as NetServer, type Socket } from "net";
 
 import type { TcpOptions } from "../interfaces";
@@ -60,10 +61,13 @@ export class TcpServer extends BaseServer {
       });
 
       this.server.on("error", (err) => {
-        this.emit("error", err);
+        // Settle the start promise first (e.g. EADDRINUSE) so the caller is
+        // never left hanging, then surface the error via the guarded helper —
+        // which must never throw even when no "error" listener is attached.
         if (!this.isListening) {
           callback?.(err);
         }
+        this.emitError(err);
       });
     } catch (err) {
       if (callback) {
@@ -76,13 +80,18 @@ export class TcpServer extends BaseServer {
 
   private handleConnection(socket: Socket): void {
     this.sockets.add(socket);
+    // Per-socket incremental UTF-8 decoder: a multi-byte sequence split across
+    // TCP segments is buffered internally until complete, so it is never
+    // decoded into replacement characters (which would corrupt the JSON frame).
+    const decoder = new StringDecoder("utf8");
     let buffer = "";
 
     socket.on("data", (chunk: Buffer) => {
-      buffer += chunk.toString();
+      buffer += decoder.write(chunk);
 
-      // Guard against unbounded buffer growth (e.g. malformed / malicious clients).
-      if (buffer.length > MAX_BUFFER_SIZE) {
+      // Guard against unbounded buffer growth (e.g. malformed / malicious
+      // clients). Measured in bytes so the limit is a true byte count.
+      if (Buffer.byteLength(buffer) > MAX_BUFFER_SIZE) {
         socket.destroy(
           new Error(
             `TCP buffer overflow: message exceeded ${MAX_BUFFER_SIZE} bytes`,
@@ -106,7 +115,7 @@ export class TcpServer extends BaseServer {
     socket.on("close", () => this.sockets.delete(socket));
 
     socket.on("error", (err) => {
-      this.emit("error", err);
+      this.emitError(err);
       this.sockets.delete(socket);
     });
   }

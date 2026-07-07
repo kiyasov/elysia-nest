@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import type { MessageHandler, RabbitMQOptions } from "../interfaces";
+import { packageLogger } from "../logger";
 import { BaseServer } from "./server";
 
 // ─── Minimal amqplib types ────────────────────────────────────────────────────
@@ -61,11 +62,13 @@ interface AmqpChannel {
     content: Buffer,
     options?: Record<string, unknown>,
   ): boolean;
+  on(event: string, listener: (...args: unknown[]) => void): void;
   close(): Promise<void>;
 }
 
 interface AmqpConnection {
   createChannel(): Promise<AmqpChannel>;
+  on(event: string, listener: (...args: unknown[]) => void): void;
   close(): Promise<void>;
 }
 
@@ -163,6 +166,12 @@ export class RabbitMQServer extends BaseServer {
 
     this.channel = await this.connection.createChannel();
 
+    // amqplib Connection/Channel are EventEmitters that emit "error"/"close".
+    // Without listeners an "error" throws and crashes the process on a broker
+    // blip. We LOG and mark the transport not-ready so the failure is visible.
+    // NOTE: automatic reconnection is intentionally out of scope here.
+    this.attachConnectionListeners();
+
     if (this.options.prefetchCount) {
       await this.channel.prefetch(this.options.prefetchCount);
     }
@@ -201,6 +210,30 @@ export class RabbitMQServer extends BaseServer {
       { noAck: true },
     );
     this.consumerTags.push(consumerTag);
+  }
+
+  /**
+   * Attaches `error`/`close` listeners on the connection and channel so a
+   * broker-side failure is logged and marks the transport not-ready instead of
+   * crashing the process. Automatic reconnection is intentionally out of scope.
+   */
+  private attachConnectionListeners(): void {
+    this.connection?.on("error", (err: unknown) => {
+      this.isListening = false;
+      packageLogger.error("RabbitMQ connection error:", err);
+    });
+    this.connection?.on("close", () => {
+      this.isListening = false;
+      packageLogger.warn("RabbitMQ connection closed");
+    });
+    this.channel?.on("error", (err: unknown) => {
+      this.isListening = false;
+      packageLogger.error("RabbitMQ channel error:", err);
+    });
+    this.channel?.on("close", () => {
+      this.isListening = false;
+      packageLogger.warn("RabbitMQ channel closed");
+    });
   }
 
   /** Begins consuming from the main queue and dispatching messages. */
@@ -258,19 +291,38 @@ export class RabbitMQServer extends BaseServer {
               this.channel!.ack(msg);
             }
           } else if (this.eventHandlers.has(pattern)) {
-            this.handleEvent(pattern, content, ctx);
+            // Await the (possibly async) event handler BEFORE acking so a
+            // handler that throws or a crash mid-handler does not silently lose
+            // the message despite manual-ack config.
+            await this.handleEvent(pattern, content, ctx);
 
             if (!this.options.noAck) {
               this.channel!.ack(msg);
             }
           } else {
-            // No handler found – requeue once.
+            // No handler found. Requeue once (on first delivery) then drop it,
+            // so an unmatched pattern cannot spin server↔broker forever.
             if (!this.options.noAck) {
-              this.channel!.nack(msg, false, true);
+              this.channel!.nack(msg, false, !msg.fields.redelivered);
             }
           }
         } catch (err) {
-          this.emit("error", err);
+          this.emitError(err);
+
+          // Round-trip the error to a waiting caller so it fails fast instead
+          // of hanging until its request timeout.
+          if (msg.properties.replyTo) {
+            const message = err instanceof Error ? err.message : String(err);
+            this.channel!.sendToQueue(
+              msg.properties.replyTo,
+              Buffer.from(JSON.stringify({ error: message })),
+              {
+                correlationId: msg.properties.correlationId,
+                headers: { pattern, error: true },
+              },
+            );
+          }
+
           if (!this.options.noAck) {
             this.channel!.nack(msg, false, false);
           }
@@ -295,7 +347,7 @@ export class RabbitMQServer extends BaseServer {
         }
       }
     } catch (err) {
-      this.emit("error", err);
+      this.emitError(err);
     }
   }
 

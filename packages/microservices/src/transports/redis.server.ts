@@ -34,6 +34,19 @@ export class RedisServer extends BaseServer {
   /** Tracks Redis channels the subscriber is already subscribed to. */
   private readonly subscribedChannels = new Set<string>();
 
+  /** Pending server-initiated RPC id → settle callback. */
+  private readonly pendingRequests = new Map<
+    string,
+    (reply: Record<string, unknown>) => void
+  >();
+
+  /**
+   * Reference counts per reply channel. A reply channel stays subscribed while
+   * at least one waiter needs it, so concurrent {@link sendMessage} calls on the
+   * same pattern never unsubscribe each other's replies.
+   */
+  private readonly replyChannelRefCounts = new Map<string, number>();
+
   private isConnected = false;
 
   constructor(private readonly options: RedisOptions) {
@@ -78,8 +91,8 @@ export class RedisServer extends BaseServer {
         void this.handleRedisMessage(channel, message);
       });
 
-      this.subClient.on("error", (err: Error) => this.emit("error", err));
-      this.pubClient.on("error", (err: Error) => this.emit("error", err));
+      this.subClient.on("error", (err: Error) => this.emitError(err));
+      this.pubClient.on("error", (err: Error) => this.emitError(err));
 
       this.subClient.on("connect", () => {
         this.isConnected = true;
@@ -141,12 +154,18 @@ export class RedisServer extends BaseServer {
     channel: string,
     rawMessage: string,
   ): Promise<void> {
+    // Reply channels are routed to the correlation-id map, never to handlers.
+    if (this.replyChannelRefCounts.has(channel)) {
+      this.routeReply(rawMessage);
+      return;
+    }
+
     let parsed: Record<string, unknown>;
 
     try {
       parsed = JSON.parse(rawMessage) as Record<string, unknown>;
     } catch {
-      this.emit("error", new Error(`Invalid JSON on channel "${channel}"`));
+      this.emitError(new Error(`Invalid JSON on channel "${channel}"`));
       return;
     }
 
@@ -172,10 +191,60 @@ export class RedisServer extends BaseServer {
           );
         }
       } else if (this.eventHandlers.has(channel)) {
-        this.handleEvent(channel, parsed.data ?? parsed, ctx);
+        await this.handleEvent(channel, parsed.data ?? parsed, ctx);
       }
     } catch (err) {
-      this.emit("error", err);
+      this.emitError(err);
+
+      // When the request carries a correlation id, round-trip the error to the
+      // caller so it fails fast instead of hanging until its request timeout.
+      if (typeof parsed.id === "string" && this.pubClient) {
+        const message = err instanceof Error ? err.message : String(err);
+        await this.pubClient.publish(
+          `${channel}.reply`,
+          JSON.stringify({ id: parsed.id, error: message }),
+        );
+      }
+    }
+  }
+
+  /** Routes a reply-channel message to its pending server-initiated request. */
+  private routeReply(rawMessage: string): void {
+    let reply: Record<string, unknown>;
+    try {
+      reply = JSON.parse(rawMessage) as Record<string, unknown>;
+    } catch {
+      return; // Discard malformed reply messages.
+    }
+
+    if (typeof reply.id === "string") {
+      const settle = this.pendingRequests.get(reply.id);
+      if (settle) {
+        this.pendingRequests.delete(reply.id);
+        settle(reply);
+      }
+    }
+  }
+
+  /** Subscribes to `channel`, incrementing its reference count. */
+  private acquireReplyChannel(channel: string): void {
+    const count = this.replyChannelRefCounts.get(channel) ?? 0;
+    this.replyChannelRefCounts.set(channel, count + 1);
+    if (count === 0) {
+      this.subClient!.subscribe(channel);
+      this.subscribedChannels.add(channel);
+    }
+  }
+
+  /** Releases one reference; unsubscribes only when the last waiter is done. */
+  private releaseReplyChannel(channel: string): void {
+    const count = this.replyChannelRefCounts.get(channel) ?? 0;
+    if (count <= 1) {
+      this.replyChannelRefCounts.delete(channel);
+      this.subClient?.unsubscribe(channel);
+      this.subscribedChannels.delete(channel);
+    } else {
+      this.replyChannelRefCounts.set(channel, count - 1);
     }
   }
 
@@ -193,34 +262,25 @@ export class RedisServer extends BaseServer {
 
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        cleanup();
+        this.pendingRequests.delete(requestId);
+        this.releaseReplyChannel(replyChannel);
         reject(new Error(`Request timeout for pattern: "${pattern}"`));
       }, 5_000);
 
-      const onMessage = (channel: string, raw: string): void => {
-        if (channel !== replyChannel) return;
-        try {
-          const reply = JSON.parse(raw) as Record<string, unknown>;
-          if (reply.id === requestId) {
-            cleanup();
-            resolve(reply.data);
-          }
-        } catch (err) {
-          cleanup();
-          reject(err);
-        }
-      };
-
-      const cleanup = (): void => {
+      // Single correlation-id entry; the persistent subscriber listener routes
+      // replies here. Reference-counted subscription keeps the reply channel
+      // alive while other concurrent requests still need it.
+      this.pendingRequests.set(requestId, (reply) => {
         clearTimeout(timer);
-        this.subClient!.unsubscribe(replyChannel);
-        this.subClient!.off("message", onMessage);
-        this.subscribedChannels.delete(replyChannel);
-      };
+        this.releaseReplyChannel(replyChannel);
+        if (typeof reply.error === "string") {
+          reject(new Error(reply.error));
+        } else {
+          resolve(reply.data);
+        }
+      });
 
-      this.subClient!.subscribe(replyChannel);
-      this.subscribedChannels.add(replyChannel);
-      this.subClient!.on("message", onMessage);
+      this.acquireReplyChannel(replyChannel);
 
       void this.pubClient!.publish(
         pattern,
@@ -243,6 +303,8 @@ export class RedisServer extends BaseServer {
     this.pubClient?.disconnect();
     this.isConnected = false;
     this.subscribedChannels.clear();
+    this.replyChannelRefCounts.clear();
+    this.pendingRequests.clear();
     this.cleanup();
   }
 }

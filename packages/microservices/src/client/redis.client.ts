@@ -4,6 +4,7 @@ import type RedisType from "ioredis";
 import { Observable, type Observer } from "rxjs";
 
 import type { RedisOptions } from "../interfaces";
+import { packageLogger } from "../logger";
 import { ClientProxy } from "./client-proxy";
 
 type RedisClientType = RedisType;
@@ -31,10 +32,10 @@ export class RedisClient extends ClientProxy {
   private pubClient?: RedisClientType;
   private subClient?: RedisClientType;
 
-  /** Pending request id → resolve callback. */
+  /** Pending request id → settle callback (receives the full reply object). */
   private readonly pendingRequests = new Map<
     string,
-    (value: unknown) => void
+    (reply: Record<string, unknown>) => void
   >();
 
   /** Reply channels the sub-client is already subscribed to. */
@@ -59,6 +60,13 @@ export class RedisClient extends ClientProxy {
       port: this.options.port ?? 6379,
       password: this.options.password,
       db: this.options.db ?? 0,
+      // Bounded reconnection: without this ioredis retries forever, so a down
+      // Redis would hang app bootstrap indefinitely. Mirrors RedisServer.
+      retryStrategy: (times: number) => {
+        const maxRetries = this.options.retryAttempts ?? 3;
+        const delay = this.options.retryDelay ?? 1000;
+        return times > maxRetries ? null : delay * times;
+      },
     };
 
     const RedisCtor = Redis!;
@@ -75,12 +83,48 @@ export class RedisClient extends ClientProxy {
       this.handleReplyMessage(channel, raw);
     });
 
+    // Persistent "error" listeners so ioredis never emits an unhandled "error"
+    // event (which throws ERR_UNHANDLED_ERROR and crashes the process) during
+    // the initial connection or later runtime blips.
+    this.pubClient.on("error", (err: Error) => {
+      packageLogger.error("Redis pub client error:", err);
+    });
+    this.subClient.on("error", (err: Error) => {
+      packageLogger.error("Redis sub client error:", err);
+    });
+
+    // Race "connect" against "error" for each client so a failure REJECTS
+    // connect() instead of hanging forever waiting on a "connect" that never
+    // fires when Redis is unreachable.
     await Promise.all([
-      new Promise<void>((resolve) => this.pubClient!.once("connect", resolve)),
-      new Promise<void>((resolve) => this.subClient!.once("connect", resolve)),
+      RedisClient.waitForConnection(this.pubClient),
+      RedisClient.waitForConnection(this.subClient),
     ]);
 
     this.isConnected = true;
+  }
+
+  /**
+   * Resolves on the client's first `"connect"` event, or rejects on its first
+   * `"error"` event — whichever happens first.
+   */
+  private static waitForConnection(client: RedisClientType): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const onConnect = (): void => {
+        cleanup();
+        resolve();
+      };
+      const onError = (err: Error): void => {
+        cleanup();
+        reject(err);
+      };
+      const cleanup = (): void => {
+        client.off("connect", onConnect);
+        client.off("error", onError);
+      };
+      client.once("connect", onConnect);
+      client.once("error", onError);
+    });
   }
 
   private handleReplyMessage(channel: string, raw: string): void {
@@ -88,10 +132,10 @@ export class RedisClient extends ClientProxy {
       const parsed = JSON.parse(raw) as Record<string, unknown>;
       const id = parsed.id as string | undefined;
       if (id) {
-        const resolve = this.pendingRequests.get(id);
-        if (resolve) {
-          resolve(parsed.data);
+        const settle = this.pendingRequests.get(id);
+        if (settle) {
           this.pendingRequests.delete(id);
+          settle(parsed);
         }
       }
     } catch {
@@ -123,10 +167,17 @@ export class RedisClient extends ClientProxy {
         observer.error(new Error(`Request timeout for pattern: "${pattern}"`));
       }, 5_000);
 
-      this.pendingRequests.set(id, (response: unknown) => {
+      this.pendingRequests.set(id, (reply) => {
         clearTimeout(timer);
-        observer.next(response as R);
-        observer.complete();
+        // A top-level `error` field means the remote handler failed; reject the
+        // request instead of waiting out the timeout. (`data` never nests under
+        // `error`, so this is unambiguous.)
+        if (typeof reply.error === "string") {
+          observer.error(new Error(reply.error));
+        } else {
+          observer.next(reply.data as R);
+          observer.complete();
+        }
       });
 
       void this.pubClient!.publish(pattern, JSON.stringify({ id, data }));

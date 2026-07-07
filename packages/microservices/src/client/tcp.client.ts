@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { StringDecoder } from "node:string_decoder";
 import { createConnection, type Socket } from "net";
 
 import { Observable, type Observer } from "rxjs";
@@ -33,6 +34,12 @@ export class TcpClient extends ClientProxy {
 
   private isConnected = false;
   private buffer = "";
+  /**
+   * Per-connection incremental UTF-8 decoder. A multi-byte sequence split
+   * across TCP segments is buffered until complete instead of being decoded
+   * into replacement characters that would corrupt the JSON frame.
+   */
+  private decoder = new StringDecoder("utf8");
 
   constructor(private readonly options: TcpOptions) {
     super();
@@ -54,20 +61,43 @@ export class TcpClient extends ClientProxy {
       this.socket.on("error", (err) => {
         if (!this.isConnected) {
           reject(err);
+        } else {
+          // Post-connect error: fail every in-flight request now instead of
+          // letting each wait out the full request timeout.
+          this.rejectPending(err);
         }
       });
 
       this.socket.on("close", () => {
         this.isConnected = false;
+        // A dropped connection can never produce a reply, so reject in-flight
+        // requests immediately (clearing their timers) rather than hanging.
+        this.rejectPending(new Error("TCP connection closed"));
       });
     });
   }
 
+  /**
+   * Rejects and clears every in-flight request. Each stored settler clears its
+   * own timer, so no orphaned timers are left to fire.
+   */
+  private rejectPending(err: Error): void {
+    if (this.pendingRequests.size === 0) return;
+    const message = err.message || "TCP connection closed";
+    // Snapshot then clear first so settlers cannot re-enter the map.
+    const settlers = [...this.pendingRequests.values()];
+    this.pendingRequests.clear();
+    for (const settle of settlers) {
+      settle({ id: "", error: message });
+    }
+  }
+
   private handleData(chunk: Buffer): void {
-    this.buffer += chunk.toString();
+    this.buffer += this.decoder.write(chunk);
 
     // Guard against unbounded buffer growth from a misbehaving server.
-    if (this.buffer.length > MAX_BUFFER_SIZE) {
+    // Measured in bytes so the limit is a true byte count.
+    if (Buffer.byteLength(this.buffer) > MAX_BUFFER_SIZE) {
       this.socket?.destroy(
         new Error(
           `TCP buffer overflow: response exceeded ${MAX_BUFFER_SIZE} bytes`,
@@ -137,14 +167,17 @@ export class TcpClient extends ClientProxy {
     this.socket.write(JSON.stringify({ id: randomUUID(), pattern, data }) + "\n");
   }
 
-  /** Destroys the socket and clears pending requests. */
+  /** Destroys the socket and rejects any in-flight requests. */
   close(): void {
-    this.pendingRequests.clear();
+    // Reject (not just drop) in-flight requests so their timers are cleared and
+    // callers are notified instead of waiting out the request timeout.
+    this.rejectPending(new Error("TCP client closed"));
     if (this.socket) {
       this.socket.removeAllListeners();
       this.socket.destroy();
     }
     this.isConnected = false;
     this.buffer = "";
+    this.decoder = new StringDecoder("utf8");
   }
 }

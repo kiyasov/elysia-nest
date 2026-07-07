@@ -147,6 +147,24 @@ export class ElysiaNestApplication<TApp extends AnyElysia = Elysia> {
       this.registerPatternHandlers(server as Server);
     }
 
+    // Attach a default "error" listener BEFORE listening. Transport servers
+    // extend EventEmitter and emit "error" on routine failures (client
+    // ECONNRESET, Redis blips, malformed frames). Without a listener, Node
+    // throws ERR_UNHANDLED_ERROR and crashes the whole process. This central
+    // listener guarantees such errors are logged instead of fatal.
+    const emitter = server as unknown as {
+      on?: (event: string, listener: (err: unknown) => void) => unknown;
+      listenerCount?: (event: string) => number;
+    };
+    if (
+      typeof emitter.on === "function" &&
+      (emitter.listenerCount?.("error") ?? 0) === 0
+    ) {
+      emitter.on("error", (err) => {
+        packageLogger.error("[NestMicroservice] Transport error:", err);
+      });
+    }
+
     return new Promise((resolve, reject) => {
       (server as Server).listen((err) => {
         if (err) reject(err);
@@ -591,19 +609,23 @@ export class ElysiaNestApplication<TApp extends AnyElysia = Elysia> {
    */
   public async close(): Promise<void> {
     // Order mirrors NestJS: onModuleDestroy → beforeApplicationShutdown →
-    // onApplicationShutdown.
-    getLifecycleManager().triggerOnModuleDestroy();
-    getLifecycleManager().triggerBeforeApplicationShutdown();
+    // onApplicationShutdown. Each trigger is awaited so async cleanup (DB
+    // pools, BullMQ workers, Redis clients) fully settles before we tear down
+    // the transports and HTTP server underneath it.
+    await getLifecycleManager().triggerOnModuleDestroy();
+    await getLifecycleManager().triggerBeforeApplicationShutdown();
 
     for (const { server } of this.microservices) {
       if ("close" in server && typeof server.close === "function") {
-        server.close();
+        // A transport's close() may be sync (void) or async (Promise) — await
+        // both uniformly so async teardown completes before HTTP shutdown.
+        await Promise.resolve(server.close());
       }
     }
 
     this.httpServer?.stop();
 
-    getLifecycleManager().triggerOnApplicationShutdown();
+    await getLifecycleManager().triggerOnApplicationShutdown();
     getLifecycleManager().clear();
 
     this.isListening = false;
