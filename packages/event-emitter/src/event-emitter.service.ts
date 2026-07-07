@@ -9,31 +9,18 @@ interface HandlerRegistration<T = unknown> {
   pattern: string | symbol;
   handler: EventHandler<T>;
   once: boolean;
-}
-
-/**
- * Returns true when `event` (string) matches `pattern`.
- *
- * Rules (only applies when wildcard mode is enabled):
- * - `**`  — matches everything
- * - `*`   — matches any single segment (no delimiter)
- * - `foo.*` — matches `foo.bar`, `foo.baz` …
- * - exact — no wildcards, must be identical
- */
-function matchWildcard(pattern: string, event: string, delimiter: string): boolean {
-  if (pattern === event) return true;
-
-  const escaped = delimiter.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const regexStr = pattern
-    .split(delimiter)
-    .map((seg) => {
-      if (seg === "**") return ".*";
-      if (seg === "*") return `[^${escaped}]+`;
-      return seg.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    })
-    .join(escaped);
-
-  return new RegExp(`^${regexStr}$`).test(event);
+  /**
+   * Monotonic registration sequence number. Used to merge exact- and
+   * wildcard-matched handlers back into global registration order on dispatch.
+   */
+  seq: number;
+  /**
+   * Precompiled matcher for wildcard patterns. Present only when the pattern
+   * is stored in the wildcard list (i.e. wildcard mode is on and the pattern
+   * contains a `*`/`**` segment). Compiled once at registration time and
+   * reused on every emit — never rebuilt per dispatch.
+   */
+  regex?: RegExp;
 }
 
 /**
@@ -42,6 +29,11 @@ function matchWildcard(pattern: string, event: string, delimiter: string): boole
  * Supports synchronous and asynchronous handlers, wildcard patterns,
  * and typed events. Use `@InjectEventEmitter()` or `@Inject(EVENT_EMITTER_TOKEN)`
  * to inject this service.
+ *
+ * Dispatch performance: exact (non-wildcard) patterns are indexed in a
+ * `Map` for O(1) lookup, and each wildcard pattern's `RegExp` is compiled
+ * once at registration time, so `emit`/`emitAsync`/`listenerCount` never scan
+ * the full registration list nor recompile regexes on the request path.
  *
  * @example
  * ```typescript
@@ -58,7 +50,17 @@ function matchWildcard(pattern: string, event: string, delimiter: string): boole
  */
 @Injectable()
 export class EventEmitterService {
-  private readonly handlers: HandlerRegistration[] = [];
+  /**
+   * Index of exact (non-wildcard) registrations, keyed by pattern for O(1)
+   * lookup. Each bucket preserves registration order.
+   */
+  private readonly exact = new Map<string | symbol, HandlerRegistration[]>();
+  /**
+   * Wildcard registrations (wildcard mode only), in registration order. Each
+   * carries a precompiled `regex`.
+   */
+  private readonly wildcards: HandlerRegistration[] = [];
+  private seq = 0;
   private readonly wildcard: boolean;
   private readonly delimiter: string;
   private readonly maxListeners: number;
@@ -152,14 +154,31 @@ export class EventEmitterService {
     event: string | symbol,
     handler?: EventHandler<T>,
   ): this {
+    const container = this.containerFor(event);
+
     if (!handler) {
-      const before = this.handlers.length;
-      this.handlers.splice(0, before, ...this.handlers.filter((r) => r.pattern !== event));
-    } else {
-      const idx = this.handlers.findIndex(
+      if (container === this.wildcards) {
+        this.removeFromWildcards((r) => r.pattern === event);
+      } else {
+        this.exact.delete(event);
+      }
+      return this;
+    }
+
+    if (container === this.wildcards) {
+      const idx = this.wildcards.findIndex(
         (r) => r.pattern === event && r.handler === (handler as EventHandler),
       );
-      if (idx !== -1) this.handlers.splice(idx, 1);
+      if (idx !== -1) this.wildcards.splice(idx, 1);
+    } else {
+      const bucket = this.exact.get(event);
+      if (bucket) {
+        const idx = bucket.findIndex(
+          (r) => r.handler === (handler as EventHandler),
+        );
+        if (idx !== -1) bucket.splice(idx, 1);
+        if (bucket.length === 0) this.exact.delete(event);
+      }
     }
     return this;
   }
@@ -169,13 +188,12 @@ export class EventEmitterService {
    */
   removeAllListeners(event?: string | symbol): this {
     if (event === undefined) {
-      this.handlers.splice(0);
+      this.exact.clear();
+      this.wildcards.length = 0;
+    } else if (this.containerFor(event) === this.wildcards) {
+      this.removeFromWildcards((r) => r.pattern === event);
     } else {
-      this.handlers.splice(
-        0,
-        this.handlers.length,
-        ...this.handlers.filter((r) => r.pattern !== event),
-      );
+      this.exact.delete(event);
     }
     return this;
   }
@@ -194,40 +212,173 @@ export class EventEmitterService {
     handler: EventHandler,
     once: boolean,
   ): void {
-    if (
+    const reg: HandlerRegistration = { pattern, handler, once, seq: this.seq++ };
+    const isWild =
+      this.wildcard &&
       typeof pattern === "string" &&
-      this.handlers.filter((r) => r.pattern === pattern).length >= this.maxListeners
-    ) {
+      this.isWildcardPattern(pattern);
+
+    if (isWild) {
+      this.warnIfTooMany(
+        pattern as string,
+        this.countWildcards(pattern as string),
+      );
+      reg.regex = this.compilePattern(pattern as string);
+      this.wildcards.push(reg);
+      return;
+    }
+
+    let bucket = this.exact.get(pattern);
+    if (typeof pattern === "string") {
+      this.warnIfTooMany(pattern, bucket?.length ?? 0);
+    }
+    if (bucket) {
+      bucket.push(reg);
+    } else {
+      bucket = [reg];
+      this.exact.set(pattern, bucket);
+    }
+  }
+
+  private warnIfTooMany(pattern: string, currentCount: number): void {
+    if (currentCount >= this.maxListeners) {
       Logger.warn(
         `Possible memory leak: ${this.maxListeners}+ listeners for "${pattern}". ` +
           `Increase maxListeners via EventEmitterModule.forRoot({ maxListeners: N }).`,
         "EventEmitterService",
       );
     }
-    this.handlers.push({ pattern, handler, once });
   }
 
+  private countWildcards(pattern: string): number {
+    let n = 0;
+    for (const r of this.wildcards) if (r.pattern === pattern) n++;
+    return n;
+  }
+
+  /**
+   * Collect the handlers that should run for `event`: exact-match handlers plus,
+   * in wildcard mode, any wildcard handler whose precompiled regex matches. The
+   * returned array is a fresh copy in global registration order, so callers may
+   * mutate the registry (e.g. `once` cleanup, `off`) during iteration.
+   */
   private getMatching(event: string | symbol): HandlerRegistration[] {
-    return this.handlers.filter((reg) => {
-      if (reg.pattern === event) return true;
+    const bucket = this.exact.get(event);
 
-      if (
-        this.wildcard &&
-        typeof reg.pattern === "string" &&
-        typeof event === "string"
-      ) {
-        return matchWildcard(reg.pattern, event, this.delimiter);
+    if (
+      !this.wildcard ||
+      typeof event !== "string" ||
+      this.wildcards.length === 0
+    ) {
+      return bucket ? bucket.slice() : [];
+    }
+
+    const wildMatches: HandlerRegistration[] = [];
+    for (const reg of this.wildcards) {
+      if (reg.pattern === event || (reg.regex as RegExp).test(event)) {
+        wildMatches.push(reg);
       }
+    }
 
-      return false;
-    });
+    if (!bucket || bucket.length === 0) return wildMatches;
+    if (wildMatches.length === 0) return bucket.slice();
+    return this.mergeBySeq(bucket, wildMatches);
+  }
+
+  /**
+   * Merge two registration lists (each already ordered by ascending `seq`) into
+   * one list preserving global registration order.
+   */
+  private mergeBySeq(
+    a: HandlerRegistration[],
+    b: HandlerRegistration[],
+  ): HandlerRegistration[] {
+    const out: HandlerRegistration[] = [];
+    let i = 0;
+    let j = 0;
+    while (i < a.length && j < b.length) {
+      if (a[i].seq <= b[j].seq) out.push(a[i++]);
+      else out.push(b[j++]);
+    }
+    while (i < a.length) out.push(a[i++]);
+    while (j < b.length) out.push(b[j++]);
+    return out;
   }
 
   private removeRegistrations(regs: HandlerRegistration[]): void {
     if (regs.length === 0) return;
     for (const reg of regs) {
-      const idx = this.handlers.indexOf(reg);
-      if (idx !== -1) this.handlers.splice(idx, 1);
+      if (reg.regex) {
+        const idx = this.wildcards.indexOf(reg);
+        if (idx !== -1) this.wildcards.splice(idx, 1);
+      } else {
+        const bucket = this.exact.get(reg.pattern);
+        if (bucket) {
+          const idx = bucket.indexOf(reg);
+          if (idx !== -1) bucket.splice(idx, 1);
+          if (bucket.length === 0) this.exact.delete(reg.pattern);
+        }
+      }
     }
+  }
+
+  private removeFromWildcards(
+    predicate: (r: HandlerRegistration) => boolean,
+  ): void {
+    for (let i = this.wildcards.length - 1; i >= 0; i--) {
+      if (predicate(this.wildcards[i])) this.wildcards.splice(i, 1);
+    }
+  }
+
+  /**
+   * Returns the container in which registrations for `event` live, so removal
+   * paths stay consistent with `addRegistration`'s classification.
+   */
+  private containerFor(
+    event: string | symbol,
+  ): HandlerRegistration[] | Map<string | symbol, HandlerRegistration[]> {
+    if (
+      this.wildcard &&
+      typeof event === "string" &&
+      this.isWildcardPattern(event)
+    ) {
+      return this.wildcards;
+    }
+    return this.exact;
+  }
+
+  /**
+   * True when `pattern` contains at least one wildcard segment (`*` or `**`)
+   * relative to the configured delimiter. Patterns without a wildcard segment
+   * match exactly and are indexed in the exact `Map` even in wildcard mode.
+   */
+  private isWildcardPattern(pattern: string): boolean {
+    for (const seg of pattern.split(this.delimiter)) {
+      if (seg === "*" || seg === "**") return true;
+    }
+    return false;
+  }
+
+  /**
+   * Compile a wildcard pattern into a `RegExp`.
+   *
+   * Rules (wildcard mode only):
+   * - `**`  — matches everything
+   * - `*`   — matches any single segment (no delimiter)
+   * - `foo.*` — matches `foo.bar`, `foo.baz` …
+   * - exact — no wildcards, must be identical
+   */
+  private compilePattern(pattern: string): RegExp {
+    const escaped = this.delimiter.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regexStr = pattern
+      .split(this.delimiter)
+      .map((seg) => {
+        if (seg === "**") return ".*";
+        if (seg === "*") return `[^${escaped}]+`;
+        return seg.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      })
+      .join(escaped);
+
+    return new RegExp(`^${regexStr}$`);
   }
 }
