@@ -1,5 +1,5 @@
 import { type Cache as CacheManagerInstance, createCache } from "cache-manager";
-import { type Cacheable, createKeyv } from "cacheable";
+import type { Cacheable } from "cacheable";
 import Keyv, { type KeyvStoreAdapter } from "keyv";
 
 import type { Provider } from "nestelia";
@@ -16,6 +16,42 @@ import { CacheManagerOptions } from "./interfaces/cache-manager.interface";
  * without limit. Override with {@link CacheManagerOptions.lruSize}.
  */
 export const DEFAULT_CACHE_LRU_SIZE = 5000;
+
+/**
+ * Minimal least-recently-used Map implementation for Keyv's built-in store.
+ *
+ * Keyv accepts a Map as its storage adapter, so keeping the bound here avoids
+ * turning the optional `cacheable` peer into a runtime dependency merely to
+ * provide the default in-memory cache.
+ */
+class LruMap<K, V> extends Map<K, V> {
+  constructor(private readonly maxSize: number) {
+    super();
+  }
+
+  override get(key: K): V | undefined {
+    const value = super.get(key);
+
+    if (value !== undefined || super.has(key)) {
+      super.delete(key);
+      super.set(key, value as V);
+    }
+
+    return value;
+  }
+
+  override set(key: K, value: V): this {
+    if (super.has(key)) super.delete(key);
+    super.set(key, value);
+
+    if (this.maxSize > 0 && this.size > this.maxSize) {
+      const oldest = this.keys().next();
+      if (!oldest.done) super.delete(oldest.value);
+    }
+
+    return this;
+  }
+}
 
 /**
  * Returns `true` when `store` is a `Cacheable` multi-tier instance
@@ -61,9 +97,9 @@ function normaliseStore(
  * Builds the built-in default in-memory store used when the caller does not
  * supply their own {@link CacheManagerOptions.stores}.
  *
- * Uses an LRU-backed `CacheableMemory` (via `createKeyv`) so the number of
- * retained entries is bounded by `lruSize`. Without this bound, cache-manager's
- * default store is an unbounded `Map`: caching one value per distinct key
+ * Uses an LRU-backed Map as Keyv's built-in store so the number of retained
+ * entries is bounded by `lruSize`. Without this bound, cache-manager's default
+ * store is an unbounded `Map`: caching one value per distinct key
  * (for example, per unique request URL) would grow the heap monotonically
  * until the process runs out of memory.
  *
@@ -74,8 +110,8 @@ function normaliseStore(
 function createDefaultStore(
   options: Omit<CacheManagerOptions, "stores">,
 ): Keyv {
-  return createKeyv({
-    lruSize: options.lruSize ?? DEFAULT_CACHE_LRU_SIZE,
+  return new Keyv({
+    store: new LruMap(options.lruSize ?? DEFAULT_CACHE_LRU_SIZE),
     ...(options.ttl !== undefined && { ttl: options.ttl }),
     ...(options.namespace !== undefined && { namespace: options.namespace }),
   });

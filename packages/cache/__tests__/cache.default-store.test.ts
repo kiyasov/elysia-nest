@@ -51,6 +51,18 @@ describe("CacheModule default store bounding", () => {
     expect((await cache.get<number>("k0")) ?? null).toBeNull();
   });
 
+  it("keeps recently read entries when evicting", async () => {
+    const cache = await buildCache({ lruSize: 2 });
+
+    await cache.set("old", 1);
+    await cache.set("recent", 2);
+    await cache.get("old");
+    await cache.set("new", 3);
+
+    expect(await cache.get<number>("old")).toBe(1);
+    expect((await cache.get<number>("recent")) ?? null).toBeNull();
+  });
+
   it("leaves an explicit user-provided store untouched", async () => {
     const userStore = new Keyv();
     const cache = await buildCache({ stores: userStore });

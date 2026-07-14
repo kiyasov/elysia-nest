@@ -98,8 +98,8 @@ export interface CacheManagerOptions extends Omit<
    * Maximum number of entries kept in the built-in default in-memory store.
    *
    * This bound only applies when no custom {@link CacheManagerOptions.stores}
-   * are provided. The default store is an LRU-backed `CacheableMemory` cache,
-   * so once this many entries exist the least-recently-used ones are evicted.
+   * are provided. The default store is an LRU-backed in-memory Keyv store, so
+   * once this many entries exist the least-recently-used ones are evicted.
    * This prevents unbounded heap growth (and eventual OOM) when distinct cache
    * keys — e.g. one per unique request URL — accumulate without a TTL.
    *
