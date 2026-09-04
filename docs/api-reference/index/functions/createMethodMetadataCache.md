@@ -29,5 +29,5 @@ Two-level lookup: WeakMap<object, Map<string | symbol, T>>.
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `get()` | ( `target`, `method`, `factory`) => `T` | [packages/core/src/utils/metadata-cache.ts:29](https://github.com/nestelia/nestelia/blob/main/packages/core/src/utils/metadata-cache.ts#L29) |
+| `get()` | ( `target`, `method`, `factory` ) => `T` | [packages/core/src/utils/metadata-cache.ts:29](https://github.com/nestelia/nestelia/blob/main/packages/core/src/utils/metadata-cache.ts#L29) |
 | `reset()` | () => `void` | [packages/core/src/utils/metadata-cache.ts:42](https://github.com/nestelia/nestelia/blob/main/packages/core/src/utils/metadata-cache.ts#L42) |

@@ -5,7 +5,8 @@ function registerGraphQLRoutes(
    app, 
    apolloService, 
    path, 
-   uploadOptions?): void;
+   uploadOptions?
+): void;
 ```
 
 Defined in: [packages/apollo/src/graphql.controller.ts:60](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/graphql.controller.ts#L60)

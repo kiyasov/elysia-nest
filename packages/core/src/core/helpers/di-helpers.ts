@@ -27,11 +27,17 @@ export function getConstructorDependencies(
   }
 
   const dependencies: Array<{ index: number; token: unknown }> = [];
+  const explicitParamCount = Math.max(
+    ...injectionMetadata.map(({ index }) => index + 1),
+    0,
+  );
+  const paramCount = Math.max(paramTypes.length, explicitParamCount);
 
-  for (let i = 0; i < paramTypes.length; i++) {
+  for (let i = 0; i < paramCount; i++) {
     const paramType = paramTypes[i];
-    const customInjection = injectionByIndex.get(i);
-    const token = customInjection !== undefined ? customInjection : paramType;
+    const token = injectionByIndex.has(i)
+      ? injectionByIndex.get(i)
+      : paramType;
 
     if (token !== undefined) {
       dependencies.push({ index: i, token });

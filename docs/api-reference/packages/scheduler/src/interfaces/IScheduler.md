@@ -44,7 +44,8 @@ Get all active tasks
 scheduleAt(
    date, 
    callback, 
-   options?): TaskHandle;
+   options?
+): TaskHandle;
 ```
 
 Defined in: [packages/scheduler/src/interfaces/scheduler.interface.ts:147](https://github.com/nestelia/nestelia/blob/main/packages/scheduler/src/interfaces/scheduler.interface.ts#L147)
@@ -71,7 +72,8 @@ Schedule a task to run at a specific date
 scheduleCron(
    cronExpression, 
    callback, 
-   options?): TaskHandle;
+   options?
+): TaskHandle;
 ```
 
 Defined in: [packages/scheduler/src/interfaces/scheduler.interface.ts:120](https://github.com/nestelia/nestelia/blob/main/packages/scheduler/src/interfaces/scheduler.interface.ts#L120)
@@ -98,7 +100,8 @@ Schedule a task to run at a cron time
 scheduleInterval(
    intervalMs, 
    callback, 
-   options?): TaskHandle;
+   options?
+): TaskHandle;
 ```
 
 Defined in: [packages/scheduler/src/interfaces/scheduler.interface.ts:129](https://github.com/nestelia/nestelia/blob/main/packages/scheduler/src/interfaces/scheduler.interface.ts#L129)
@@ -125,7 +128,8 @@ Schedule a task to run at fixed intervals
 scheduleTimeout(
    delayMs, 
    callback, 
-   options?): TaskHandle;
+   options?
+): TaskHandle;
 ```
 
 Defined in: [packages/scheduler/src/interfaces/scheduler.interface.ts:138](https://github.com/nestelia/nestelia/blob/main/packages/scheduler/src/interfaces/scheduler.interface.ts#L138)

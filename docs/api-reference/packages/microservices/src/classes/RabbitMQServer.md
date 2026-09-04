@@ -46,11 +46,12 @@ Defined in: [packages/microservices/src/transports/rabbitmq.server.ts:115](https
 ```ts
 optional [captureRejectionSymbol](
    error, 
-   event, ...
-   args): void;
+   event, 
+   ...args
+): void;
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:123
+Defined in: node\_modules/@types/node/events.d.ts:87
 
 The `Symbol.for('nodejs.rejection')` method is called in case a
 promise rejection happens when emitting an event and
@@ -161,7 +162,7 @@ Equivalent to [addMessageHandler](BaseServer.md#addmessagehandler).
 addListener<E>(eventName, listener): this;
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:128
+Defined in: node\_modules/@types/node/events.d.ts:92
 
 Alias for `emitter.on(eventName, listener)`.
 
@@ -269,7 +270,7 @@ Cancels consumers, closes the channel and connection.
 emit<E>(eventName, ...args): boolean;
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:170
+Defined in: node\_modules/@types/node/events.d.ts:134
 
 Synchronously calls each of the listeners registered for the event named
 `eventName`, in the order they were registered, passing the supplied arguments
@@ -408,7 +409,7 @@ Publishes a fire-and-forget event to `pattern`.
 eventNames(): (string | symbol)[];
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:190
+Defined in: node\_modules/@types/node/events.d.ts:154
 
 Returns an array listing the events for which the emitter has registered
 listeners.
@@ -447,7 +448,7 @@ v6.0.0
 getMaxListeners(): number;
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:197
+Defined in: node\_modules/@types/node/events.d.ts:161
 
 Returns the current max listener value for the `EventEmitter` which is either
 set by `emitter.setMaxListeners(n)` or defaults to
@@ -473,7 +474,8 @@ v1.0.0
 protected handleEvent<T>(
    pattern, 
    data, 
-   ctx): unknown;
+   ctx
+): unknown;
 ```
 
 Defined in: [packages/microservices/src/transports/server.ts:116](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L116)
@@ -512,7 +514,8 @@ message. Silently ignores events without a registered handler.
 protected handleMessage<T, R>(
    pattern, 
    data, 
-   ctx): unknown;
+   ctx
+): unknown;
 ```
 
 Defined in: [packages/microservices/src/transports/server.ts:99](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/transports/server.ts#L99)
@@ -581,7 +584,7 @@ exchange, and immediately begins consuming messages.
 listenerCount<E>(eventName, listener?): number;
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:206
+Defined in: node\_modules/@types/node/events.d.ts:170
 
 Returns the number of listeners listening for the event named `eventName`.
 If `listener` is provided, it will return how many times the listener is found
@@ -620,7 +623,7 @@ v3.2.0
 listeners<E>(eventName): (...args) => void[];
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:222
+Defined in: node\_modules/@types/node/events.d.ts:186
 
 Returns a copy of the array of listeners for the event named `eventName`.
 
@@ -664,7 +667,7 @@ v0.1.26
 off<E>(eventName, listener): this;
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:227
+Defined in: node\_modules/@types/node/events.d.ts:191
 
 Alias for `emitter.removeListener()`.
 
@@ -701,7 +704,7 @@ v10.0.0
 on<E>(eventName, listener): this;
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:261
+Defined in: node\_modules/@types/node/events.d.ts:225
 
 Adds the `listener` function to the end of the listeners array for the
 event named `eventName`. No checks are made to see if the `listener` has
@@ -765,7 +768,7 @@ v0.1.101
 once<E>(eventName, listener): this;
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:292
+Defined in: node\_modules/@types/node/events.d.ts:256
 
 Adds a **one-time** `listener` function for the event named `eventName`. The
 next time `eventName` is triggered, this listener is removed and then invoked.
@@ -826,7 +829,7 @@ v0.3.0
 prependListener<E>(eventName, listener): this;
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:311
+Defined in: node\_modules/@types/node/events.d.ts:275
 
 Adds the `listener` function to the _beginning_ of the listeners array for the
 event named `eventName`. No checks are made to see if the `listener` has
@@ -875,7 +878,7 @@ v6.0.0
 prependOnceListener<E>(eventName, listener): this;
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:328
+Defined in: node\_modules/@types/node/events.d.ts:292
 
 Adds a **one-time** `listener` function for the event named `eventName` to the
 _beginning_ of the listeners array. The next time `eventName` is triggered, this
@@ -922,7 +925,7 @@ v6.0.0
 rawListeners<E>(eventName): (...args) => void[];
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:362
+Defined in: node\_modules/@types/node/events.d.ts:326
 
 Returns a copy of the array of listeners for the event named `eventName`,
 including any wrappers (such as those created by `.once()`).
@@ -984,7 +987,7 @@ v9.4.0
 removeAllListeners<E>(eventName?): this;
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:374
+Defined in: node\_modules/@types/node/events.d.ts:338
 
 Removes all listeners, or those of the specified `eventName`.
 
@@ -1026,7 +1029,7 @@ v0.1.26
 removeListener<E>(eventName, listener): this;
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:461
+Defined in: node\_modules/@types/node/events.d.ts:425
 
 Removes the specified `listener` from the listener array for the event named
 `eventName`.
@@ -1179,7 +1182,7 @@ The default timeout is **5 seconds**.
 setMaxListeners(n): this;
 ```
 
-Defined in: node\_modules/@types/node/events.d.ts:472
+Defined in: node\_modules/@types/node/events.d.ts:436
 
 By default `EventEmitter`s will print a warning if more than `10` listeners are
 added for a particular event. This is a useful default that helps finding

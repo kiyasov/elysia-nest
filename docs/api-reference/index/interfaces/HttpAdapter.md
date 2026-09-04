@@ -52,7 +52,8 @@ Defined in: [packages/core/src/core/http-adapter.ts:9](https://github.com/nestel
 setHeader(
    response, 
    name, 
-   value): void;
+   value
+): void;
 ```
 
 Defined in: [packages/core/src/core/http-adapter.ts:10](https://github.com/nestelia/nestelia/blob/main/packages/core/src/core/http-adapter.ts#L10)

@@ -4,7 +4,8 @@
 function Scalar(
    name, 
    typeFnOrOptions?, 
-   options?): ClassDecorator;
+   options?
+): ClassDecorator;
 ```
 
 Defined in: [packages/apollo/src/decorators/type.decorator.ts:288](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/decorators/type.decorator.ts#L288)

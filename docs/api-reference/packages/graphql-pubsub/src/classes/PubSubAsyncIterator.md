@@ -37,7 +37,8 @@ exceeded (similar to a lossy channel).
 new PubSubAsyncIterator<T>(
    pubsub, 
    triggers, 
-options?): PubSubAsyncIterator<T>;
+   options?
+): PubSubAsyncIterator<T>;
 ```
 
 Defined in: [packages/graphql-pubsub/src/pubsub-async-iterator.ts:54](https://github.com/nestelia/nestelia/blob/main/packages/graphql-pubsub/src/pubsub-async-iterator.ts#L54)

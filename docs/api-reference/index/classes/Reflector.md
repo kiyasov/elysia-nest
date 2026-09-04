@@ -55,7 +55,8 @@ the metadata value
 get<T>(
    metadataKey, 
    target, 
-   propertyKey): T | undefined;
+   propertyKey
+): T | undefined;
 ```
 
 Defined in: [packages/core/src/di/reflector.ts:38](https://github.com/nestelia/nestelia/blob/main/packages/core/src/di/reflector.ts#L38)

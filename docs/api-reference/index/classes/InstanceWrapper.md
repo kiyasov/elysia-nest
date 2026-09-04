@@ -387,7 +387,8 @@ Defined in: [packages/core/src/di/instance-wrapper.ts:315](https://github.com/ne
 setInstanceByContextId(
    contextId, 
    value, 
-   inquirerId?): void;
+   inquirerId?
+): void;
 ```
 
 Defined in: [packages/core/src/di/instance-wrapper.ts:162](https://github.com/nestelia/nestelia/blob/main/packages/core/src/di/instance-wrapper.ts#L162)
@@ -412,7 +413,8 @@ Defined in: [packages/core/src/di/instance-wrapper.ts:162](https://github.com/ne
 setInstanceByInquirerId(
    contextId, 
    inquirerId, 
-   value): void;
+   value
+): void;
 ```
 
 Defined in: [packages/core/src/di/instance-wrapper.ts:173](https://github.com/nestelia/nestelia/blob/main/packages/core/src/di/instance-wrapper.ts#L173)

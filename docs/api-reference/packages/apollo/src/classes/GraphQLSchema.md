@@ -760,4 +760,4 @@ schemaCopy.getQueryType()?.name; // => 'Query'
 | <a id="astnode"></a> `astNode` | `Maybe`\<`SchemaDefinitionNode`\> | AST node from which this schema element was built, if available. | node\_modules/graphql/type/schema.d.ts:157 |
 | <a id="description"></a> `description` | `Maybe`\<`string`\> | Human-readable description for this schema element, if provided. | node\_modules/graphql/type/schema.d.ts:153 |
 | <a id="extensionastnodes"></a> `extensionASTNodes` | readonly `SchemaExtensionNode`[] | AST extension nodes applied to this schema element. | node\_modules/graphql/type/schema.d.ts:159 |
-| <a id="extensions"></a> `extensions` | `Readonly`\<`GraphQLSchemaExtensions`\> | Extension fields to include in the formatted result. | node\_modules/graphql/type/schema.d.ts:155 |
+| <a id="extensions"></a> `extensions` | `Readonly`\<`GraphQLSchemaExtensions`\> | Custom extension fields reserved for users. | node\_modules/graphql/type/schema.d.ts:155 |

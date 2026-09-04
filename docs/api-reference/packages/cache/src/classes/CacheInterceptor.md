@@ -49,7 +49,8 @@ export class UserController {
 new CacheInterceptor(
    cacheManager, 
    reflector, 
-   httpAdapterHost?): CacheInterceptor;
+   httpAdapterHost?
+): CacheInterceptor;
 ```
 
 Defined in: [packages/cache/src/interceptors/cache.interceptor.ts:115](https://github.com/nestelia/nestelia/blob/main/packages/cache/src/interceptors/cache.interceptor.ts#L115)

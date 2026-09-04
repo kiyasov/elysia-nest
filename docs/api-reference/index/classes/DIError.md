@@ -114,7 +114,7 @@ Error.captureStackTrace
 static captureStackTrace(targetObject, constructorOpt?): void;
 ```
 
-Defined in: node\_modules/bun-types/globals.d.ts:1042
+Defined in: node\_modules/bun-types/globals.d.ts:1062
 
 Create .stack property on a target object
 
@@ -171,7 +171,7 @@ Error.isError
 static isError(value): value is Error;
 ```
 
-Defined in: node\_modules/bun-types/globals.d.ts:1037
+Defined in: node\_modules/bun-types/globals.d.ts:1057
 
 Check if a value is an instance of Error
 

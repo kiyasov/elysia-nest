@@ -4,7 +4,8 @@
 function processParameters(
    ctx, 
    target, 
-propertyKey): Promise<unknown[]>;
+   propertyKey
+): Promise<unknown[]>;
 ```
 
 Defined in: [packages/core/src/decorators/param.decorators.ts:199](https://github.com/nestelia/nestelia/blob/main/packages/core/src/decorators/param.decorators.ts#L199)

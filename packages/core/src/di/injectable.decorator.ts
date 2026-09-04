@@ -40,9 +40,12 @@ export const INJECT_METADATA = Symbol("INJECT_METADATA");
 export function Inject(token: unknown): ParameterDecorator {
   return (target, _propertyKey, parameterIndex) => {
     const existingParams: Array<{ index: number; token: unknown }> =
-      Reflect.getMetadata(INJECT_METADATA, target) || [];
-    existingParams.push({ index: parameterIndex, token });
-    Reflect.defineMetadata(INJECT_METADATA, existingParams, target);
+      Reflect.getOwnMetadata(INJECT_METADATA, target) || [];
+    Reflect.defineMetadata(
+      INJECT_METADATA,
+      [...existingParams, { index: parameterIndex, token }],
+      target,
+    );
   };
 }
 
@@ -51,8 +54,11 @@ export const OPTIONAL_METADATA = Symbol("OPTIONAL_METADATA");
 export function Optional(): ParameterDecorator {
   return (target, _propertyKey, parameterIndex) => {
     const existingOptionalParams: number[] =
-      Reflect.getMetadata(OPTIONAL_METADATA, target) || [];
-    existingOptionalParams.push(parameterIndex);
-    Reflect.defineMetadata(OPTIONAL_METADATA, existingOptionalParams, target);
+      Reflect.getOwnMetadata(OPTIONAL_METADATA, target) || [];
+    Reflect.defineMetadata(
+      OPTIONAL_METADATA,
+      [...existingOptionalParams, parameterIndex],
+      target,
+    );
   };
 }

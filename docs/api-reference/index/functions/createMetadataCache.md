@@ -29,5 +29,5 @@ Lazily-populated cache for generic Reflect metadata keyed by
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `get()` | ( `target`, `metadataKey`, `factory`) => `T` | [packages/core/src/utils/metadata-cache.ts:55](https://github.com/nestelia/nestelia/blob/main/packages/core/src/utils/metadata-cache.ts#L55) |
+| `get()` | ( `target`, `metadataKey`, `factory` ) => `T` | [packages/core/src/utils/metadata-cache.ts:55](https://github.com/nestelia/nestelia/blob/main/packages/core/src/utils/metadata-cache.ts#L55) |
 | `reset()` | () => `void` | [packages/core/src/utils/metadata-cache.ts:72](https://github.com/nestelia/nestelia/blob/main/packages/core/src/utils/metadata-cache.ts#L72) |

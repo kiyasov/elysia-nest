@@ -62,8 +62,9 @@ Defined in: [packages/passport/src/auth.guard.ts:23](https://github.com/nestelia
 handleRequest<TUser>(
    err, 
    user, 
-   info?, ...
-   rest): unknown;
+   info?, 
+   ...rest
+): unknown;
 ```
 
 Defined in: [packages/passport/src/auth.guard.ts:24](https://github.com/nestelia/nestelia/blob/main/packages/passport/src/auth.guard.ts#L24)

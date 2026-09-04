@@ -152,6 +152,40 @@ describe("DI Container", () => {
       expect(appService!.config).toBeDefined();
       expect(appService!.config.value).toBe("config-value");
     });
+
+    it("should inject explicit tokens without design:paramtypes metadata", async () => {
+      const TOKEN = Symbol("explicit");
+
+      @Injectable()
+      class AppService {
+        constructor(@Inject(TOKEN) public value: unknown) {}
+      }
+
+      Reflect.deleteMetadata("design:paramtypes", AppService);
+      container.register([{ provide: TOKEN, useValue: "resolved" }, AppService]);
+
+      const appService = await container.get<AppService>(AppService);
+      expect(appService!.value).toBe("resolved");
+    });
+
+    it("should support an empty string injection token", async () => {
+      @Injectable()
+      class FallbackService {}
+
+      @Injectable()
+      class AppService {
+        constructor(@Inject("") public value: FallbackService | string) {}
+      }
+
+      container.register([
+        FallbackService,
+        { provide: "", useValue: "empty-token" },
+        AppService,
+      ]);
+
+      const appService = await container.get<AppService>(AppService);
+      expect(appService!.value).toBe("empty-token");
+    });
   });
 
   describe("Factory Provider", () => {

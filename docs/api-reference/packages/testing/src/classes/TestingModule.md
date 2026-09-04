@@ -48,7 +48,8 @@ Get the module reference
 new TestingModule(
    _module, 
    _container, 
-   _instances?): TestingModule;
+   _instances?
+): TestingModule;
 ```
 
 Defined in: [packages/testing/src/testing.module-builder.ts:328](https://github.com/nestelia/nestelia/blob/main/packages/testing/src/testing.module-builder.ts#L328)

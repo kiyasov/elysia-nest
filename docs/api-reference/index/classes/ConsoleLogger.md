@@ -163,7 +163,8 @@ Defined in: [packages/core/src/logger/console-logger.service.ts:160](https://git
 error(
    message, 
    stack?, 
-   context?): void;
+   context?
+): void;
 ```
 
 Defined in: [packages/core/src/logger/console-logger.service.ts:161](https://github.com/nestelia/nestelia/blob/main/packages/core/src/logger/console-logger.service.ts#L161)
@@ -219,7 +220,8 @@ Defined in: [packages/core/src/logger/console-logger.service.ts:211](https://git
 fatal(
    message, 
    stack?, 
-   context?): void;
+   context?
+): void;
 ```
 
 Defined in: [packages/core/src/logger/console-logger.service.ts:212](https://github.com/nestelia/nestelia/blob/main/packages/core/src/logger/console-logger.service.ts#L212)
@@ -273,7 +275,8 @@ protected formatMessage(
    pidMessage, 
    formattedLogLevel, 
    contextMessage, 
-   timestampDiff): string;
+   timestampDiff
+): string;
 ```
 
 Defined in: [packages/core/src/logger/console-logger.service.ts:43](https://github.com/nestelia/nestelia/blob/main/packages/core/src/logger/console-logger.service.ts#L43)
@@ -497,7 +500,8 @@ protected printMessages(
    messages, 
    context?, 
    logLevel?, 
-   writeStreamType?): void;
+   writeStreamType?
+): void;
 ```
 
 Defined in: [packages/core/src/logger/console-logger.service.ts:65](https://github.com/nestelia/nestelia/blob/main/packages/core/src/logger/console-logger.service.ts#L65)

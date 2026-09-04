@@ -219,7 +219,8 @@ Starts the Elysia HTTP server.
 listen(
    port, 
    hostname, 
-callback?): Promise<void>;
+   callback?
+): Promise<void>;
 ```
 
 Defined in: [packages/microservices/src/elysia-nest-application.ts:501](https://github.com/nestelia/nestelia/blob/main/packages/microservices/src/elysia-nest-application.ts#L501)

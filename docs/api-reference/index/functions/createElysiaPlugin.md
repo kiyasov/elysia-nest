@@ -4,7 +4,8 @@
 function createElysiaPlugin(
    _target, 
    metadata, 
-   moduleinstance): (app) => Promise<Elysia<"", {
+   moduleinstance
+): (app) => Promise<Elysia<"", {
   decorator: {
   };
   derive: {

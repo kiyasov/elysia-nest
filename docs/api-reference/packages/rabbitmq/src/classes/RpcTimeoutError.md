@@ -14,7 +14,8 @@ Defined in: [packages/rabbitmq/src/amqp/errors.ts:1](https://github.com/nestelia
 new RpcTimeoutError(
    timeout, 
    exchange, 
-   routingKey): RpcTimeoutError;
+   routingKey
+): RpcTimeoutError;
 ```
 
 Defined in: [packages/rabbitmq/src/amqp/errors.ts:2](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/errors.ts#L2)
@@ -116,7 +117,7 @@ Error.captureStackTrace
 static captureStackTrace(targetObject, constructorOpt?): void;
 ```
 
-Defined in: node\_modules/bun-types/globals.d.ts:1042
+Defined in: node\_modules/bun-types/globals.d.ts:1062
 
 Create .stack property on a target object
 
@@ -173,7 +174,7 @@ Error.isError
 static isError(value): value is Error;
 ```
 
-Defined in: node\_modules/bun-types/globals.d.ts:1037
+Defined in: node\_modules/bun-types/globals.d.ts:1057
 
 Check if a value is an instance of Error
 

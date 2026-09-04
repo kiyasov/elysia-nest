@@ -152,7 +152,8 @@ Defined in: [packages/core/src/di/container.ts:211](https://github.com/nestelia/
 get<T>(
    token, 
    moduleKey?, 
-contextId?): Promise<T | undefined>;
+   contextId?
+): Promise<T | undefined>;
 ```
 
 Defined in: [packages/core/src/di/container.ts:106](https://github.com/nestelia/nestelia/blob/main/packages/core/src/di/container.ts#L106)
@@ -181,7 +182,8 @@ Defined in: [packages/core/src/di/container.ts:106](https://github.com/nestelia/
 get<T>(
    token, 
    moduleKey?, 
-contextId?): Promise<T | undefined>;
+   contextId?
+): Promise<T | undefined>;
 ```
 
 Defined in: [packages/core/src/di/container.ts:107](https://github.com/nestelia/nestelia/blob/main/packages/core/src/di/container.ts#L107)
@@ -212,7 +214,8 @@ Defined in: [packages/core/src/di/container.ts:107](https://github.com/nestelia/
 getFromModule<T>(
    token, 
    moduleKey, 
-contextId?): Promise<T | undefined>;
+   contextId?
+): Promise<T | undefined>;
 ```
 
 Defined in: [packages/core/src/di/container.ts:181](https://github.com/nestelia/nestelia/blob/main/packages/core/src/di/container.ts#L181)

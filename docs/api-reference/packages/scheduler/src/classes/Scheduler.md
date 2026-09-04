@@ -97,7 +97,8 @@ Defined in: [packages/scheduler/src/services/scheduler.service.ts:50](https://gi
 scheduleAt(
    date, 
    callback, 
-   options?): TaskHandle;
+   options?
+): TaskHandle;
 ```
 
 Defined in: [packages/scheduler/src/services/scheduler.service.ts:156](https://github.com/nestelia/nestelia/blob/main/packages/scheduler/src/services/scheduler.service.ts#L156)
@@ -128,7 +129,8 @@ Schedule a task to run at a specific date
 scheduleCron(
    cronExpression, 
    callback, 
-   options?): TaskHandle;
+   options?
+): TaskHandle;
 ```
 
 Defined in: [packages/scheduler/src/services/scheduler.service.ts:82](https://github.com/nestelia/nestelia/blob/main/packages/scheduler/src/services/scheduler.service.ts#L82)
@@ -159,7 +161,8 @@ Schedule a task to run at a cron time
 scheduleInterval(
    intervalMs, 
    callback, 
-   options?): TaskHandle;
+   options?
+): TaskHandle;
 ```
 
 Defined in: [packages/scheduler/src/services/scheduler.service.ts:107](https://github.com/nestelia/nestelia/blob/main/packages/scheduler/src/services/scheduler.service.ts#L107)
@@ -190,7 +193,8 @@ Schedule a task to run at fixed intervals
 scheduleTimeout(
    delayMs, 
    callback, 
-   options?): TaskHandle;
+   options?
+): TaskHandle;
 ```
 
 Defined in: [packages/scheduler/src/services/scheduler.service.ts:129](https://github.com/nestelia/nestelia/blob/main/packages/scheduler/src/services/scheduler.service.ts#L129)

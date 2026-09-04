@@ -116,12 +116,17 @@ export class Injector {
         injectionByIndex.set(index, token);
       }
       const optionalSet = new Set(optionalParams);
+      const explicitParamCount = Math.max(
+        ...injectionMetadata.map(({ index }) => index + 1),
+        ...optionalParams.map((index) => index + 1),
+        0,
+      );
+      const paramCount = Math.max(paramTypes.length, explicitParamCount);
 
-      for (let i = 0; i < paramTypes.length; i++) {
+      for (let i = 0; i < paramCount; i++) {
         const paramType = paramTypes[i];
-        const customInjection = injectionByIndex.get(i);
-        const token = customInjection
-          ? customInjection
+        const token = injectionByIndex.has(i)
+          ? injectionByIndex.get(i)
           : (paramType as ProviderToken);
         const isOptional = optionalSet.has(i);
 

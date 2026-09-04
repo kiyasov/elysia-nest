@@ -60,7 +60,8 @@ Defined in: [packages/graphql-pubsub/src/interfaces.ts:77](https://github.com/ne
 subscribe(
    triggerName, 
    onMessage, 
-options?): Promise<number>;
+   options?
+): Promise<number>;
 ```
 
 Defined in: [packages/graphql-pubsub/src/interfaces.ts:78](https://github.com/nestelia/nestelia/blob/main/packages/graphql-pubsub/src/interfaces.ts#L78)

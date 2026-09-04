@@ -41,7 +41,7 @@ Defined in: [packages/core/src/exceptions/internal-server-error.exception.ts:7](
 getResponse(): string | Record<string, unknown>;
 ```
 
-Defined in: [packages/core/src/exceptions/http-exception.ts:18](https://github.com/nestelia/nestelia/blob/main/packages/core/src/exceptions/http-exception.ts#L18)
+Defined in: [packages/core/src/exceptions/http-exception.ts:17](https://github.com/nestelia/nestelia/blob/main/packages/core/src/exceptions/http-exception.ts#L17)
 
 Get the exception response
 
@@ -130,7 +130,7 @@ a();
 static captureStackTrace(targetObject, constructorOpt?): void;
 ```
 
-Defined in: node\_modules/bun-types/globals.d.ts:1042
+Defined in: node\_modules/bun-types/globals.d.ts:1062
 
 Create .stack property on a target object
 
@@ -183,7 +183,7 @@ Indicates whether the argument provided is a built-in Error instance or not.
 static isError(value): value is Error;
 ```
 
-Defined in: node\_modules/bun-types/globals.d.ts:1037
+Defined in: node\_modules/bun-types/globals.d.ts:1057
 
 Check if a value is an instance of Error
 

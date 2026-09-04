@@ -208,7 +208,8 @@ Defined in: [packages/rabbitmq/src/amqp/connection.ts:1250](https://github.com/n
 createBatchSubscriber<T>(
    handler, 
    msgOptions, 
-consumeOptions?): Promise<SubscriptionResult>;
+   consumeOptions?
+): Promise<SubscriptionResult>;
 ```
 
 Defined in: [packages/rabbitmq/src/amqp/connection.ts:488](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L488)
@@ -268,7 +269,8 @@ createSubscriber<T>(
    handler, 
    msgOptions, 
    originalHandlerName, 
-consumeOptions?): Promise<SubscriptionResult>;
+   consumeOptions?
+): Promise<SubscriptionResult>;
 ```
 
 Defined in: [packages/rabbitmq/src/amqp/connection.ts:467](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L467)
@@ -315,7 +317,8 @@ publish(
    exchange, 
    routingKey, 
    message, 
-options?): Promise<boolean>;
+   options?
+): Promise<boolean>;
 ```
 
 Defined in: [packages/rabbitmq/src/amqp/connection.ts:993](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L993)
@@ -394,7 +397,8 @@ Defined in: [packages/rabbitmq/src/amqp/connection.ts:1213](https://github.com/n
 setupRpcChannel<T, U>(
    handler, 
    rpcOptions, 
-channel): Promise<string>;
+   channel
+): Promise<string>;
 ```
 
 Defined in: [packages/rabbitmq/src/amqp/connection.ts:869](https://github.com/nestelia/nestelia/blob/main/packages/rabbitmq/src/amqp/connection.ts#L869)

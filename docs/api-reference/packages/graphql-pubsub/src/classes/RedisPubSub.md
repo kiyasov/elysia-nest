@@ -274,7 +274,8 @@ when provided, otherwise `JSON.stringify`.
 subscribe<T>(
    trigger, 
    onMessage, 
-options?): Promise<number>;
+   options?
+): Promise<number>;
 ```
 
 Defined in: [packages/graphql-pubsub/src/redis-pubsub.ts:160](https://github.com/nestelia/nestelia/blob/main/packages/graphql-pubsub/src/redis-pubsub.ts#L160)

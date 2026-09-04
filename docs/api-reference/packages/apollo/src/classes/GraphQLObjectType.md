@@ -386,6 +386,6 @@ User.toString(); // => 'User'
 | <a id="astnode"></a> `astNode` | `Maybe`\<`ObjectTypeDefinitionNode`\> | AST node from which this schema element was built, if available. | node\_modules/graphql/type/definition.d.ts:1726 |
 | <a id="description"></a> `description` | `Maybe`\<`string`\> | Human-readable description for this schema element, if provided. | node\_modules/graphql/type/definition.d.ts:1720 |
 | <a id="extensionastnodes"></a> `extensionASTNodes` | readonly `ObjectTypeExtensionNode`[] | AST extension nodes applied to this schema element. | node\_modules/graphql/type/definition.d.ts:1728 |
-| <a id="extensions"></a> `extensions` | `Readonly`\<`GraphQLObjectTypeExtensions`\<`TSource`, `TContext`\>\> | Extension fields to include in the formatted result. | node\_modules/graphql/type/definition.d.ts:1724 |
+| <a id="extensions"></a> `extensions` | `Readonly`\<`GraphQLObjectTypeExtensions`\<`TSource`, `TContext`\>\> | Custom extension fields reserved for users. | node\_modules/graphql/type/definition.d.ts:1724 |
 | <a id="istypeof"></a> `isTypeOf` | `Maybe`\<`GraphQLIsTypeOfFn`\<`TSource`, `TContext`\>\> | Predicate used to determine whether a runtime value belongs to this object type. | node\_modules/graphql/type/definition.d.ts:1722 |
 | <a id="name"></a> `name` | `string` | The GraphQL name for this schema element. | node\_modules/graphql/type/definition.d.ts:1718 |

@@ -30,7 +30,8 @@ Defined in: [packages/core/src/di/injector.ts:29](https://github.com/nestelia/ne
 loadInstance(
    wrapper, 
    moduleRef, 
-contextId?): Promise<void>;
+   contextId?
+): Promise<void>;
 ```
 
 Defined in: [packages/core/src/di/injector.ts:31](https://github.com/nestelia/nestelia/blob/main/packages/core/src/di/injector.ts#L31)
