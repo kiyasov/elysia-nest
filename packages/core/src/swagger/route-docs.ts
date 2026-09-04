@@ -63,7 +63,7 @@ export function extractRouteDocs(controllers: any[]): OpenAPIPaths {
     // Process each route
     for (const route of routes) {
       // Construct full path
-      const fullPath = (prefix + route.path).replace(/:([^\/]+)/g, "{$1}"); // Convert :id to {id} for OpenAPI
+      const fullPath = (prefix + route.path).replace(/:([^/]+)/g, "{$1}"); // Convert :id to {id} for OpenAPI
 
       // Initialize path if it doesn't exist
       if (!paths[fullPath]) {

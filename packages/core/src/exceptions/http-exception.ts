@@ -9,7 +9,6 @@ export class HttpException extends Error {
   ) {
     super(typeof response === "string" ? response : JSON.stringify(response));
     this.name = this.constructor.name;
-    this.details = details;
   }
 
   /**

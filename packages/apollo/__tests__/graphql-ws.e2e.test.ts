@@ -151,7 +151,7 @@ describe("GraphQLWsHandler e2e (real Bun WS)", () => {
     }
   });
 
-  it("cleans up iterator on abrupt TCP close without complete frame", async () => {
+  it("cleans up iterator on WebSocket close without GraphQL complete", async () => {
     const { url, track, stop } = await startServer({ keepAliveTimeout: false });
     try {
       const ws = await openWs(url);
@@ -165,11 +165,9 @@ describe("GraphQLWsHandler e2e (real Bun WS)", () => {
       await sleep(30);
       expect(track.iterators).toBe(1);
 
-      // Abrupt close — RFC 6455 says we should send a close frame, but
-      // we skip it via `ws.close()` without handshake by terminating
-      // immediately. The server should detect via its transport idle
-      // timeout OR app-level watchdog.
-      ws.close(1006);
+      // Disconnect without sending a GraphQL `complete` message. Code 1006 is
+      // reserved and cannot be sent in a WebSocket close frame (RFC 6455).
+      ws.close();
       await sleep(100);
       expect(track.returned.size).toBe(1);
     } finally {

@@ -89,7 +89,7 @@ const cjs = await Bun.build({
   outdir: join(ROOT, "dist/cjs"),
   target: "node",
   format: "cjs",
-  splitting: true,
+  splitting: false,
   external: EXTERNAL,
   minify: false,
 });

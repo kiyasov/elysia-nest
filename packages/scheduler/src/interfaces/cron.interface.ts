@@ -134,7 +134,7 @@ export function isValidCronExpression(expression: string): boolean {
     }
 
     // Prevent script injection attempts
-    if (/[<>"'`;{}\[\]()]/.test(segment)) {
+    if (/[<>"'`;{}[\]()]/.test(segment)) {
       return false;
     }
   }
