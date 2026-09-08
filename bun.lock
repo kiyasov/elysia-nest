@@ -51,7 +51,7 @@
         "class-validator": "^0.14.0 || ^0.15.0",
         "drizzle-orm": ">=0.30.0",
         "elysia": "^1.0.0",
-        "graphql": "^16.0.0",
+        "graphql": "^16.0.0 || ^17.0.0",
         "graphql-ws": "^5.0.0 || ^6.0.0",
         "ioredis": "^5.0.0",
         "keyv": "^5.0.0",

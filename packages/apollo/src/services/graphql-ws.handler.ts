@@ -1,11 +1,13 @@
 import type { Elysia } from "elysia";
 import type { ElysiaWS } from "elysia/ws";
+import * as graphql from "graphql";
 import {
-  createSourceEventStream,
   execute,
   parse,
   validate,
   type ExecutionArgs,
+  type ExecutionResult,
+  type GraphQLError,
   type GraphQLSchema,
 } from "graphql";
 import {
@@ -528,7 +530,26 @@ export class GraphQLWsHandler {
       // This avoids a critical issue where mapAsyncIterator calls
       // iterator.return() (killing the subscription permanently) when
       // execute() throws for a single event.
-      const resultOrStream = await createSourceEventStream(subscribeArgs);
+      // GraphQL 17 requires validated arguments; GraphQL 16 validates internally.
+      // Keep the version-specific types at this boundary so this compiles with
+      // either version's declarations, without importing a missing v16 export.
+      const subscriptionApi = graphql as unknown as {
+        validateSubscriptionArgs?: (
+          args: ExecutionArgs,
+        ) => object | readonly GraphQLError[];
+        createSourceEventStream: (
+          args: object,
+        ) =>
+          | AsyncIterable<unknown>
+          | ExecutionResult
+          | Promise<AsyncIterable<unknown> | ExecutionResult>;
+      };
+      const sourceArgs = subscriptionApi.validateSubscriptionArgs
+        ? subscriptionApi.validateSubscriptionArgs(subscribeArgs)
+        : subscribeArgs;
+      const resultOrStream = Array.isArray(sourceArgs)
+        ? { errors: sourceArgs as GraphQLError[] }
+        : await subscriptionApi.createSourceEventStream(sourceArgs);
 
       if (
         typeof resultOrStream === "object" &&

@@ -18,6 +18,7 @@ import {
   GraphQLScalarType,
   GraphQLSchema,
   GraphQLString,
+  type GraphQLType,
   GraphQLUnionType,
 } from "graphql";
 
@@ -580,16 +581,14 @@ export class SchemaBuilder {
     nullable: boolean | undefined,
     fieldContext?: string,
     sourceLocation?: string,
-  ): GraphQLOutputType | GraphQLInputType {
+  ): GraphQLType {
     if (Array.isArray(value)) {
       const inner = this.resolveScalarOrRef(value[0], false, fieldContext, sourceLocation);
-      const list = new GraphQLList(
-        inner as GraphQLOutputType & GraphQLInputType,
-      );
+      const list = new GraphQLList(inner);
       return nullable ? list : new GraphQLNonNull(list);
     }
 
-    let gqlType: GraphQLOutputType | GraphQLInputType;
+    let gqlType: GraphQLNamedType;
 
     const scalarFromMap = this.buildSchemaOptions.scalarsMap?.find(
       (item) => item.type === value,
@@ -602,7 +601,7 @@ export class SchemaBuilder {
     if (scalarFromMap) {
       gqlType = scalarFromMap;
     } else if (scalarFromRegisteredType) {
-      gqlType = scalarFromRegisteredType as GraphQLOutputType;
+      gqlType = scalarFromRegisteredType;
     } else if (value instanceof GraphQLScalarType) {
       gqlType = value;
     } else if (this.isGraphQLScalarTypeLike(value)) {
@@ -685,7 +684,7 @@ export class SchemaBuilder {
           (ctor.name ? this.types.get(ctor.name) : undefined) ??
           this.typesByConstructor.get(ctor);
         if (known) {
-          gqlType = known as GraphQLOutputType;
+          gqlType = known;
         } else {
           const typeName = ctor.name ?? String(ctor);
           const loc1 = fieldContext ? ` on field "${fieldContext}"` : "";

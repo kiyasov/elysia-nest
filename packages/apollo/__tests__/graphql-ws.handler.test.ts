@@ -347,6 +347,43 @@ describe("subscribe", () => {
     expect(socket.messages("error")).toHaveLength(1);
   });
 
+  it("returns variable coercion errors without starting the source stream", async () => {
+    const source = mock(async function* () {
+      yield 1;
+    });
+    const schema = new GraphQLSchema({
+      query: makeSchema().getQueryType(),
+      subscription: new GraphQLObjectType({
+        name: "Subscription",
+        fields: {
+          count: {
+            type: GraphQLInt,
+            args: { step: { type: GraphQLInt } },
+            subscribe: source,
+          },
+        },
+      }),
+    });
+    const { callbacks } = setup({ schema });
+    const socket = await connect(callbacks);
+
+    await callbacks.message!(socket, {
+      type: "subscribe",
+      id: "invalid-vars",
+      payload: {
+        query: "subscription($step: Int) { count(step: $step) }",
+        variables: { step: "invalid" },
+      },
+    });
+
+    expect(source).not.toHaveBeenCalled();
+    const next = socket.messages("next");
+    expect(next).toHaveLength(1);
+    expect((next[0].payload as { errors: { message: string }[] }).errors[0].message)
+      .toContain("Int");
+    expect(socket.messages("complete")).toHaveLength(1);
+  });
+
   it("sends next + complete for a finite subscription", async () => {
     async function* finite() {
       yield 1;

@@ -1,6 +1,6 @@
 # Class: SchemaBuilder
 
-Defined in: [packages/apollo/src/schema-builder.ts:63](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/schema-builder.ts#L63)
+Defined in: [packages/apollo/src/schema-builder.ts:64](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/schema-builder.ts#L64)
 
 Builds a GraphQL schema from decorator metadata stored in [typeMetadataStorage](../variables/typeMetadataStorage.md).
 Follows the code-first schema generation pattern.
@@ -13,7 +13,7 @@ Follows the code-first schema generation pattern.
 new SchemaBuilder(container, buildSchemaOptions?): SchemaBuilder;
 ```
 
-Defined in: [packages/apollo/src/schema-builder.ts:73](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/schema-builder.ts#L73)
+Defined in: [packages/apollo/src/schema-builder.ts:74](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/schema-builder.ts#L74)
 
 #### Parameters
 
@@ -34,7 +34,7 @@ Defined in: [packages/apollo/src/schema-builder.ts:73](https://github.com/nestel
 buildSchema(): GraphQLSchema;
 ```
 
-Defined in: [packages/apollo/src/schema-builder.ts:86](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/schema-builder.ts#L86)
+Defined in: [packages/apollo/src/schema-builder.ts:87](https://github.com/nestelia/nestelia/blob/main/packages/apollo/src/schema-builder.ts#L87)
 
 Builds and returns the complete GraphQL schema from registered metadata.
 Registers all object types, input types, enums, and scalars, then assembles
